@@ -2,14 +2,13 @@
 <Context antiJARLocking="true" path="/library">
     <Resource
             name="jdbc/library-app"
-            author="Container"
+            auth="Container"
             type="javax.sql.DataSource"
-            maxActive="32"
-            maxIdle="8"
-            maxWait="10000"
+            maxTotal="100"
+            maxIdle="30"
+            maxWaitMillis="10000"
             username=""
             password=""
-            driverClassName="com.mysql.cj.jdbc.Driver"
-            url="jdbc:mysql://localhost:3306/library-app"
-    />
+            driverClassName="com.mysql.jdbc.Driver"
+            url="jdbc:mysql://localhost:3306/library-app"/>
 </Context>
