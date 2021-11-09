@@ -1,46 +1,44 @@
-package com.epam.java2021.library.entity;
+package com.epam.java2021.library.entity.entityImpl;
 
-import java.io.Serializable;
+import com.epam.java2021.library.entity.EditableEntity;
+
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
-public class Author implements Serializable {
+public class Author extends EditableEntity {
     private static final long serialVersionUID = 1L;
 
-    private long id;
-    private String name;
-    private LocalDateTime created;
-    private EditRecord lastEdit;
+    private HashMap<Integer, String> names;
 
-    public long getId() {
-        return id;
+    private Author(long id, LocalDateTime created, EditRecord lastEdit, HashMap<Integer, String> names) {
+        super(id, created, lastEdit);
+        this.names = names;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public static class Builder extends EditableEntity.Builder {
+        private HashMap<Integer, String> names = new HashMap<>();
+
+        public Builder setNames(HashMap<Integer, String> names) {
+            this.names = names;
+            return this;
+        }
+
+        public Builder addName(int lang, String name) {
+            names.put(lang, name);
+            return this;
+        }
+
+        public Author build() {
+            return new Author(id, created, lastEdit, names);
+        }
     }
 
-    public String getName() {
-        return name;
+    public HashMap<Integer, String> getNames() {
+        return names;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public EditRecord getLastEdit() {
-        return lastEdit;
-    }
-
-    public void setLastEdit(EditRecord lastEdit) {
-        this.lastEdit = lastEdit;
+    public void setNames(HashMap<Integer, String> names) {
+        this.names = names;
     }
 
     @Override
@@ -48,11 +46,11 @@ public class Author implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return name.equals(author.name);
+        return names.equals(author.names);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return names.hashCode();
     }
 }

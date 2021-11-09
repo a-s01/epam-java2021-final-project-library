@@ -1,32 +1,89 @@
-package com.epam.java2021.library.entity;
+package com.epam.java2021.library.entity.entityImpl;
 
-import java.io.Serializable;
+import com.epam.java2021.library.constant.SupportedLanguages;
+import com.epam.java2021.library.entity.EditableEntity;
+
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Book implements Serializable {
+public class Book extends EditableEntity {
     private static final long serialVersionUID = 1L;
 
-    private long id;
     private String title;
     private String isbn;
     private Year year;
-    private long totalAmount;
-    private long availableAmount;
-    private long wasBookedTimes;
+    private SupportedLanguages lang;
+    private BookStat bookStat;
     private int keepPeriod; // int should be enough for keeping period, it will not be too long
-    private LocalDateTime created;
-    private EditRecord lastEdit;
     private List<Author> authors;
 
-    public long getId() {
-        return id;
+    private Book(long id, LocalDateTime created, EditRecord lastEdit, String title, String isbn, Year year, 
+                SupportedLanguages lang, BookStat bookStat, int keepPeriod, List<Author> authors) {
+        super(id, created, lastEdit);
+        this.title = title;
+        this.isbn = isbn;
+        this.year = year;
+        this.lang = lang;
+        this.bookStat = bookStat;
+        this.keepPeriod = keepPeriod;
+        this.authors = authors;
     }
+    
+    public static class Builder extends EditableEntity.Builder {
+        private String title;
+        private String isbn;
+        private Year year;
+        private SupportedLanguages lang;
+        private BookStat bookStat;
+        private int keepPeriod;
+        private List<Author> authors = new ArrayList<>();
+        
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
 
-    public void setId(long id) {
-        this.id = id;
+        public Builder setIsbn(String isbn) {
+            this.isbn = isbn;
+            return this;
+        }
+
+        public Builder setYear(Year year) {
+            this.year = year;
+            return this;
+        }
+
+        public Builder setLang(SupportedLanguages lang) {
+            this.lang = lang;
+            return this;
+        }
+
+        public Builder setBookStat(BookStat bookStat) {
+            this.bookStat = bookStat;
+            return this;
+        }
+
+        public Builder setKeepPeriod(int keepPeriod) {
+            this.keepPeriod = keepPeriod;
+            return this;
+        }
+
+        public Builder setAuthors(List<Author> authors) {
+            this.authors = authors;
+            return this;
+        }
+        
+        public Builder addAuthor(Author author) {
+            authors.add(author);
+            return this;
+        }
+        
+        public Book build() {
+            return new Book(id, created, lastEdit, title, isbn, year, lang, bookStat, keepPeriod, authors);
+        }
     }
 
     public String getTitle() {
@@ -53,28 +110,20 @@ public class Book implements Serializable {
         this.year = year;
     }
 
-    public long getTotalAmount() {
-        return totalAmount;
+    public BookStat getBookStat() {
+        return bookStat;
     }
 
-    public void setTotalAmount(long totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setBookStat(BookStat bookStat) {
+        this.bookStat = bookStat;
     }
 
-    public long getAvailableAmount() {
-        return availableAmount;
+    public List<Author> getAuthors() {
+        return authors;
     }
 
-    public void setAvailableAmount(long availableAmount) {
-        this.availableAmount = availableAmount;
-    }
-
-    public long getWasBookedTimes() {
-        return wasBookedTimes;
-    }
-
-    public void setWasBookedTimes(long wasBookedTimes) {
-        this.wasBookedTimes = wasBookedTimes;
+    public void setAuthors(List<Author> authors) {
+        this.authors = authors;
     }
 
     public int getKeepPeriod() {
@@ -84,23 +133,6 @@ public class Book implements Serializable {
     public void setKeepPeriod(int keepPeriod) {
         this.keepPeriod = keepPeriod;
     }
-
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public EditRecord getLastEdit() {
-        return lastEdit;
-    }
-
-    public void setLastEdit(EditRecord lastEdit) {
-        this.lastEdit = lastEdit;
-    }
-
 
     @Override
     public boolean equals(Object o) {

@@ -1,12 +1,12 @@
-package com.epam.java2021.library.entity;
+package com.epam.java2021.library.entity.entityImpl;
 
-import java.io.Serializable;
+import com.epam.java2021.library.entity.EditableEntity;
+
 import java.time.LocalDateTime;
 
-public class User implements Serializable {
+public class User extends EditableEntity {
     private static final long serialVersionUID = 1L;
 
-    private long id;
     private String email;
     private String password;
     private String salt;
@@ -14,22 +14,84 @@ public class User implements Serializable {
     private State state;
     private double fine;
     private String name;
-    private LocalDateTime created;
-    private EditRecord lastEdit;
 
     public enum Role {
         UNKNOWN, USER, LIBRARIAN, ADMIN
     }
     public enum State {
-        UNKNOWN, VALID, BLOCKED
+        UNKNOWN, VALID, BLOCKED, DELETED
     }
 
-    public long getId() {
-        return id;
+    /**
+     * This class also sets defaults for id, role and state. If they are not defined, default values will be applied.
+     */
+    public static class Builder extends EditableEntity.Builder {
+        private String email;
+        private String password;
+        private String salt;
+        private Role role;
+        private State state;
+        private double fine;
+        private String name;
+
+        public Builder setEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder setPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder setSalt(String salt) {
+            this.salt = salt;
+            return this;
+        }
+
+        public Builder setRole(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public Builder setState(State state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder setFine(double fine) {
+            this.fine = fine;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public User build() {
+            // set default values
+            if (role == null) {
+                role = Role.USER;
+            }
+
+            if (state == null) {
+                state = State.VALID;
+            }
+            return new User(id, created, lastEdit, email, password, salt, role, state, fine, name);
+        }
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public User(long id, LocalDateTime created, EditRecord lastEdit, String email,
+                String password, String salt, Role role, State state, double fine, String name) {
+        super(id, created, lastEdit);
+        this.email = email;
+        this.password = password;
+        this.salt = salt;
+        this.role = role;
+        this.state = state;
+        this.fine = fine;
+        this.name = name;
     }
 
     public String getEmail() {
@@ -86,22 +148,6 @@ public class User implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public EditRecord getLastEdit() {
-        return lastEdit;
-    }
-
-    public void setLastEdit(EditRecord lastEdit) {
-        this.lastEdit = lastEdit;
     }
 
     @Override

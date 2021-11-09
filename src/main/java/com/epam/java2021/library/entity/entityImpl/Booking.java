@@ -1,21 +1,71 @@
-package com.epam.java2021.library.entity;
+package com.epam.java2021.library.entity.entityImpl;
 
-import java.io.Serializable;
+import com.epam.java2021.library.entity.EditableEntity;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Booking implements Serializable {
+public class Booking extends EditableEntity {
     private static final long serialVersionUID = 1L;
 
-    private long id;
     private User user;
     private State state;
     private Place located;
-    private LocalDateTime created;
-    private EditRecord lastEdit;
     private List<Book> books;
 
+    private Booking(long id, LocalDateTime created, EditRecord lastEdit, User user, State state, Place located,
+                   List<Book> books) {
+        super(id, created, lastEdit);
+        this.user = user;
+        this.state = state;
+        this.located = located;
+        this.books = books;
+    }
+
+    public static class Builder extends EditableEntity.Builder {
+        private User user;
+        private State state;
+        private Place located;
+        private List<Book> books = new ArrayList<>();
+
+        public Builder setUser(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder setState(State state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder setLocated(Place located) {
+            this.located = located;
+            return this;
+        }
+
+        public Builder setBooks(List<Book> books) {
+            this.books = books;
+            return this;
+        }
+        
+        public Builder addBook(Book book) {
+            books.add(book);
+            return this;
+        }
+        
+        public Booking build() {
+            if (state == null) {
+                state = State.NEW;
+            }
+            if (located == null) {
+                located = Place.LIBRARY;
+            }
+            
+            return new Booking(id, created, lastEdit, user, state, located, books);
+        }
+    }
     public enum State {
         UNKNOWN, NEW, BOOKED, DELIVERED, DONE, CANCELED
     }
@@ -23,15 +73,7 @@ public class Booking implements Serializable {
     public enum Place {
         UNKNOWN, LIBRARY, USER
     }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
+    
     public User getUser() {
         return user;
     }
@@ -56,22 +98,6 @@ public class Booking implements Serializable {
         this.located = located;
     }
 
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public EditRecord getLastEdit() {
-        return lastEdit;
-    }
-
-    public void setLastEdit(EditRecord lastEdit) {
-        this.lastEdit = lastEdit;
-    }
-
     public List<Book> getBooks() {
         return books;
     }
@@ -85,11 +111,11 @@ public class Booking implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Booking booking = (Booking) o;
-        return user.equals(booking.user) && created.equals(booking.created) && books.equals(booking.books);
+        return user.equals(booking.user) && books.equals(booking.books);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, created, books);
+        return Objects.hash(user, books);
     }
 }

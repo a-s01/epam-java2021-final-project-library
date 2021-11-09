@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS book;
 DROP TABLE IF EXISTS book_stat;
 DROP TABLE IF EXISTS author_name_i18n;
 DROP TABLE IF EXISTS author;
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS lang;
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -33,23 +33,23 @@ SET FOREIGN_KEY_CHECKS=1;
 -- TABLE language --
 CREATE TABLE lang (
 	PRIMARY KEY (id),
-    id			INT UNSIGNED	NOT NULL,
+    id			INT UNSIGNED	NOT NULL	AUTO_INCREMENT,
     short_name 	VARCHAR(2)		NOT NULL	-- ISO 639-1 code
 );
 
 -- TABLE user --
--- instead of role table ENUM inside users table is used to better aligns with java code. 
+-- instead of role table ENUM inside user table is used to better aligns with java code. 
 -- Role must be not null and '' means UNKNOWN role.
 -- User with fine > 0 cannot create a new booking
 -- User with fine > 0 cannot be deleted
 -- User holding book (their booking state = 'delivered') cannot be deleted
 -- If user is deleted, all their booking in state 'new' are canceled 
-CREATE TABLE users (
+CREATE TABLE user (
 	PRIMARY KEY (id),
 	id				INT	UNSIGNED						NOT NULL	AUTO_INCREMENT,
     email			VARCHAR(50) 						NOT NULL,
 					UNIQUE INDEX (email),
-					CONSTRAINT valid_users_email
+					CONSTRAINT valid_user_email
                         CHECK (email RLIKE '^[[:alnum:]]+@[[:alnum:]\\.]+\\.[[:alpha:]]{2,6}$'), -- TODO should be checked and updated (add utf8 support)
 	password		CHAR(128)							NOT NULL,
     salt			CHAR(50)							NOT NULL,
@@ -57,23 +57,23 @@ CREATE TABLE users (
 																	-- for column. DON'T put 'admin' first!
     state			ENUM('valid', 'blocked', 'deleted')	NOT NULL,
     fine			DECIMAL(9,2)				NOT NULL	DEFAULT (0),
-					CONSTRAINT fine_should_be_positive
+					CONSTRAINT
 						CHECK (fine >= 0),
     name			VARCHAR(50),
     created			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP,
     last_edit_id	INT UNSIGNED
 )
-AUTO_INCREMENT = 100; -- reserved space for system users
+AUTO_INCREMENT = 100; -- reserved space for system user
 
 -- TABLE editing_history --
--- all edits made by users will be added here, the last edit will be saved in edit subject as reference
+-- all edits made by user will be added here, the last edit will be saved in edit subject as reference
 CREATE TABLE editing_history (
 	PRIMARY KEY (id),
 	id			INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
 	created		DATETIME					NOT NULL	DEFAULT CURRENT_TIMESTAMP,
     edit_by		INT UNSIGNED,
 				FOREIGN KEY (edit_by)
-					REFERENCES users (id)
+					REFERENCES user (id)
 					ON DELETE RESTRICT			
 					ON UPDATE CASCADE,
     description	VARCHAR(200)				NOT NULL,   -- description of change, app must fill it in automatically. 
@@ -81,7 +81,7 @@ CREATE TABLE editing_history (
 	remark		VARCHAR(500)							-- field for user comment
 );
 
-ALTER TABLE users
+ALTER TABLE user
     ADD CONSTRAINT `fk_last_edit_id`
 			FOREIGN KEY (last_edit_id)
 			REFERENCES editing_history (id)
@@ -148,14 +148,14 @@ CREATE TABLE book_stat (
                             REFERENCES book (id)
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-	total_amount		INT UNSIGNED			NOT NULL,	-- how many books library has in total, including available and not available for booking
-						INDEX (total_amount),
+	total				INT UNSIGNED			NOT NULL,	-- how many books library has in total, including available and not available for booking
+						INDEX (total),
                         CONSTRAINT
-							CHECK (total_amount > 0),
-	in_stock			INT UNSIGNED			NOT NULL	DEFAULT (total_amount), 	-- how many book are in the library
+							CHECK (total > 0),
+	in_stock			INT UNSIGNED			NOT NULL	DEFAULT (total), 	-- how many book are in the library
 						CONSTRAINT
-							CHECK (in_stock <= total_amount),
-	reserved			INT UNSIGNED			NOT NULL 	DEFAULT (0),				-- how many books are reserved by users (in state booked)
+							CHECK (in_stock <= total),
+	reserved			INT UNSIGNED			NOT NULL 	DEFAULT (0),				-- how many books are reserved by user (in state booked)
 						CONSTRAINT
 							CHECK (reserved <= in_stock),
     times_was_booked	INT UNSIGNED			NOT NULL	DEFAULT (0)  				-- how many times book was booked and this booking was in state 'delivered'
@@ -190,7 +190,7 @@ CREATE TABLE booking (
 	id				INT UNSIGNED		NOT NULL	AUTO_INCREMENT,
     user_id 		INT UNSIGNED		NOT NULL,
 					FOREIGN KEY (user_id)
-						REFERENCES users (id)
+						REFERENCES user (id)
 						ON DELETE CASCADE
 						ON UPDATE CASCADE,
     state			ENUM('new', 'booked', 'delivered','done','canceled') NOT NULL,
@@ -220,3 +220,8 @@ CREATE TABLE book_in_booking (
 					ON UPDATE CASCADE,
 	keep_period	INT UNSIGNED			-- if null then default time from books table should be applied by application
 );
+
+-- DEFAULT VALUES --
+-- LANG --
+INSERT INTO lang VALUES (DEFAULT, 'en');
+INSERT INTO lang VALUES (DEFAULT, 'ru');
