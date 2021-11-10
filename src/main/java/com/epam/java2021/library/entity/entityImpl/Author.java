@@ -2,7 +2,7 @@ package com.epam.java2021.library.entity.entityImpl;
 
 import com.epam.java2021.library.entity.EditableEntity;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.HashMap;
 
 public class Author extends EditableEntity {
@@ -10,7 +10,7 @@ public class Author extends EditableEntity {
 
     private HashMap<Integer, String> names;
 
-    private Author(long id, LocalDateTime created, EditRecord lastEdit, HashMap<Integer, String> names) {
+    private Author(long id, Date created, EditRecord lastEdit, HashMap<Integer, String> names) {
         super(id, created, lastEdit);
         this.names = names;
     }

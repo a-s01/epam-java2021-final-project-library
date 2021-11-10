@@ -1,4 +1,4 @@
-package com.epam.java2021.library.dao;
+package com.epam.java2021.library.exception;
 
 import java.sql.SQLException;
 

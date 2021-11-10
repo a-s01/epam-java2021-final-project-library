@@ -2,8 +2,8 @@ package com.epam.java2021.library.entity.entityImpl;
 
 import com.epam.java2021.library.entity.Entity;
 
-import java.time.LocalDateTime;
-
+import java.sql.Date;
+// TODO ок ли возвращать юзер айди вместо юзера здесь?
 public class EditRecord extends Entity {
     private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,7 @@ public class EditRecord extends Entity {
     private String description;
     private String remark;
 
-    public EditRecord(long id, LocalDateTime created, long editBy, String description, String remark) {
+    public EditRecord(long id, Date created, long editBy, String description, String remark) {
         super(id, created);
         this.editBy = editBy;
         this.description = description;

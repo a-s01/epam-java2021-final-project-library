@@ -2,7 +2,7 @@ package com.epam.java2021.library.entity.entityImpl;
 
 import com.epam.java2021.library.entity.EditableEntity;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 public class User extends EditableEntity {
     private static final long serialVersionUID = 1L;
@@ -82,7 +82,7 @@ public class User extends EditableEntity {
         }
     }
 
-    public User(long id, LocalDateTime created, EditRecord lastEdit, String email,
+    public User(long id, Date created, EditRecord lastEdit, String email,
                 String password, String salt, Role role, State state, double fine, String name) {
         super(id, created, lastEdit);
         this.email = email;
@@ -161,5 +161,21 @@ public class User extends EditableEntity {
     @Override
     public int hashCode() {
         return email.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "lastEdit=" + lastEdit +
+                ", id=" + id +
+                ", created=" + created +
+                ", email='" + email + '\'' +
+                ", password='hidden'" +
+                ", salt='hidden'" +
+                ", role=" + role +
+                ", state=" + state +
+                ", fine=" + fine +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

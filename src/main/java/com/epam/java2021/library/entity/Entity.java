@@ -1,26 +1,26 @@
 package com.epam.java2021.library.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 public abstract class Entity implements Serializable {
     protected long id;
-    protected LocalDateTime created;
+    protected Date created;
 
-    protected Entity(long id, LocalDateTime created) {
+    protected Entity(long id, Date created) {
         this.id = id;
         this.created = created;
     }
 
     protected static class Builder {
         protected long id = -1;
-        protected LocalDateTime created;
+        protected Date created;
 
         public void setId(long id) {
             this.id = id;
         }
 
-        public void setCreated(LocalDateTime created) {
+        public void setCreated(Date created) {
             this.created = created;
         }
     }
@@ -32,11 +32,11 @@ public abstract class Entity implements Serializable {
         this.id = id;
     }
 
-    public LocalDateTime getCreated() {
+    public Date getCreated() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(Date created) {
         this.created = created;
     }
 }

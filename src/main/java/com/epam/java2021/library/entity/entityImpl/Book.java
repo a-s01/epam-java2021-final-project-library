@@ -3,7 +3,7 @@ package com.epam.java2021.library.entity.entityImpl;
 import com.epam.java2021.library.constant.SupportedLanguages;
 import com.epam.java2021.library.entity.EditableEntity;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,8 @@ public class Book extends EditableEntity {
     private int keepPeriod; // int should be enough for keeping period, it will not be too long
     private List<Author> authors;
 
-    private Book(long id, LocalDateTime created, EditRecord lastEdit, String title, String isbn, Year year, 
-                SupportedLanguages lang, BookStat bookStat, int keepPeriod, List<Author> authors) {
+    private Book(long id, Date created, EditRecord lastEdit, String title, String isbn, Year year,
+                 SupportedLanguages lang, BookStat bookStat, int keepPeriod, List<Author> authors) {
         super(id, created, lastEdit);
         this.title = title;
         this.isbn = isbn;

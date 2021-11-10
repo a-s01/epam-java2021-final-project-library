@@ -2,7 +2,7 @@ package com.epam.java2021.library.entity.entityImpl;
 
 import com.epam.java2021.library.entity.EditableEntity;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +15,8 @@ public class Booking extends EditableEntity {
     private Place located;
     private List<Book> books;
 
-    private Booking(long id, LocalDateTime created, EditRecord lastEdit, User user, State state, Place located,
-                   List<Book> books) {
+    private Booking(long id, Date created, EditRecord lastEdit, User user, State state, Place located,
+                    List<Book> books) {
         super(id, created, lastEdit);
         this.user = user;
         this.state = state;

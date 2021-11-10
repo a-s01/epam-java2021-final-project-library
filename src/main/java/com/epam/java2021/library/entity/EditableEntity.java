@@ -2,12 +2,12 @@ package com.epam.java2021.library.entity;
 
 import com.epam.java2021.library.entity.entityImpl.EditRecord;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 public abstract class EditableEntity extends Entity {
     protected EditRecord lastEdit;
 
-    protected EditableEntity(long id, LocalDateTime created, EditRecord lastEdit) {
+    protected EditableEntity(long id, Date created, EditRecord lastEdit) {
         super(id, created);
         this.lastEdit = lastEdit;
     }

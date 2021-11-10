@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao;
 
 import com.epam.java2021.library.entity.entityImpl.Author;
+import com.epam.java2021.library.exception.DaoException;
 
 import java.util.List;
 

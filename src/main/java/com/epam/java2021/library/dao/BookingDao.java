@@ -2,6 +2,7 @@ package com.epam.java2021.library.dao;
 
 import com.epam.java2021.library.entity.entityImpl.Booking;
 import com.epam.java2021.library.entity.entityImpl.User;
+import com.epam.java2021.library.exception.DaoException;
 
 import java.util.List;
 
