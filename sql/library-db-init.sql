@@ -92,6 +92,7 @@ ALTER TABLE user
 CREATE TABLE author (
 	PRIMARY KEY (id),
 	id				INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
+    default_name	VARCHAR(50)					NOT NULL, 
     created			DATETIME					NOT NULL	DEFAULT CURRENT_TIMESTAMP,
     last_edit_id	INT UNSIGNED,
 					FOREIGN KEY (last_edit_id)
