@@ -6,11 +6,11 @@ import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.daoImpl.mysql.EditRecordDao;
 import com.epam.java2021.library.dao.daoImpl.mysql.UserDaoImpl;
-import com.epam.java2021.library.dao.factory.IDaoFactory;
+import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
 
 import java.sql.Connection;
 
-public class MySQLDaoFactory implements IDaoFactory {
+public class MySQLDaoFactory implements IDaoFactoryImpl {
 
     @Override
     public UserDao getUserDao(Connection conn) {

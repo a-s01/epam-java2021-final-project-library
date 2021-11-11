@@ -7,9 +7,9 @@ SET @DEFAULT_KEEP_PERIOD = 14;
 
 -- ---------------------------------------------
 -- SCHEMA --
--- DROP SCHEMA IF EXISTS `library-app`;
-CREATE SCHEMA IF NOT EXISTS `library-app` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `library-app`;
+-- DROP SCHEMA IF EXISTS `library-app-testdb`;
+CREATE SCHEMA IF NOT EXISTS `library-app-testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `library-app-testdb`;
 
 -- ---------------------------------------------
 -- DROP ALL TABLES --

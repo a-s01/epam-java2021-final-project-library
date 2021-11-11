@@ -1,12 +1,11 @@
 package com.epam.java2021.library.dao.daoImpl.mysql;
 
-import com.epam.java2021.library.dao.factory.IDaoFactory;
+import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
 import com.epam.java2021.library.dao.factory.factoryImpl.db.MySQLDaoFactory;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.entity.entityImpl.EditRecord;
 import com.epam.java2021.library.entity.entityImpl.User;
-import com.epam.java2021.library.service.util.MySQLUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,8 +13,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.java2021.library.dao.daoImpl.mysql.DaoImpl.escapeForLike;
+
 public class UserDaoImpl22 implements UserDao {
-    private static final IDaoFactory daoFactory = new MySQLDaoFactory();
+    private static final IDaoFactoryImpl daoFactory = new MySQLDaoFactory();
     private final Connection conn;
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
     private static final int START = 1;
@@ -170,7 +171,7 @@ public class UserDaoImpl22 implements UserDao {
     public List<User> findByEmailPattern(String emailPattern) throws DaoException {
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(SQLQuery.FIND_BY_EMAIL_PATTERN)) {
-            ps.setString(START, MySQLUtil.escapeForLike(emailPattern));
+            ps.setString(START, escapeForLike(emailPattern));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     users.add(parse(rs));

@@ -27,7 +27,8 @@ public class DaoImpl<T extends Entity> {
     }
 
     public static String escapeForLike(String param) {
-        return param.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![");
+        String result = param.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![");
+        return "%" + result + "%";
     }
 
     public void create(T entity, Logger logger, String query, StatementFiller<T> filler) throws DaoException {
@@ -49,15 +50,19 @@ public class DaoImpl<T extends Entity> {
     }
 
     public T read(long id, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("Read request: id = " + id + ", " + query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, id);
             try (ResultSet rs = ps.executeQuery()) {
-                return parser.accept(rs);
+                if (rs.next()) {
+                    return parser.accept(rs);
+                }
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
             throw new DaoException("Errors in reading " + entityName + " by id " + id, e);
         }
+        return null;
     }
 
     public void update(T entity, Logger logger, String query, StatementFiller<T> filler) throws DaoException {
@@ -74,6 +79,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public void delete(T entity, Logger logger, String query) throws DaoException {
+        logger.trace(entity);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, entity.getId());
             if (ps.executeUpdate() > 0) {
@@ -86,6 +92,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public List<T> getRecords(int page, int amount, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("getRecord request: page = " + page + ", amount = " + amount + ", " + query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             int i = START;
@@ -103,19 +110,25 @@ public class DaoImpl<T extends Entity> {
         return list;
     }
 
-    public T findByString(String lookUp, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+    public T findByUniqueString(String lookUp, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("findByString request: key = " + lookUp + ", " + query);
+        T result = null;
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, lookUp);
             try (ResultSet rs = ps.executeQuery()) {
-                return parser.accept(rs);
+                if (rs.next()) {
+                    result = parser.accept(rs);
+                }
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
             throw new DaoException("Errors in finding " + entityName + " by " + lookUp, e);
         }
+        return result;
     }
 
     public List<T> findByPattern(String pattern, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("findByPattern request: pattern = " + pattern + ", " + query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, escapeForLike(pattern));

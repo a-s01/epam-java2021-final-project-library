@@ -24,5 +24,8 @@
       <AppenderRef ref="STDOUT"/>
       <AppenderRef ref="File" />
     </Root>
+    <Logger name="TEST" level="trace">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
   </Loggers>
 </Configuration>

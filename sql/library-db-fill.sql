@@ -1,11 +1,12 @@
 -- Fill DB with test values --
+-- USE `library-app-testdb`;
+USE `library-app`;
+
 -- user --
 INSERT INTO user VALUES (1, 'admin@gmail.com', 'qwerty1', '12345678', 'admin', DEFAULT, DEFAULT, 'admin', DEFAULT, NULL);
 INSERT INTO user VALUES (2, 'librarian@gmail.com', 'qwerty1', '12345678', 'librarian', DEFAULT, DEFAULT, 'librarian', DEFAULT, NULL);
 INSERT INTO user VALUES (3, 'user@gmail.com', 'qwerty1', '12345678', 'user', DEFAULT, DEFAULT, 'користувач', DEFAULT, NULL);
 INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', 'qwerty1', '12345678', DEFAULT, DEFAULT, DEFAULT, 'user test', DEFAULT, NULL);
-
-
 
 -- BOOK & BOOK_STAT --
 INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 2, @DEFAULT_KEEP_PERIOD, DEFAULT, NULL);

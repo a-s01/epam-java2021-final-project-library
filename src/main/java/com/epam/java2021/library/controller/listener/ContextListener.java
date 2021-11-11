@@ -1,9 +1,7 @@
 package com.epam.java2021.library.controller.listener;
 
-import com.epam.java2021.library.dao.factory.DaoFactory;
-import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
-import com.epam.java2021.library.dao.factory.IDaoFactory;
-import com.epam.java2021.library.service.DBManager;
+import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
+import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,19 +20,20 @@ public class ContextListener implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent event) {
+        ServletContext servletContext = event.getServletContext();
         try {
-            ServletContext servletContext = event.getServletContext();
             Context initContext = new InitialContext();
             Context envContext  = (Context)initContext.lookup("java:/comp/env");
             DataSource ds = (DataSource) envContext.lookup("jdbc/library-app");
-            DBManager dbManager = DBManager.getInstance(ds);
-            servletContext.setAttribute("dbManager", dbManager);
+            servletContext.setAttribute("ds", ds);
             logger.info("DataSource initialized");
-            IDaoFactory daoFactory = DaoFactory.getDefaultFactory().getDefaultImpl();
-            servletContext.setAttribute("daoFactory", daoFactory);
         } catch (NamingException e) {
             logger.error("Unable to get DB connection pool: " + e.getMessage());
         }
+
+        IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+        servletContext.setAttribute("daoFactory", daoFactory);
+        logger.info("DaoFactory initialized");
     }
 
     @Override
