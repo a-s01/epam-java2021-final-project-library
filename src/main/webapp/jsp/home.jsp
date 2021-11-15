@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="/WEB-INF/jspf/header.jspf" %>
+<%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 <c:if test="${not empty user}">
-    <div class="container">${user.email}</div>
+    <div class="container">Hello, <c:out value="${user.email}"/>!</div>
 </c:if>
 <div class="container">
     <form action="/findBook">

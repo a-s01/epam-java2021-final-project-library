@@ -38,4 +38,27 @@ public class TestUser {
         User user = builder.build();
         Assert.assertEquals(user.getRole(), User.Role.UNKNOWN);
     }
+
+    @Test
+    public void testBuilderBuildUserRoleOfString() {
+        User.Builder builder = new User.Builder().setRole("ADMIN");
+        User user = builder.build();
+        Assert.assertEquals(user.getRole(), User.Role.ADMIN);
+    }
+
+    @Test
+    public void testBuilderBuildUserRoleOfNullString() {
+        String role = null;
+        User.Builder builder = new User.Builder().setRole(role);
+        User user = builder.build();
+        Assert.assertEquals(user.getRole(), User.Role.USER);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilderBuildUserRoleOfStringNonARoleName() {
+        String role = "kasdfk";
+        User.Builder builder = new User.Builder().setRole(role);
+        User user = builder.build();
+        Assert.assertEquals(user.getRole(), User.Role.UNKNOWN);
+    }
 }

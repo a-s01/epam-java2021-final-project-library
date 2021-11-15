@@ -54,6 +54,13 @@ public class User extends EditableEntity {
             return this;
         }
 
+        public Builder setRole(String role) {
+            if (role != null) {
+                this.role = Role.valueOf(role);
+            }
+            return this;
+        }
+
         public Builder setState(State state) {
             this.state = state;
             return this;

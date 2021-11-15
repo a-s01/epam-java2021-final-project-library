@@ -14,13 +14,11 @@ import java.util.List;
 
 public class UserDaoImpl implements UserDao {
     private static final IDaoFactoryImpl daoFactory = new MySQLDaoFactory();
-    private Connection conn;
     private DaoImpl<User> daoImpl;
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
     private static final int START = 1;
 
     public void setConnection (Connection conn) {
-        this.conn = conn;
         daoImpl = new DaoImpl<>(conn, logger, "user");
     }
 
