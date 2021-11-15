@@ -1,7 +1,7 @@
 package com.epam.java2021.library.dao.daoImpl.mysql;
 
-import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
+import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.testutil.DBManager;
 import com.epam.java2021.library.entity.entityImpl.User;
 import com.epam.java2021.library.exception.DaoException;
@@ -39,7 +39,7 @@ public class TestUserDaoImpl {
         } catch (SQLException e) {
             logger.fatal("Cannot obtain database connection: " + e.getMessage());
         }
-        userDao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getUserDao(conn);
+        userDao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getUserDao();
 
         User.Builder builder = new User.Builder();
         builder.setEmail(EMAIL);

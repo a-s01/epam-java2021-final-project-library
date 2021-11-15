@@ -7,7 +7,7 @@ public class DaoException extends Exception {
         super(msg);
     }
 
-    public DaoException(String msg, SQLException cause) {
+    public DaoException(String msg, Exception cause) {
         super(msg, cause);
     }
 }

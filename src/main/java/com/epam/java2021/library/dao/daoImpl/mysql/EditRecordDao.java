@@ -15,12 +15,10 @@ import java.util.List;
 public class EditRecordDao implements AbstractDao<EditRecord> {
     private static final Logger logger = LogManager.getLogger(EditRecordDao.class);
     private static final int START = 1;
-    private final DaoImpl<EditRecord> daoImpl;
-    private final Connection conn;
+    private DaoImpl<EditRecord> daoImpl;
 
-    public EditRecordDao(Connection conn) {
-        this.conn = conn;
-        daoImpl = new DaoImpl<>(conn, "edit record");
+    public void setConnection(Connection conn) {
+        daoImpl = new DaoImpl<>(conn, logger, "edit record");
     }
 
     private static class SQLQuery {
@@ -33,7 +31,7 @@ public class EditRecordDao implements AbstractDao<EditRecord> {
 
     @Override
     public void create(EditRecord record) throws DaoException {
-        daoImpl.create(record, logger, SQLQuery.CREATE, this::fillStatement);
+        daoImpl.create(record, SQLQuery.CREATE, this::fillStatement);
     }
 
     private void fillStatement(EditRecord record, PreparedStatement ps) throws SQLException {
@@ -45,7 +43,7 @@ public class EditRecordDao implements AbstractDao<EditRecord> {
 
     @Override
     public EditRecord read(long id) throws DaoException {
-        return daoImpl.read(id, logger, SQLQuery.READ, this::parse);
+        return daoImpl.read(id, SQLQuery.READ, this::parse);
     }
 
     private EditRecord parse(ResultSet rs) throws SQLException {
@@ -60,17 +58,17 @@ public class EditRecordDao implements AbstractDao<EditRecord> {
 
     @Override
     public void update(EditRecord entity) throws DaoException {
-        daoImpl.update(entity, logger, SQLQuery.UPDATE, this::fillStatement);
+        daoImpl.update(entity, SQLQuery.UPDATE, this::fillStatement);
     }
 
     @Override
     public void delete(EditRecord entity) throws DaoException {
-        //daoImpl.delete(entity, logger, SQLQuery.DELETE);
+        //daoImpl.delete(entity, SQLQuery.DELETE);
         throw new DaoException("Deleting for edit records isn't supported by a intention");
     }
 
     @Override
     public List<EditRecord> getRecords(int page, int amount) throws DaoException {
-        return daoImpl.getRecords(page, amount, logger, SQLQuery.SELECT, this::parse);
+        return daoImpl.getRecords(page, amount, SQLQuery.SELECT, this::parse);
     }
 }

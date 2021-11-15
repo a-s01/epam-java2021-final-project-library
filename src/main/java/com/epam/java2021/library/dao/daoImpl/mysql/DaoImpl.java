@@ -12,9 +12,11 @@ public class DaoImpl<T extends Entity> {
     private static final int START = 1;
     private final Connection conn;
     private final String entityName;
+    private final Logger logger;
 
-    public DaoImpl(Connection conn, String entityName) {
+    public DaoImpl(Connection conn, Logger logger, String entityName) {
         this.conn = conn;
+        this.logger = logger;
         this.entityName = entityName;
     }
 
@@ -31,7 +33,7 @@ public class DaoImpl<T extends Entity> {
         return "%" + result + "%";
     }
 
-    public void create(T entity, Logger logger, String query, StatementFiller<T> filler) throws DaoException {
+    public void create(T entity, String query, StatementFiller<T> filler) throws DaoException {
         logger.trace(entity);
         try(PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             filler.accept(entity, ps);
@@ -49,7 +51,7 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
-    public T read(long id, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+    public T read(long id, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("Read request: id = " + id + ", " + query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, id);
@@ -65,7 +67,7 @@ public class DaoImpl<T extends Entity> {
         return null;
     }
 
-    public void update(T entity, Logger logger, String query, StatementFiller<T> filler) throws DaoException {
+    public void update(T entity, String query, StatementFiller<T> filler) throws DaoException {
         logger.trace(entity);
         try(PreparedStatement ps = conn.prepareStatement(query)) {
             filler.accept(entity, ps);
@@ -78,7 +80,7 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
-    public void delete(T entity, Logger logger, String query) throws DaoException {
+    public void delete(T entity, String query) throws DaoException {
         logger.trace(entity);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, entity.getId());
@@ -91,7 +93,7 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
-    public List<T> getRecords(int page, int amount, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+    public List<T> getRecords(int page, int amount, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("getRecord request: page = " + page + ", amount = " + amount + ", " + query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -110,7 +112,7 @@ public class DaoImpl<T extends Entity> {
         return list;
     }
 
-    public T findByUniqueString(String lookUp, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+    public T findByUniqueString(String lookUp, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("findByString request: key = " + lookUp + ", " + query);
         T result = null;
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -127,7 +129,7 @@ public class DaoImpl<T extends Entity> {
         return result;
     }
 
-    public List<T> findByPattern(String pattern, Logger logger, String query, EntityParser<T> parser) throws DaoException {
+    public List<T> findByPattern(String pattern, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("findByPattern request: pattern = " + pattern + ", " + query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {

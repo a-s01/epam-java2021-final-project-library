@@ -13,27 +13,27 @@ import java.sql.Connection;
 public class MySQLDaoFactory implements IDaoFactoryImpl {
 
     @Override
-    public UserDao getUserDao(Connection conn) {
-        return new UserDaoImpl(conn);
+    public UserDao getUserDao() {
+        return new UserDaoImpl();
     }
 
     @Override
-    public BookingDao getBookingDao(Connection conn) {
+    public BookingDao getBookingDao() {
         return null;
     }
 
     @Override
-    public BookDao getBookDao(Connection conn) {
+    public BookDao getBookDao() {
         return null;
     }
 
     @Override
-    public AuthorDao getAuthorDao(Connection conn) {
+    public AuthorDao getAuthorDao() {
         return null;
     }
 
     @Override
-    public EditRecordDao getEditRecordDao(Connection conn) {
-        return new EditRecordDao(conn);
+    public EditRecordDao getEditRecordDao() {
+        return new EditRecordDao();
     }
 }
