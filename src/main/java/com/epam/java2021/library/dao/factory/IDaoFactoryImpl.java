@@ -1,10 +1,8 @@
 package com.epam.java2021.library.dao.factory;
 
-import com.epam.java2021.library.dao.AuthorDao;
-import com.epam.java2021.library.dao.BookDao;
-import com.epam.java2021.library.dao.BookingDao;
-import com.epam.java2021.library.dao.UserDao;
+import com.epam.java2021.library.dao.*;
 import com.epam.java2021.library.dao.daoImpl.mysql.EditRecordDao;
+import com.epam.java2021.library.entity.entityImpl.*;
 
 public interface IDaoFactoryImpl {
     UserDao getUserDao();
@@ -12,5 +10,7 @@ public interface IDaoFactoryImpl {
     BookDao getBookDao();
     AuthorDao getAuthorDao();
     EditRecordDao getEditRecordDao();
-    //AbstractDao<BookStat> getBookStatDao();
+    AbstractDao<Language> getLangDao();
+    AbstractDao<BookStat> getBookStatDao();
+    AuthorNamesDao getAuthorNamesDao();
 }

@@ -1,10 +1,11 @@
 package com.epam.java2021.library.entity.entityImpl;
 
+import com.epam.java2021.library.entity.CreatableEntity;
 import com.epam.java2021.library.entity.Entity;
 
 import java.sql.Date;
 // TODO ок ли возвращать юзер айди вместо юзера здесь?
-public class EditRecord extends Entity {
+public class EditRecord extends CreatableEntity {
     private static final long serialVersionUID = 1L;
 
     private long editBy;
@@ -18,7 +19,7 @@ public class EditRecord extends Entity {
         this.remark = remark;
     }
 
-    public static class Builder extends Entity.Builder {
+    public static class Builder extends CreatableEntity.Builder {
         private long editBy;
         private String description;
         private String remark;

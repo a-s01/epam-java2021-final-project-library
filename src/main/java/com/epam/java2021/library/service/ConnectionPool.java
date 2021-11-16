@@ -1,4 +1,4 @@
-package com.epam.java2021.library.dao;
+package com.epam.java2021.library.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

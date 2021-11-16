@@ -34,7 +34,7 @@ SET FOREIGN_KEY_CHECKS=1;
 CREATE TABLE lang (
 	PRIMARY KEY (id),
     id			INT UNSIGNED	NOT NULL	AUTO_INCREMENT,
-    short_name 	VARCHAR(2)		NOT NULL	-- ISO 639-1 code
+    code	 	VARCHAR(2)		NOT NULL	-- ISO 639-1 code
 );
 
 -- TABLE user --
@@ -127,7 +127,7 @@ CREATE TABLE book (
 						UNIQUE INDEX (title),
     isbn				VARCHAR(17)				NOT NULL, 	-- 13 digits + 4 '-'
 						UNIQUE INDEX (isbn),
-    publication_year	YEAR					NOT NULL,
+    year				YEAR					NOT NULL,
     lang_id				INT UNSIGNED			NOT NULL,
 						FOREIGN KEY (lang_id)
                             REFERENCES lang (id)

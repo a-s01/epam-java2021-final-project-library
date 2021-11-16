@@ -35,10 +35,6 @@
     <res-auth>Container</res-auth>
   </resource-ref>
 
-  <listener>
-    <listener-class>com.epam.java2021.library.controller.listener.ContextListener</listener-class>
-  </listener>
-
   <error-page>
     <error-code>404</error-code>
     <location>/jsp/error/error404.jsp</location>

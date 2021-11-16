@@ -2,6 +2,7 @@ package com.epam.java2021.library.dao.daoImpl.mysql;
 
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.UserDao;
+import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.testutil.DBManager;
 import com.epam.java2021.library.entity.entityImpl.User;
 import com.epam.java2021.library.exception.DaoException;
@@ -55,7 +56,7 @@ public class TestUserDaoImpl {
     }
 
     @Test(expected = DaoException.class)
-    public void testCreateShouldThrowException() throws DaoException {
+    public void testCreateShouldThrowException() throws DaoException, ServiceException {
         User.Builder builder = new User.Builder();
         User user = builder.build();
         userDao.create(user);
@@ -67,19 +68,19 @@ public class TestUserDaoImpl {
     }
     
     @Test
-    public void testCreateShouldCreateNewUserInDB() throws DaoException, SQLException {
+    public void testCreateShouldCreateNewUserInDB() throws DaoException, SQLException, ServiceException {
         userDao.create(user);
         Assert.assertTrue(dbManager.read(conn, TABLE, EMAIL_COLUMN, user.getEmail()));
     }
 
     @Test
-    public void testCreateShouldSetUserID() throws DaoException {
+    public void testCreateShouldSetUserID() throws DaoException, ServiceException {
         userDao.create(user);
         Assert.assertNotEquals(-1, user.getId());
     }
 
     @Test
-    public void testUpdateUserName() throws DaoException, SQLException {
+    public void testUpdateUserName() throws DaoException, SQLException, ServiceException {
         final String name = "test";
         userDao.create(user);
         user.setName(name);
@@ -88,14 +89,14 @@ public class TestUserDaoImpl {
     }
 
     @Test
-    public void testReadUser() throws SQLException, DaoException {
+    public void testReadUser() throws SQLException, DaoException, ServiceException {
         dbManager.execute(conn, CREATE_USER);
         User test = userDao.read(ID);
         Assert.assertEquals(test, user);
     }
 
     @Test
-    public void testDeleteUser() throws DaoException, SQLException {
+    public void testDeleteUser() throws DaoException, SQLException, ServiceException {
         userDao.delete(user);
         Assert.assertFalse(dbManager.read(conn, TABLE, EMAIL_COLUMN, user.getEmail()));
     }

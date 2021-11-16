@@ -14,7 +14,6 @@ import java.util.List;
 
 public class EditRecordDao implements AbstractDao<EditRecord> {
     private static final Logger logger = LogManager.getLogger(EditRecordDao.class);
-    private static final int START = 1;
     private DaoImpl<EditRecord> daoImpl;
 
     public void setConnection(Connection conn) {
@@ -35,7 +34,7 @@ public class EditRecordDao implements AbstractDao<EditRecord> {
     }
 
     private void fillStatement(EditRecord record, PreparedStatement ps) throws SQLException {
-        int i = START;
+        int i = daoImpl.START;
         ps.setLong(i++, record.getEditBy());
         ps.setString(i++, record.getDescription());
         ps.setString(i++, record.getRemark());
@@ -63,11 +62,9 @@ public class EditRecordDao implements AbstractDao<EditRecord> {
 
     @Override
     public void delete(EditRecord entity) throws DaoException {
-        //daoImpl.delete(entity, SQLQuery.DELETE);
-        throw new DaoException("Deleting for edit records isn't supported by a intention");
+        throw new UnsupportedOperationException("Deleting for edit records isn't supported by a intention");
     }
 
-    @Override
     public List<EditRecord> getRecords(int page, int amount) throws DaoException {
         return daoImpl.getRecords(page, amount, SQLQuery.SELECT, this::parse);
     }

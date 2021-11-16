@@ -8,37 +8,32 @@ import java.util.HashMap;
 public class Author extends EditableEntity {
     private static final long serialVersionUID = 1L;
 
-    private HashMap<Integer, String> names;
+    private String name;
 
-    private Author(long id, Date created, EditRecord lastEdit, HashMap<Integer, String> names) {
+    private Author(long id, Date created, EditRecord lastEdit, String name) {
         super(id, created, lastEdit);
-        this.names = names;
+        this.name = name;
     }
 
     public static class Builder extends EditableEntity.Builder {
-        private HashMap<Integer, String> names = new HashMap<>();
+        private String name;
 
-        public Builder setNames(HashMap<Integer, String> names) {
-            this.names = names;
-            return this;
-        }
-
-        public Builder addName(int lang, String name) {
-            names.put(lang, name);
+        public Builder setName(String name) {
+            this.name = name;
             return this;
         }
 
         public Author build() {
-            return new Author(id, created, lastEdit, names);
+            return new Author(id, created, lastEdit, name);
         }
     }
 
-    public HashMap<Integer, String> getNames() {
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(HashMap<Integer, String> names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -46,11 +41,21 @@ public class Author extends EditableEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return names.equals(author.names);
+        return name.equals(author.name);
     }
 
     @Override
     public int hashCode() {
-        return names.hashCode();
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "lastEdit=" + lastEdit +
+                ", id=" + id +
+                ", created=" + created +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

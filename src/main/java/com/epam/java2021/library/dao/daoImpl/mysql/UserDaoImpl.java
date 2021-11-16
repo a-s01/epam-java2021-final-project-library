@@ -1,7 +1,6 @@
 package com.epam.java2021.library.dao.daoImpl.mysql;
 
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.dao.factory.factoryImpl.db.MySQLDaoFactory;
+import com.epam.java2021.library.service.DependencyHolder;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.entity.entityImpl.EditRecord;
 import com.epam.java2021.library.entity.entityImpl.User;
@@ -13,13 +12,23 @@ import java.sql.*;
 import java.util.List;
 
 public class UserDaoImpl implements UserDao {
-    private static final IDaoFactoryImpl daoFactory = new MySQLDaoFactory();
     private DaoImpl<User> daoImpl;
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
-    private static final int START = 1;
+    private final DependencyHolder<User> holder = new DependencyHolder<>();
 
     public void setConnection (Connection conn) {
         daoImpl = new DaoImpl<>(conn, logger, "user");
+    }
+
+    @Override
+    public DependencyHolder<User> getDependencies() {
+        return holder;
+    }
+
+    @Override
+    public void setLastEdit(User user, EditRecord lastEdit) throws DaoException {
+        user.setLastEdit(lastEdit);
+        daoImpl.updateLongField(lastEdit.getId(), user, SQLQuery.UPDATE_LAST_EDIT);
     }
 
     private static class SQLQuery {
@@ -33,6 +42,7 @@ public class UserDaoImpl implements UserDao {
         private static final String UPDATE = "UPDATE user SET email = ?, password = ?, salt = ?, role = ?, state = ?, " +
                 "fine = ?, name = ?, last_edit_id = ? WHERE id = ?";
         private static final String DELETE = "UPDATE user SET state = 'deleted' WHERE id = ?";
+        private static final String UPDATE_LAST_EDIT = "UPDATE user SET last_edit_id = ? WHERE id = ?";
     }
 
     @Override
@@ -41,7 +51,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     private int fillStatement(User user, PreparedStatement ps) throws SQLException {
-        int i = START;
+        int i = DaoImpl.START;
         ps.setString(i++, user.getEmail());
         ps.setString(i++, user.getPassword());
         ps.setString(i++, user.getSalt());
@@ -63,7 +73,7 @@ public class UserDaoImpl implements UserDao {
         return daoImpl.read(id, SQLQuery.READ, this::parse);
     }
 
-    private User parse(ResultSet rs) throws SQLException, DaoException {
+    private User parse(ResultSet rs) throws SQLException {
         User.Builder builder = new User.Builder();
         builder.setId(rs.getInt("id"));
         builder.setEmail(rs.getString("email"));
@@ -75,14 +85,11 @@ public class UserDaoImpl implements UserDao {
         builder.setState(User.State.valueOf(dbState));
         builder.setFine(rs.getDouble("fine"));
         builder.setCreated(rs.getDate("created"));
+
+        User user = builder.build();
         long editRecordId = rs.getInt("last_edit_id");
-        logger.trace("last_edit_id = " + editRecordId);
-        if (editRecordId != 0) {
-            EditRecordDao editRecordDao = daoFactory.getEditRecordDao();
-            EditRecord lastEdit = editRecordDao.read(editRecordId);
-            builder.setLastEdit(lastEdit);
-        }
-        return builder.build();
+        holder.set(user, "editRecordID", editRecordId);
+        return user;
     }
 
     @Override
@@ -100,7 +107,6 @@ public class UserDaoImpl implements UserDao {
         daoImpl.delete(user, SQLQuery.DELETE);
     }
 
-    @Override
     public List<User> getRecords(int page, int amount) throws DaoException {
         return daoImpl.getRecords(page, amount, SQLQuery.SELECT, this::parse);
     }

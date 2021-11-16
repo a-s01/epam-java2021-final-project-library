@@ -1,9 +1,10 @@
 package com.epam.java2021.library.entity.entityImpl;
 
-import java.io.Serializable;
+import com.epam.java2021.library.entity.Entity;
+
 import java.util.Objects;
 
-public class BookStat implements Serializable {
+public class BookStat extends Entity {
     private static final long serialVersionUID = 1L;
 
     private long total;
@@ -11,14 +12,15 @@ public class BookStat implements Serializable {
     private long reserved;
     private long timesWasBooked;
 
-    public BookStat(long total, long inStock, long reserved, long timesWasBooked) {
+    public BookStat(long id, long total, long inStock, long reserved, long timesWasBooked) {
+        super(id);
         this.total = total;
         this.inStock = inStock;
         this.reserved = reserved;
         this.timesWasBooked = timesWasBooked;
     }
 
-    public static class Builder {
+    public static class Builder extends Entity.Builder {
         private long total;
         private long inStock = -1;
         private long reserved;
@@ -48,7 +50,7 @@ public class BookStat implements Serializable {
             if (inStock == -1) {
                 inStock = total;
             }
-            return new BookStat(total, inStock, reserved, timesWasBooked);
+            return new BookStat(id, total, inStock, reserved, timesWasBooked);
         }
     }
 

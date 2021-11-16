@@ -4,23 +4,87 @@
     <div class="container">Hello, <c:out value="${user.email}"/>!</div>
 </c:if>
 <div class="container">
-    <form action="/findBook">
-        <div class="row">
-            <input class="form-control-lg col-md-8 col-lg-8" type="text" placeholder="Search for book...">
-            <div class="form-group col-md-2 col-lg-2">
-                  <label for="searchBy" class="col-md-1 col-lg-1">Search By</label>
-                  <select class="col-md-1 col-lg-1" id="searchBy">
-                    <option>Everywhere</option>
-                    <option>Title</option>
-                    <option>Author</option>
-                    <option>ISBN</option>
-                  </select>
-            </div>
-            <button type="button" class="btn btn-primary col-md-1 col-lg-1">Search</button>
-        </div>
-    </form>
     <div class="container">
-
+        <form action="/findBook">
+            <div class="row">
+                <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Search for a book...">
+                <div class="form-group col-md-2 col-lg-2">
+                      <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>
+                      <select class="col-md-1 col-lg-1" name="searchBy">
+                        <option>Title</option>
+                        <option>Author</option>
+                        <option>ISBN</option>
+                      </select>
+                      <label for="searchBy" class="col-md-2 col-lg-2">Sort By</label>
+                      <select class="col-md-1 col-lg-1" name="sortBy">
+                          <option>Title</option>
+                          <option>Author</option>
+                          <option>ISBN</option>
+                          <option>Year</option>
+                      </select>
+                      <label for="num" class="col-md-2 col-lg-2">Show By</label>
+                      <select class="col-md-1 col-lg-1" name="num">
+                          <option>5</option>
+                          <option>10</option>
+                          <option>20</option>
+                      </select>
+                </div>
+                <button type="submit" class="btn btn-primary col-md-1 col-lg-1">Search</button>
+        </form>
+    </div>
+    <div class="container">
+        <c:if test="${not empty books}">
+            <table class="table table-hover">
+                <thead>
+                    <th scope="col">Name</th>
+                    <th scope="col">Authors</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Year</th>
+                    <c:if test="${not empty user and user.role eq 'USER'}">
+                        <th scope="col">Action</th>
+                    </c:if>
+                    <c:if test="${not empty user and user.role eq 'ADMIN'}">
+                        <th scope="col">Action</th>
+                    </c:if>
+                </thead>
+                <tbody>
+                    <c:forEach var="book" items="${books}">
+                        <tr class="table-light">
+                            <td><c:out value="${book.title}"/></td>
+                            <td>
+                                <c:forEach var="author" items="${book.authors}">
+                                    <c:out value="${author.name}"/>
+                                </c:forEach>
+                            </td>
+                            <td><c:out value="${book.isbn}"/></td>
+                            <td><c:out value="${book.year}"/></td>
+                            <c:if test="${not empty user and user.role eq 'USER'}">
+                                <td><a href="/reserveBook">Book</a></td>
+                            </c:if>
+                            <c:if test="${not empty user and user.role eq 'ADMIN'}">
+                                <td><a href="/editBook">Edit</a></td>
+                            </c:if>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+            <ul class="pagination justify-content-end">
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+            </ul>
+        </c:if>
+        <c:out value="${bookNotFound}"/>
     </div>
 </div>
 <jsp:include page="/html/footer.html"/>

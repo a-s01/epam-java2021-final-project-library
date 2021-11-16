@@ -1,5 +1,6 @@
-package com.epam.java2021.library.dao;
+package com.epam.java2021.library.service;
 
+import com.epam.java2021.library.dao.AbstractDao;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

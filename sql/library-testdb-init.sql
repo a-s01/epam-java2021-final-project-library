@@ -7,7 +7,7 @@ SET @DEFAULT_KEEP_PERIOD = 14;
 
 -- ---------------------------------------------
 -- SCHEMA --
--- DROP SCHEMA IF EXISTS `library-app-testdb`;
+-- DROP SCHEMA IF EXISTS `library-app`;
 CREATE SCHEMA IF NOT EXISTS `library-app-testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `library-app-testdb`;
 
@@ -127,7 +127,7 @@ CREATE TABLE book (
 						UNIQUE INDEX (title),
     isbn				VARCHAR(17)				NOT NULL, 	-- 13 digits + 4 '-'
 						UNIQUE INDEX (isbn),
-    publication_year	YEAR					NOT NULL,
+    year				YEAR					NOT NULL,
     lang_id				INT UNSIGNED			NOT NULL,
 						FOREIGN KEY (lang_id)
                             REFERENCES lang (id)

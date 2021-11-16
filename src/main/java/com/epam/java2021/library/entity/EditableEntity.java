@@ -4,7 +4,7 @@ import com.epam.java2021.library.entity.entityImpl.EditRecord;
 
 import java.sql.Date;
 
-public abstract class EditableEntity extends Entity {
+public abstract class EditableEntity extends CreatableEntity {
     protected EditRecord lastEdit;
 
     protected EditableEntity(long id, Date created, EditRecord lastEdit) {
@@ -12,7 +12,7 @@ public abstract class EditableEntity extends Entity {
         this.lastEdit = lastEdit;
     }
 
-    protected static class Builder extends Entity.Builder {
+    protected static class Builder extends CreatableEntity.Builder {
         protected EditRecord lastEdit;
 
         public void setLastEdit(EditRecord lastEdit) {

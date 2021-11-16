@@ -40,21 +40,21 @@ public class TestLogin {
     }
 
     @Test
-    public void testDoGetOnNullUser() throws IOException, ServletException {
+    public void testDoPostOnNullUser() throws IOException, ServletException {
         when(request.getSession()).thenReturn(session);
         when(request.getRequestDispatcher(Pages.LOGIN)).thenReturn(dispatcher);
         when(session.getAttribute("user")).thenReturn(null);
-        servlet.doGet(request, response);
-        verify(request).setAttribute(ServletAttributes.ERROR_ATTR, "Incorrect login or password");
+        servlet.doPost(request, response);
+        verify(request).setAttribute(ServletAttributes.LOGIN_PAGE_ERROR_MSG, "Incorrect login or password");
         verify(dispatcher).forward(request, response);
     }
 
     @Test
-    public void testDoGetOnNotNullUser() throws IOException, ServletException {
+    public void testDoPostOnNotNullUser() throws IOException, ServletException {
         when(request.getSession()).thenReturn(session);
         when(request.getRequestDispatcher(Pages.HOME)).thenReturn(dispatcher);
         when(session.getAttribute("user")).thenReturn(new User.Builder().build());
-        servlet.doGet(request, response);
+        servlet.doPost(request, response);
         verify(dispatcher).forward(request, response);
     }
 }

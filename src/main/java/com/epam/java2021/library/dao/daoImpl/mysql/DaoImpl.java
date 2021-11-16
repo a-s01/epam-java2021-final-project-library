@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DaoImpl<T extends Entity> {
-    private static final int START = 1;
+    public static final int START = 1;
     private final Connection conn;
     private final String entityName;
     private final Logger logger;
@@ -43,7 +43,7 @@ public class DaoImpl<T extends Entity> {
                         entity.setId(rs.getLong(START));
                     }
                 }
-                logger.info("New " + entityName + " added: " + entity.getId());
+                logger.info("New {} added: {}", entityName, entity.getId());
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -52,7 +52,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public T read(long id, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("Read request: id = " + id + ", " + query);
+        logger.trace("Read request: id = {}, {}", id, query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -68,11 +68,26 @@ public class DaoImpl<T extends Entity> {
     }
 
     public void update(T entity, String query, StatementFiller<T> filler) throws DaoException {
-        logger.trace(entity);
+        logger.trace("Update requested for {}", entity);
         try(PreparedStatement ps = conn.prepareStatement(query)) {
             filler.accept(entity, ps);
             if (ps.executeUpdate() > 0) {
-                logger.info("Successful update of " + entityName + " " + entity.getId());
+                logger.info("Successful update of {}, id={}", entityName, entity.getId());
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+            throw new DaoException("Errors in updating " + entityName + " " + entity.getId(), e);
+        }
+    }
+
+    public void updateLongField(long id, T entity, String query) throws DaoException {
+        logger.trace("Update long field requested for {}", entity.getId());
+        try(PreparedStatement ps = conn.prepareStatement(query)) {
+            int i = START;
+            ps.setLong(i++, id);
+            ps.setLong(i++, entity.getId());
+            if (ps.executeUpdate() > 0) {
+                logger.info("Successful update of {}, id={}", entityName, entity.getId());
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -85,7 +100,7 @@ public class DaoImpl<T extends Entity> {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setLong(START, entity.getId());
             if (ps.executeUpdate() > 0) {
-                logger.info("Successful deleting of " + entityName + " " + entity.getId());
+                logger.info("Successful deleting of {}, id={}", entityName, entity.getId());
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -94,7 +109,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public List<T> getRecords(int page, int amount, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("getRecord request: page = " + page + ", amount = " + amount + ", " + query);
+        logger.trace("getRecord request: page ={}, amount={}, {}", page,amount, query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             int i = START;
@@ -113,7 +128,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public T findByUniqueString(String lookUp, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("findByString request: key = " + lookUp + ", " + query);
+        logger.trace("findByString request: key={}, {}", lookUp, query);
         T result = null;
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, lookUp);
@@ -130,7 +145,7 @@ public class DaoImpl<T extends Entity> {
     }
 
     public List<T> findByPattern(String pattern, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("findByPattern request: pattern = " + pattern + ", " + query);
+        logger.trace("findByPattern request: pattern={}, {}", pattern, query);
         List<T> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, escapeForLike(pattern));
@@ -142,6 +157,23 @@ public class DaoImpl<T extends Entity> {
         } catch (SQLException e) {
             logger.error(e.getMessage());
             throw new DaoException("Error in finding " + entityName + " by pattern " + pattern, e);
+        }
+        return list;
+    }
+
+    public List<T> findById(long id, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("findById request: id={}, {}", id, query);
+        List<T> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setLong(START, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(parser.accept(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+            throw new DaoException("Error in finding " + entityName + " by id " + id, e);
         }
         return list;
     }

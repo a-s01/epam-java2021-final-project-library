@@ -1,6 +1,5 @@
 package com.epam.java2021.library.service;
 
-import com.epam.java2021.library.dao.EntityTransaction;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.daoImpl.mysql.EditRecordDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;

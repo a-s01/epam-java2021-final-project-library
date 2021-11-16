@@ -3,10 +3,14 @@
 USE `library-app`;
 
 -- user --
-INSERT INTO user VALUES (1, 'admin@gmail.com', 'qwerty1', '12345678', 'admin', DEFAULT, DEFAULT, 'admin', DEFAULT, NULL);
-INSERT INTO user VALUES (2, 'librarian@gmail.com', 'qwerty1', '12345678', 'librarian', DEFAULT, DEFAULT, 'librarian', DEFAULT, NULL);
-INSERT INTO user VALUES (3, 'user@gmail.com', 'qwerty1', '12345678', 'user', DEFAULT, DEFAULT, 'користувач', DEFAULT, NULL);
-INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', 'qwerty1', '12345678', DEFAULT, DEFAULT, DEFAULT, 'user test', DEFAULT, NULL);
+INSERT INTO user VALUES (1, 'admin@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', DEFAULT, NULL);
+INSERT INTO user VALUES (2, 'librarian@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', DEFAULT, NULL);
+INSERT INTO user VALUES (3, 'user@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', DEFAULT, NULL);
+INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', DEFAULT, NULL);
 
 -- BOOK & BOOK_STAT --
 INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 2, @DEFAULT_KEEP_PERIOD, DEFAULT, NULL);
