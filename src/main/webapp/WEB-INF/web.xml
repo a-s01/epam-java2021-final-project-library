@@ -26,6 +26,19 @@
     <dispatcher>ERROR</dispatcher>
   </filter-mapping>
 
+  <filter>
+    <filter-name>EncodingFilter</filter-name>
+    <filter-class>com.epam.java2021.library.controller.filter.EncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>EncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!-- JDBC configuration -->
   <description>MySQL</description>
   <resource-ref>
@@ -43,4 +56,23 @@
     <exception-type>java.lang.RuntimeException</exception-type>
     <location>/jsp/error/runtime.jsp</location>
   </error-page>
+
+  <!-- this way we set the resource bundle name -->
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+    <param-value>resources</param-value>
+  </context-param>
+
+  <!-- this way we set the default locale (optional) -->
+  <!-- the (preferable) browser's locale will be used if we don't set the default locale -->
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+    <param-value>ru</param-value>
+  </context-param>
+
+  <!-- supported locales -->
+  <context-param>
+    <param-name>locales</param-name>
+    <param-value>ru en</param-value>
+  </context-param>
 </web-app>

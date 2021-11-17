@@ -1,0 +1,39 @@
+package com.epam.java2021.library.controller.filter;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+public class EncodingFilter implements Filter {
+        private static final Logger logger = LogManager.getLogger(EncodingFilter.class);
+        private String encoding;
+
+        public void doFilter(ServletRequest req, ServletResponse resp,
+                             FilterChain chain) throws IOException, ServletException {
+
+            logger.debug("Filter starts");
+
+            HttpServletRequest httpRequest = (HttpServletRequest)req;
+            logger.trace("Request uri={}", httpRequest.getRequestURI());
+
+            String requestEncoding = req.getCharacterEncoding();
+            if (requestEncoding == null) {
+                logger.trace("Request encoding = null, set encoding to {}", encoding);
+                req.setCharacterEncoding(encoding);
+            }
+
+            logger.debug("Filter finished");
+            chain.doFilter(req, resp);
+        }
+
+        @Override
+        public void init(FilterConfig conf) throws ServletException {
+            logger.debug("Filter initialization starts");
+            encoding = conf.getInitParameter("encoding");
+            logger.trace("Encoding from web.xml: {}", encoding);
+            logger.debug("Filter initialization finished");
+        }
+}
