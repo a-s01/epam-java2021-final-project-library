@@ -1,11 +1,9 @@
 package com.epam.java2021.library.dao;
 
-import com.epam.java2021.library.entity.entityImpl.Booking;
-import com.epam.java2021.library.entity.entityImpl.User;
-import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.entity.impl.Booking;
 
-import java.util.List;
+import java.util.Set;
 
-public interface BookingDao extends AbstractDao<Booking>{
-    List<Booking> findByUser(User user) throws DaoException;
+public interface BookingDao extends AbstractDao<Booking> {
+    void addBooks(Set<Long> bookIDs);
 }

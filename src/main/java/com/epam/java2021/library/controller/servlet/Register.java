@@ -2,11 +2,10 @@ package com.epam.java2021.library.controller.servlet;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.constant.ServletAttributes;
-import com.epam.java2021.library.entity.entityImpl.User;
+import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.exception.UserException;
-import com.epam.java2021.library.service.UserLogic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+
+import static com.epam.java2021.library.service.UserLogic.createUser;
 
 @WebServlet("/register")
 public class Register extends HttpServlet {
@@ -43,7 +44,7 @@ public class Register extends HttpServlet {
         session.removeAttribute(ServletAttributes.REG_PAGE_ERROR_MSG);
         session.removeAttribute(ServletAttributes.ERROR_PAGE_ERROR_MSG);
         try {
-            User created = UserLogic.createUser(email, pass, role, name, editBy, comment);
+            User created = createUser(email, pass, role, name, editBy, comment);
             logger.trace("User '{}' successfully created", email);
             if (currentUser == null) {
                 session.setAttribute(ServletAttributes.USER, created);

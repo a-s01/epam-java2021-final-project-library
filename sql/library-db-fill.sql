@@ -1,6 +1,6 @@
 -- Fill DB with test values --
 -- USE `library-app-testdb`;
-USE `library-app`;
+USE `library-app-testdb`;
 
 -- user --
 INSERT INTO user VALUES (1, 'admin@gmail.com', '���

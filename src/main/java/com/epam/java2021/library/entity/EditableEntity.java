@@ -1,6 +1,6 @@
 package com.epam.java2021.library.entity;
 
-import com.epam.java2021.library.entity.entityImpl.EditRecord;
+import com.epam.java2021.library.entity.impl.EditRecord;
 
 import java.sql.Date;
 

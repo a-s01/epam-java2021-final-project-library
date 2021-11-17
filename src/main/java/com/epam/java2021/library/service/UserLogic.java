@@ -1,12 +1,12 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.dao.UserDao;
-import com.epam.java2021.library.dao.daoImpl.mysql.EditRecordDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.entity.entityImpl.EditRecord;
-import com.epam.java2021.library.entity.entityImpl.User;
-import com.epam.java2021.library.exception.*;
+import com.epam.java2021.library.entity.impl.User;
+import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.exception.UserException;
 import com.epam.java2021.library.service.util.PasswordUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,12 +21,11 @@ public class UserLogic {
 
     private UserLogic() {}
 
-    public static User getUser(String login, String password) throws DaoException, ServiceException {
-        EntityTransaction transaction = new EntityTransaction();
+    public static User getUser(String email, String password) throws DaoException, ServiceException {
+        logger.trace("getUser request: email={}", email);
+
         UserDao userDao = daoFactory.getUserDao();
-        transaction.init(userDao);
-        User user = userDao.findByEmail(login);
-        transaction.end();
+        User user = userDao.findByEmail(email);
 
         if (user != null) {
             try {
@@ -44,8 +43,9 @@ public class UserLogic {
     }
 
     public static User createUser(String email, String pass, String role, String name, long editBy, String comment)
-            throws UserException, ServiceException, DaoException {
-        logger.trace("init creating user {}", email);
+            throws ServiceException, DaoException, UserException {
+        logger.trace("createUser request: email={}", email);
+
         if (email == null || email.equals("")) {
             throw new UserException("Email cannot be null");
         }
@@ -66,44 +66,10 @@ public class UserLogic {
         uBuilder.setRole(role);
         uBuilder.setName(name);
         User user = uBuilder.build();
+        // TODO add history
 
-        EditRecord.Builder eBuilder = new EditRecord.Builder();
-        eBuilder.setDescription("user creation");
-        if (editBy != -1) {
-            eBuilder.setEditBy(editBy);
-        }
-        eBuilder.setRemark(comment);
-        EditRecord editRecord = eBuilder.build();
-
-        UserDao userDao = daoFactory.getUserDao();
-        EditRecordDao editRecordDao = daoFactory.getEditRecordDao();
-        EntityTransaction transaction = new EntityTransaction();
-
-        try {
-            transaction.initTransaction(userDao, editRecordDao);
-            userDao.create(user);
-
-            if (editBy == -1) {
-                editRecord.setEditBy(user.getId());
-            }
-            editRecordDao.create(editRecord);
-
-            user.setLastEdit(editRecord);
-            userDao.update(user);
-
-            transaction.commit();
-        } catch (DaoException e) {
-            transaction.rollback();
-            Throwable cause = e.getCause();
-            logger.error(ERROR_DESCR, e.getMessage(), cause.getMessage());
-            if (cause.getMessage().startsWith("Duplicate entry")) {
-                throw new UserException("This email is already taken");
-            }
-            throw e;
-        } finally {
-            transaction.endTransaction();
-        }
-
+        UserDao dao = daoFactory.getUserDao();
+        dao.create(user);
         return user;
     }
 }

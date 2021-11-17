@@ -1,7 +1,7 @@
 package com.epam.java2021.library.controller.servlet;
 
 import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.entity.entityImpl.User;
+import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.UserLogic;

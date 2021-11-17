@@ -1,0 +1,170 @@
+package com.epam.java2021.library.dao.impl.mysql;
+
+import com.epam.java2021.library.dao.UserDao;
+import com.epam.java2021.library.dao.impl.util.Transaction;
+import com.epam.java2021.library.entity.impl.EditRecord;
+import com.epam.java2021.library.entity.impl.User;
+import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.exception.ServiceException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.sql.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class UserDaoImpl implements UserDao {
+    private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
+    private Connection conn;
+
+    public UserDaoImpl() {}
+    public UserDaoImpl(Connection conn) {
+        this.conn = conn;
+    }
+
+    @Override
+    public User findByEmail(String email) throws DaoException {
+        final String query = "SELECT * FROM user WHERE email = ?";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        User user = dao.findByUniqueString(email, query, this::parse);
+
+        tr.close();
+        return user;
+    }
+
+    public static class SearchSortColumns {
+        private SearchSortColumns() {}
+        private static final Set<String> COLUMNS = new HashSet<>();
+        static {
+            COLUMNS.add("email");
+            COLUMNS.add("name");
+            COLUMNS.add("role");
+            COLUMNS.add("state");
+        }
+
+        public static void check(String s, String action) throws ServiceException {
+            if (!COLUMNS.contains(s)) {
+                logger.error("{} forbidden for column {}", action, s);
+                throw new ServiceException(action + " forbidden for column " + s);
+            }
+        }
+    }
+
+    @Override
+    public void create(User user) throws DaoException {
+        final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, DEFAULT, ?)";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        dao.create(user, query, this::fillStatement);
+
+        tr.close();
+    }
+
+    private int fillStatement(User user, PreparedStatement ps) throws SQLException {
+        int i = DaoImpl.START;
+        ps.setString(i++, user.getEmail());
+        ps.setString(i++, user.getPassword());
+        ps.setString(i++, user.getSalt());
+        ps.setInt(i++, user.getRole().ordinal());
+        ps.setInt(i++, user.getState().ordinal());
+        ps.setDouble(i++, user.getFine());
+        ps.setString(i++, user.getName());
+        EditRecord lastEdit = user.getLastEdit();
+        if (lastEdit != null) {
+            ps.setLong(i++, lastEdit.getId());
+        } else {
+            ps.setNull(i++, Types.INTEGER);
+        }
+        return i;
+    }
+
+    @Override
+    public User read(long id) throws DaoException {
+        final String query = "SELECT * FROM user WHERE id = ?";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        User user = dao.read(id, query, this::parse);
+
+        tr.close();
+        return user;
+    }
+
+    private User parse(ResultSet rs) throws SQLException {
+        User.Builder builder = new User.Builder();
+        builder.setId(rs.getInt("id"));
+        builder.setEmail(rs.getString("email"));
+        builder.setPassword(rs.getString("password"));
+        builder.setSalt(rs.getString("salt"));
+        String dbRole = rs.getString("role");
+        builder.setRole(User.Role.valueOf(dbRole));
+        String dbState = rs.getString("state");
+        builder.setState(User.State.valueOf(dbState));
+        builder.setFine(rs.getDouble("fine"));
+        builder.setCreated(rs.getDate("created"));
+
+        /*
+        long editRecordId = rs.getInt("last_edit_id");
+        if (editRecordId != 0) {
+            EditRecord holder = new EditRecord.Builder().build();
+            holder.setId(editRecordId);
+            builder.setLastEdit(holder);
+        } */
+        return builder.build();
+    }
+
+    @Override
+    public void update(User user) throws DaoException {
+        final String query = "UPDATE user SET email = ?, password = ?, salt = ?, role = ?, state = ?, " +
+                "fine = ?, name = ?, last_edit_id = ? WHERE id = ?";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        dao.update(user, query,
+                (entity, ps) -> {
+                    int nextIndex = fillStatement(entity, ps);
+                    ps.setLong(nextIndex, entity.getId());
+                }
+        );
+
+        tr.close();
+    }
+
+    @Override
+    public void delete(User user) throws DaoException {
+        final String query = "UPDATE user SET state = 'deleted' WHERE id = ?";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        dao.delete(user, query);
+
+        tr.close();
+    }
+
+    @Override
+    public List<User> findByPattern(String what, String searchBy, String sortBy, int num, int page)
+            throws ServiceException, DaoException {
+
+        SearchSortColumns.check(searchBy, "Search");
+        SearchSortColumns.check(sortBy, "Sort");
+
+        final String query = "SELECT * FROM user WHERE %s LIKE ?";
+        Transaction tr = new Transaction(conn);
+        Connection c = tr.getConnection();
+
+        DaoImpl<User> dao = new DaoImpl<>(c, logger);
+        List<User> users = dao.findByPattern(what, num, page, query, this::parse);
+
+        tr.close();
+        return users;
+    }
+}

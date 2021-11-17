@@ -59,10 +59,10 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${not empty user and user.role eq 'USER'}">
-                                <td><a href="/reserveBook">Book</a></td>
+                                <td><a href="/reserveBook?id=${book.id}">Book</a></td>
                             </c:if>
                             <c:if test="${not empty user and user.role eq 'ADMIN'}">
-                                <td><a href="/editBook">Edit</a></td>
+                                <td><a href="/editBook?id=${book.id}">Edit</a></td>
                             </c:if>
                         </tr>
                     </c:forEach>
@@ -74,9 +74,9 @@
                     <span aria-hidden="true">&laquo;</span>
                   </a>
                 </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="/findBook?page=0">1</a></li>
+                <li class="page-item"><a class="page-link" href="/findBook?page=1">2</a></li>
+                <li class="page-item"><a class="page-link" href="/findBook?page=2">3</a></li>
                 <li class="page-item">
                   <a class="page-link" href="#" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
@@ -84,7 +84,9 @@
                 </li>
             </ul>
         </c:if>
-        <c:out value="${bookNotFound}"/>
+        <div class="container">
+            <c:out value="${bookNotFound}"/>
+        </div>
     </div>
 </div>
 <jsp:include page="/html/footer.html"/>

@@ -8,8 +8,8 @@ SET @DEFAULT_KEEP_PERIOD = 14;
 -- ---------------------------------------------
 -- SCHEMA --
 -- DROP SCHEMA IF EXISTS `library-app`;
-CREATE SCHEMA IF NOT EXISTS `library-app` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `library-app`;
+CREATE SCHEMA IF NOT EXISTS `library-app-testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `library-app-testdb`;
 
 -- ---------------------------------------------
 -- DROP ALL TABLES --
@@ -92,7 +92,7 @@ ALTER TABLE user
 CREATE TABLE author (
 	PRIMARY KEY (id),
 	id				INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
-    default_name	VARCHAR(50)					NOT NULL, 
+    name	VARCHAR(50)					NOT NULL, 
     created			DATETIME					NOT NULL	DEFAULT CURRENT_TIMESTAMP,
     last_edit_id	INT UNSIGNED,
 					FOREIGN KEY (last_edit_id)
