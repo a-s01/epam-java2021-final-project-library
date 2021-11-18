@@ -20,6 +20,8 @@ import java.util.List;
 
 @WebServlet("/findBook")
 public class FindBook extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger = LogManager.getLogger(FindBook.class);
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

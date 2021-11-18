@@ -19,6 +19,8 @@ import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 @WebServlet("/login")
 public class Login extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger = LogManager.getLogger(Login.class);
 
     // TODO do something with exceptions

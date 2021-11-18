@@ -20,6 +20,8 @@ import static com.epam.java2021.library.service.UserLogic.createUser;
 
 @WebServlet("/register")
 public class Register extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger = LogManager.getLogger(Register.class);
 
     @Override

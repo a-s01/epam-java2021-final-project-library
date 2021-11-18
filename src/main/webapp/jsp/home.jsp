@@ -7,6 +7,7 @@
     <div class="container">
         <form action="/findBook">
             <div class="row">
+                <input type="hidden" name="command" value="find">
                 <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Search for a book...">
                 <div class="form-group col-md-2 col-lg-2">
                       <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>
@@ -59,10 +60,10 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${not empty user and user.role eq 'USER'}">
-                                <td><a href="/reserveBook?id=${book.id}">Book</a></td>
+                                <td><a href="/booking?command=addBook&id=${book.id}">Book</a></td>
                             </c:if>
                             <c:if test="${not empty user and user.role eq 'ADMIN'}">
-                                <td><a href="/editBook?id=${book.id}">Edit</a></td>
+                                <td><a href="/book?command=edit&id=${book.id}">Edit</a></td>
                             </c:if>
                         </tr>
                     </c:forEach>

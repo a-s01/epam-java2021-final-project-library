@@ -21,7 +21,7 @@ public class MySQLDaoFactory implements IDaoFactoryImpl {
     }
 
     @Override
-    public SuperDao<Book> getBookDao() {
+    public BookDao getBookDao() {
         return new BookSuperDao();
     }
 

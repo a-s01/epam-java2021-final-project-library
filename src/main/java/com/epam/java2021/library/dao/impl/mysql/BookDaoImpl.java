@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,5 +104,56 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 "   LIMIT ? OFFSET ?";
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         return dao.findByPattern(pattern, num, page, query, this::parse);
+    }
+
+    public List<Book> getBooksInBooking(long id) throws DaoException {
+        final String query = "SELECT * FROM book_in_booking WHERE booking_id = ?";
+        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
+
+        List<Book> bookGerms = dao.findById(id, query, rs -> {
+            Book.Builder builder = new Book.Builder();
+            builder.setId(rs.getInt("book_id"));
+            return builder.build();
+        });
+
+        List<Book> books = new ArrayList<>();
+        for (Book g: bookGerms) {
+            Book book = read(g.getId());
+            books.add(book);
+        }
+        return books;
+    }
+
+    public void updateBooksInBooking(long id, List<Book> books) throws DaoException {
+        // book_id, author_id
+        final String addQuery = "INSERT INTO booking VALUES (?, ?)";
+        final String delQuery = "DELETE FROM booking WHERE book_id = ?";
+
+        List<Book> toDelete = getBooksInBooking(id);
+        List<Book> toAdd = books;
+        toAdd.removeAll(toDelete);
+        toDelete.removeAll(books);
+
+        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
+        createBooksInBooking(id, toAdd);
+
+        for (Book b: toDelete) {
+            dao.delete(b, delQuery);
+        }
+    }
+
+    public void createBooksInBooking(long id, List<Book> books) throws DaoException {
+        // book_id, author_id
+        final String addQuery = "INSERT INTO book_in_booking VALUES (?, ?, ?)";
+
+        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
+        for (Book b: books) {
+            dao.update(b, addQuery, (x, ps) -> {
+                int i = DaoImpl.START;
+                ps.setLong(i++, id);
+                ps.setLong(i++, x.getId());
+                ps.setInt(i++, x.getKeepPeriod());
+            });
+        }
     }
 }

@@ -50,6 +50,7 @@ public class Transaction {
         if (close) {
             try {
                 if (conn != null) {
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             } catch (SQLException e) {

@@ -3,9 +3,9 @@ package com.epam.java2021.library.entity.impl;
 import com.epam.java2021.library.entity.EditableEntity;
 
 import java.sql.Date;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class Booking extends EditableEntity {
     private static final long serialVersionUID = 1L;
@@ -13,10 +13,10 @@ public class Booking extends EditableEntity {
     private User user;
     private State state;
     private Place located;
-    private Set<Book> books;
+    private List<Book> books;
 
     private Booking(long id, Date created, EditRecord lastEdit, User user, State state, Place located,
-                    Set<Book> books) {
+                    List<Book> books) {
         super(id, created, lastEdit);
         this.user = user;
         this.state = state;
@@ -28,7 +28,7 @@ public class Booking extends EditableEntity {
         private User user;
         private State state;
         private Place located;
-        private Set<Book> books = new HashSet<>();
+        private List<Book> books = new ArrayList<>();
 
         public Builder setUser(User user) {
             this.user = user;
@@ -45,7 +45,7 @@ public class Booking extends EditableEntity {
             return this;
         }
 
-        public Builder setBooks(Set<Book> books) {
+        public Builder setBooks(List<Book> books) {
             this.books = books;
             return this;
         }
@@ -98,11 +98,11 @@ public class Booking extends EditableEntity {
         this.located = located;
     }
 
-    public Set<Book> getBooks() {
+    public List<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(Set<Book> books) {
+    public void setBooks(List<Book> books) {
         this.books = books;
     }
 

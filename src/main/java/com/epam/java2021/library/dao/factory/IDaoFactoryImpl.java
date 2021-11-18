@@ -7,7 +7,7 @@ import com.epam.java2021.library.entity.impl.*;
 public interface IDaoFactoryImpl {
     UserDao getUserDao();
     BookingDao getBookingDao();
-    SuperDao<Book> getBookDao();
+    BookDao getBookDao();
     AuthorDao getAuthorDao();
     EditRecordDao getEditRecordDao();
     AbstractDao<Language> getLangDao();

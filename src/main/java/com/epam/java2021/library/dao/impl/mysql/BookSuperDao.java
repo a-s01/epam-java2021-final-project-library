@@ -1,7 +1,6 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.BookDao;
-import com.epam.java2021.library.dao.SuperDao;
 import com.epam.java2021.library.dao.impl.util.Transaction;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.Book;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 // TODO update book-author list
-public class BookSuperDao implements SuperDao<Book> {
+public class BookSuperDao implements BookDao {
     private static final Logger logger = LogManager.getLogger(BookSuperDao.class);
 
     public static class SearchSortColumns {
@@ -39,10 +38,28 @@ public class BookSuperDao implements SuperDao<Book> {
 
     private Connection conn;
 
-
     public BookSuperDao() {}
     public BookSuperDao(Connection conn) {
         this.conn = conn;
+    }
+
+    @Override
+    public List<Book> getBooksInBooking(long id) throws DaoException {
+        logger.debug("Get books in booking request: id={}", id);
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapperList(c -> {
+            BookDaoImpl dao = new BookDaoImpl(c);
+            List<Book> books = dao.getBooksInBooking(id);
+
+            AuthorDaoImpl authorDao = new AuthorDaoImpl(c);
+            BookStatDaoImpl bookStatDao = new BookStatDaoImpl(c);
+            for (Book b: books) {
+                b.setBookStat(bookStatDao.read(b.getId()));
+                b.setAuthors(authorDao.findByBookID(b.getId()));
+            }
+            return books;
+        });
     }
 
     @Override
