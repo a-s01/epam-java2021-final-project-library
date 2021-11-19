@@ -12,6 +12,9 @@
   <listener>
     <listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>com.epam.java2021.library.controller.listener.ContextListener</listener-class>
+  </listener>
 
   <filter>
     <filter-name>log4jServletFilter</filter-name>

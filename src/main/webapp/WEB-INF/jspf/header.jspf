@@ -11,7 +11,8 @@
     </head>
     <body>
         <nav class="navbar navbar-light bg-light">
-                <span class="navbar-brand mb-0 h1">Library</span>
+            <div class="container-fluid">
+                <span class="navbar-brand h1">Library</span>
                 <ul class="nav">
                     <c:if test="${not empty user and user.role eq 'USER' and user.fine > 0}">
                         <li class="nav-item">
@@ -49,4 +50,5 @@
                        </li>
                     </c:if>
                 </ul>
+            </div>
         </nav>
