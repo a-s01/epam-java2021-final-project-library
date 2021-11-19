@@ -90,21 +90,6 @@ public class BookingLogic {
             return booking;
         }
 
-        Cookie[] cookies = req.getCookies();
-
-        for (Cookie c: cookies) {
-            if (BOOKING_ID.equals(c.getName())) {
-                logger.debug("found booking id in cookie");
-
-                long bID = Long.parseLong(c.getValue());
-                logger.trace("bookingID={}", bID);
-
-                BookingDao dao = daoFactory.getBookingDao();
-                booking = dao.read(bID);
-                return booking;
-            }
-        }
-
         logger.debug("booking was not found");
         if (create) {
             logger.debug("create new one requested");

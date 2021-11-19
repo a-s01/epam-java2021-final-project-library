@@ -1,9 +1,9 @@
 <l:redirectIfEmpty value="${action}" errorMsg="Action isn't set" />
 <l:redirectIfEmpty value="${list}" errorMsg="List isn't set" />
 <div class="container">
-    <form action="<c:out value='${action}'/>" >
+    <form action="/controller" >
+        <input type="hidden" name="command" value="${action}">
         <div class="row">
-            <input type="hidden" name="command" value="find">
             <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Let me find...">
             <div class="form-group col-md-2 col-lg-2">
                 <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>

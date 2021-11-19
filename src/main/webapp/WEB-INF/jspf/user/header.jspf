@@ -1,6 +1,6 @@
 <li class="nav-item">
-    <a class="nav-link" href="/booking?command=listBooks&subscription=true">My books</a>
+    <a class="nav-link" href="/controller?command=booking.listBooks&subscription=true">My books</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="/booking?command=basket">My booking</a>
+    <a class="nav-link" href="/jsp/basket.jsp">My booking</a>
 </li>

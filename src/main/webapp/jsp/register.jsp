@@ -9,7 +9,8 @@
             <div class="row">
                     <h1>Register</h1>
             </div>
-            <form action="/register" method="post">
+            <form action="/controller" method="post">
+                <input type="hidden" name="command" value="user.register">
                 <div class="row mb-1">
                     <label for="email" class="col-md-3 col-form-label">Email: </label>
                     <div class="col-md-7">

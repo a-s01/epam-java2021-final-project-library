@@ -5,7 +5,8 @@
     <div class="row">
         <h1>Login</h1>
     </div>
-    <form action="/login" method="post">
+    <form action="/controller" method="post">
+        <input type="hidden" name="command" value="user.login">
         <div class="row mb-3">
             <label for="email" class="col-sm-2 col-form-label">Email</label>
             <div class="col-sm-10">

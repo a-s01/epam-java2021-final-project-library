@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
-<c:set var="action" value="/findBook" />
+<c:set var="action" value="book.find" />
 <l:setList var="list" value="Title Author ISBN Year" />
 <div class="container">
     <%@ include file="/WEB-INF/jspf/search.jspf" %>
@@ -32,33 +32,19 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${not empty user and user.role eq 'USER'}">
-                                <td><a href="/booking?command=addBook&id=${book.id}">Book</a></td>
+                                <td><a onclick="addBook(${book.id})">Book</a></td>
                             </c:if>
                             <c:if test="${not empty user and user.role eq 'ADMIN'}">
-                                <td><a href="/book?command=edit&id=${book.id}">Edit</a></td>
+                                <td><a href="/controller?command=book.edit&id=${book.id}">Edit</a></td>
                             </c:if>
                         </tr>
                     </c:forEach>
                 </tbody>
             </table>
-            <ul class="pagination justify-content-end">
-                <li class="page-item">
-                  <a class="page-link" href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <li class="page-item"><a class="page-link" href="/findBook?page=0">1</a></li>
-                <li class="page-item"><a class="page-link" href="/findBook?page=1">2</a></li>
-                <li class="page-item"><a class="page-link" href="/findBook?page=2">3</a></li>
-                <li class="page-item">
-                  <a class="page-link" href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-            </ul>
+            <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
         <div class="container">
-            <c:out value="${bookNotFound}"/>
+            <c:out value="${notFound}"/>
         </div>
     </div>
 </div>

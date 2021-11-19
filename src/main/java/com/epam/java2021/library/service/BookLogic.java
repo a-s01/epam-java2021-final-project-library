@@ -1,4 +1,4 @@
-package com.epam.java2021.library.controller.servlet;
+package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.constant.ServletAttributes;
@@ -10,21 +10,15 @@ import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
-@WebServlet("/findBook")
-public class FindBook extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+public class BookLogic {
+    private static final Logger logger = LogManager.getLogger(BookLogic.class);
 
-    private static final Logger logger = LogManager.getLogger(FindBook.class);
-    @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public static void find(HttpSession session, HttpServletRequest req) {
+        logger.debug("start");
         String query = req.getParameter("query");
         String searchBy = req.getParameter("searchBy");
         String sortBy = req.getParameter("sortBy");
@@ -52,10 +46,20 @@ public class FindBook extends HttpServlet {
 
         if (books.isEmpty()) {
             logger.trace("Books not found");
-            req.setAttribute(ServletAttributes.BOOK_PAGE_ERROR_MSG, "Nothing was found");
+            req.setAttribute(ServletAttributes.NOT_FOUND, "Nothing was found");
         }
 
         req.setAttribute("books", books);
-        req.getRequestDispatcher(page).forward(req, resp);
+        req.setAttribute(ServletAttributes.PAGE, page);
+        logger.debug("end");
+    }
+
+    public static void add(HttpSession session, HttpServletRequest req) {
+    }
+
+    public static void edit(HttpSession session, HttpServletRequest req) {
+    }
+
+    public static void delete(HttpSession session, HttpServletRequest req) {
     }
 }

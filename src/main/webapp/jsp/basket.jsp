@@ -31,7 +31,7 @@
                                         <td><c:out value="${book.isbn}"/></td>
                                         <td><c:out value="${book.year}"/></td>
                                         <c:if test="${booking.state == 'NEW'}">
-                                            <td><a href="/booking?command=removeBook&id=${book.id}">Delete</a></td>
+                                            <td><a href="/controller?command=booking.removeBook&id=${book.id}">Delete</a></td>
                                         </c:if>
                                     </tr>
                                 </c:forEach>
@@ -41,14 +41,14 @@
                             <div class="container">
                                 <div class="row">
                                     <div class="container">
-                                        <form action="/booking" method="post">
-                                            <input type="hidden" name="command" value="book">
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.book">
                                             <button type="submit" class="btn btn-primary">Finish booking</button>
                                         </form>
                                     </div>
                                     <div class="container">
-                                        <form action="/booking" method="post">
-                                            <input type="hidden" name="command" value="cancel">
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.cancel">
                                             <button type="submit" class="btn btn-danger">Cancel booking</button>
                                         </form>
                                     </div>

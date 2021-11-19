@@ -21,12 +21,18 @@
   </Appenders>
 
   <Loggers>
+    <Logger name="TEST" level="trace">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
+    <Logger name="com.epam.java2021.library.jstltag" level="error">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
+    <Logger name="com.epam.java2021.library.controller.listener.ContextListener" level="error">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
     <Root level="trace">
       <AppenderRef ref="STDOUT"/>
       <AppenderRef ref="File" />
     </Root>
-    <Logger name="TEST" level="trace">
-      <AppenderRef ref="STDOUT"/>
-    </Logger>
   </Loggers>
 </Configuration>

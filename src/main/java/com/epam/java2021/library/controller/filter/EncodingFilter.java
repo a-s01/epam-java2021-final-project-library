@@ -14,9 +14,9 @@ public class EncodingFilter implements Filter {
         public void doFilter(ServletRequest req, ServletResponse resp,
                              FilterChain chain) throws IOException, ServletException {
 
-            logger.debug("Filter starts");
+            logger.debug("starts");
 
-            HttpServletRequest httpRequest = (HttpServletRequest)req;
+            HttpServletRequest httpRequest = (HttpServletRequest) req;
             logger.trace("Request uri={}", httpRequest.getRequestURI());
 
             String requestEncoding = req.getCharacterEncoding();
@@ -25,7 +25,7 @@ public class EncodingFilter implements Filter {
                 req.setCharacterEncoding(encoding);
             }
 
-            logger.debug("Filter finished");
+            logger.debug("finished");
             chain.doFilter(req, resp);
         }
 

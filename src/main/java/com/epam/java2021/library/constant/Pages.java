@@ -8,4 +8,5 @@ public class Pages {
     public static final String USERS = "/jsp/users.jsp";
     public static final String MY_BOOKS = "/jsp/my_books.jsp";
     public static final String BASKET = "/jsp/basket.jsp";
+    public static final String REGISTER = "/jsp/register.jsp";
 }

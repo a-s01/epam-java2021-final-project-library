@@ -20,4 +20,6 @@ public class ServletAttributes {
     public static final String BOOKING_ID = "bookingID";
     public static final String NOT_FOUND = "notFound";
     public static final String APP_ROLES = "appRoles";
+    public static final String REQ_TYPE = "reqType";
+    public static final String COMMAND = "command";
 }
