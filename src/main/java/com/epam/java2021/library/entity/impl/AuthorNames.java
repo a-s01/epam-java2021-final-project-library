@@ -5,6 +5,8 @@ import com.epam.java2021.library.entity.Entity;
 import java.util.Objects;
 
 public class AuthorNames extends Entity {
+    private static final long serialVersionUID = 1L;
+
     private long lang_id;
     private String name;
 
