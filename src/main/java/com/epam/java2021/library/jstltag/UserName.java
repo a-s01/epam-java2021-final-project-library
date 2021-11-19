@@ -16,13 +16,17 @@ public class UserName extends TagSupport {
         this.user = user;
     }
 
+    @Override
     public int doStartTag() throws JspException {
-        logger.trace("doStartTag init: user={}", user);
+        logger.trace("init: user={}", user);
         JspWriter out = pageContext.getOut();
         String name = user.getName() != null ? user.getName() : user.getEmail();
         try {
             out.print(name);
-        }catch(Exception e){e.printStackTrace();}
+        } catch(Exception e) {
+            logger.error(e.getMessage());
+
+        }
 
         return SKIP_BODY;
     }

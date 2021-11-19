@@ -2,10 +2,7 @@
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 <c:if test="${not empty user and user.role eq 'ADMIN'}">
-    <c:if test="${empty appRoles}">
-        <c:set var="serviceError" value="Application roles were not initialized at startup" scope="session"/>
-        <c:redirect url="/jsp/error/service_error.jsp"/>
-    </c:if>
+    <l:redirectIfEmpty value="${appRoles}" errorMsg="Application roles were not initialized at startup" />
 </c:if>
     <div class="container-sm bg-light border col-sm-6 col-sm-offset-3 my-5 pt-2">
         <div class="container-sm col-sm-10 col-sm-offset-1">

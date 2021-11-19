@@ -18,4 +18,29 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <name>redirectIfEmpty</name>
+        <tag-class>com.epam.java2021.library.jstltag.RedirectIfEmpty</tag-class>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>errorMsg</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+    <tag>
+        <name>setList</name>
+        <tag-class>com.epam.java2021.library.jstltag.SetList</tag-class>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+        </attribute>
+    </tag>
 </taglib>

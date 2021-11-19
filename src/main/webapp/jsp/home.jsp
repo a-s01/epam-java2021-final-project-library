@@ -1,35 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
+<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
+<c:set var="action" value="/findBook" />
+<l:setList var="list" value="Title Author ISBN Year" />
 <div class="container">
-    <div class="container">
-        <form action="/findBook">
-            <div class="row">
-                <input type="hidden" name="command" value="find">
-                <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Search for a book...">
-                <div class="form-group col-md-2 col-lg-2">
-                      <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>
-                      <select class="col-md-1 col-lg-1" name="searchBy">
-                        <option>Title</option>
-                        <option>Author</option>
-                        <option>ISBN</option>
-                      </select>
-                      <label for="searchBy" class="col-md-2 col-lg-2">Sort By</label>
-                      <select class="col-md-1 col-lg-1" name="sortBy">
-                          <option>Title</option>
-                          <option>Author</option>
-                          <option>ISBN</option>
-                          <option>Year</option>
-                      </select>
-                      <label for="num" class="col-md-2 col-lg-2">Show By</label>
-                      <select class="col-md-1 col-lg-1" name="num">
-                          <option>5</option>
-                          <option>10</option>
-                          <option>20</option>
-                      </select>
-                </div>
-                <button type="submit" class="btn btn-primary col-md-1 col-lg-1">Search</button>
-        </form>
-    </div>
+    <%@ include file="/WEB-INF/jspf/search.jspf" %>
     <div class="container">
         <c:if test="${not empty books}">
             <table class="table table-hover">

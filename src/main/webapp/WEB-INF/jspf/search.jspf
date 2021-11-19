@@ -1,0 +1,30 @@
+<l:redirectIfEmpty value="${action}" errorMsg="Action isn't set" />
+<l:redirectIfEmpty value="${list}" errorMsg="List isn't set" />
+<div class="container">
+    <form action="<c:out value='${action}'/>" >
+        <div class="row">
+            <input type="hidden" name="command" value="find">
+            <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Let me find...">
+            <div class="form-group col-md-2 col-lg-2">
+                <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>
+                <select class="col-md-1 col-lg-1" name="searchBy">
+                    <c:forEach var="attr" items="${list}">
+                        <option><c:out value="${attr}"/></option>
+                    </c:forEach>
+                </select>
+                <label for="searchBy" class="col-md-2 col-lg-2">Sort By</label>
+                <select class="col-md-1 col-lg-1" name="sortBy">
+                    <c:forEach var="attr" items="${list}">
+                        <option><c:out value="${attr}"/></option>
+                    </c:forEach>
+                </select>
+                <label for="num" class="col-md-2 col-lg-2">Show By</label>
+                <select class="col-md-1 col-lg-1" name="num">
+                    <option>5</option>
+                    <option>10</option>
+                    <option>20</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary col-md-1 col-lg-1">Search</button>
+    </form>
+</div>

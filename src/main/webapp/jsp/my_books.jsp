@@ -5,7 +5,6 @@
         <c:if test="${not empty booksInBooking}">
             <div class="card">
                 <div class="card-header">
-
                 </div>
                 <div class="card-body">
                     <table class="table table-hover">
