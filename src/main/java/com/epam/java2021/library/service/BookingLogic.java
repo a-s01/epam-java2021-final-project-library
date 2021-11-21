@@ -1,7 +1,8 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.constant.ServletAttributes;
+import static com.epam.java2021.library.constant.ServletAttributes.*;
+
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.SuperDao;
@@ -16,13 +17,10 @@ import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.epam.java2021.library.constant.ServletAttributes.BOOKING_ID;
 
 /**
  * USER can:
@@ -113,7 +111,7 @@ public class BookingLogic {
         User u = (User) session.getAttribute("user");
         logger.trace("subscription={}, user={}", subscription, u);
 
-        List<Book> books = null;
+        List<Book> books;
         if (subscription) {
             books = getBooksInSubscription(req, u);
         } else {
@@ -122,7 +120,7 @@ public class BookingLogic {
         }
 
         logger.trace("set 'booksInBooking' session attribute to: books={}", books);
-        session.setAttribute(ServletAttributes.BOOKS_IN_BOOKING, books);
+        session.setAttribute(BOOKS_IN_BOOKING, books);
         logger.debug("listBook request finished");
     }
 
@@ -165,9 +163,9 @@ public class BookingLogic {
                                 .distinct()
                                 .flatMap(List::stream)
                                 .collect(Collectors.toList());
-            req.setAttribute(ServletAttributes.PAGE, Pages.MY_BOOKS);
+            req.setAttribute(PAGE, Pages.MY_BOOKS);
             logger.debug("Set page attribute");
-            logger.trace("{}={}", ServletAttributes.PAGE, Pages.MY_BOOKS);
+            logger.trace("{}={}", PAGE, Pages.MY_BOOKS);
         } else {
             throw new ServiceException("Isn't supported for LIBRARIAN yet");
         }
@@ -198,7 +196,7 @@ public class BookingLogic {
         Booking booking = findBookingForUser(session, req, u, false);
         session.setAttribute("booking", booking);
 
-        req.setAttribute(ServletAttributes.PAGE, Pages.BASKET);
+        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("basket request finished");
     }
 
@@ -223,12 +221,20 @@ public class BookingLogic {
         if (book == null) {
             throw new ServiceException("Book not found");
         }
+        logger.trace("book={}", book);
+
         BookStat bookStat = book.getBookStat();
-        if ((bookStat.getInStock() - bookStat.getReserved()) > 0) {
-            booking.getBooks().add(book);
+        if (!booking.getBooks().contains(book)) {
+            if ((bookStat.getInStock() - bookStat.getReserved()) > 0) {
+                booking.getBooks().add(book);
+                logger.debug("Book was added");
+            } else {
+                throw new ServiceException("No free books for now, unable to reserve");
+            }
         } else {
-            throw new ServiceException("No free books for now, unable to reserve");
+            logger.debug("Book already exists in booking");
         }
+        req.setAttribute(PLAIN_TEXT, String.valueOf(booking.getBooks().size()));
         logger.debug("addBook request finished");
     }
 
@@ -256,6 +262,8 @@ public class BookingLogic {
         SuperDao<Book> bookDao = daoFactory.getBookDao();
         Book book = bookDao.read(id);
         booking.getBooks().remove(book);
+
+        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("removeBook request finished");
     }
 
@@ -289,6 +297,7 @@ public class BookingLogic {
         booking.setState(Booking.State.CANCELED);
 
         daoFactory.getBookingDao().update(booking);
+        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("cancel request finished");
     }
 
@@ -316,6 +325,7 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().create(booking);
+        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("book request finished");
     }
 

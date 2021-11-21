@@ -30,6 +30,9 @@
     <Logger name="com.epam.java2021.library.controller.listener.ContextListener" level="error">
       <AppenderRef ref="STDOUT"/>
     </Logger>
+    <Logger name="com.epam.java2021.library.dao.impl.mysql" level="error">
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
     <Root level="trace">
       <AppenderRef ref="STDOUT"/>
       <AppenderRef ref="File" />

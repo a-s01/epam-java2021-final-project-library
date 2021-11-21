@@ -22,4 +22,5 @@ public class ServletAttributes {
     public static final String APP_ROLES = "appRoles";
     public static final String REQ_TYPE = "reqType";
     public static final String COMMAND = "command";
+    public static final String PLAIN_TEXT = "plainText";
 }

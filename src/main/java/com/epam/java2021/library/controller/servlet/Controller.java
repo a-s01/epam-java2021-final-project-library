@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static com.epam.java2021.library.constant.ServletAttributes.PAGE;
-import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
@@ -28,7 +27,21 @@ public class Controller extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.debug("Post request start");
 
-        String page = proceed(req);
+        String page = proceed(req, resp);
+        if (page == null) {
+            logger.debug("No page was returned, looking if it's ajax request");
+            String plainText = (String) req.getAttribute(PLAIN_TEXT);
+
+            if (plainText != null) {
+                logger.debug("It's ajax, output result");
+                logger.trace("plainText={}", plainText);
+                resp.setContentType("text/plain");
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write(plainText);
+                return;
+            }
+            page = redirectToError("no page was returned by command", req.getSession());
+        }
         logger.debug("redirect to page={}", page);
         resp.sendRedirect(page);
     }
@@ -37,12 +50,17 @@ public class Controller extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         logger.debug("Get request start");
 
-        String page = proceed(req);
+        String page = proceed(req, resp);
+
+        if (page == null) {
+            page = redirectToError("no page was returned by command", req.getSession());
+        }
+
         logger.debug("forward to page={}", page);
         req.getRequestDispatcher(page).forward(req, resp);
     }
 
-    private String proceed(HttpServletRequest req) {
+    private String proceed(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String commandStr = req.getParameter("command");
         logger.trace("commandStr = {}", commandStr);
         HttpSession session = req.getSession();
@@ -56,13 +74,7 @@ public class Controller extends HttpServlet {
             return redirectToError(e.getMessage(), session);
         }
 
-        String page = (String) req.getAttribute(PAGE);
-
-        if (page == null) {
-            logger.error("no page was returned by command");
-        }
-
-        return page;
+        return (String) req.getAttribute(PAGE);
     }
 
     private String redirectToError(String msg, HttpSession session) {
