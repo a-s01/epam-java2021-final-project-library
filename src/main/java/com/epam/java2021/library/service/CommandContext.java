@@ -23,13 +23,14 @@ public class CommandContext {
         commands.put("booking.addBook", new AuthContext(BookingLogic::addBook, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.removeBook", new AuthContext(BookingLogic::removeBook, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.listBooks", new AuthContext(BookingLogic::listBooks, User.Role.USER, User.Role.LIBRARIAN));
-        commands.put("booking.search", new AuthContext(BookingLogic::search, User.Role.USER, User.Role.LIBRARIAN));
+        commands.put("booking.find", new AuthContext(BookingLogic::find, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.basket", new AuthContext(BookingLogic::basket, User.Role.USER));
         commands.put("booking.book", new AuthContext(BookingLogic::book, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.deliver", new AuthContext(BookingLogic::deliver, User.Role.LIBRARIAN));
         commands.put("booking.cancel", new AuthContext(BookingLogic::cancel, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.done", new AuthContext(BookingLogic::done, User.Role.LIBRARIAN));
         commands.put("user.login", new AuthContext(UserLogic::login, User.Role.UNKNOWN));
+        commands.put("user.find", new AuthContext(UserLogic::find, User.Role.UNKNOWN));
         commands.put("user.register", new AuthContext(UserLogic::register, User.Role.UNKNOWN, User.Role.ADMIN));
         commands.put("user.logout", new AuthContext(UserLogic::logout, User.Role.USER, User.Role.LIBRARIAN, User.Role.ADMIN));
         commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.ADMIN));
@@ -42,6 +43,8 @@ public class CommandContext {
         commands.put("/", new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.LOGIN, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.REGISTER, new AuthContext(null, User.Role.UNKNOWN, User.Role.ADMIN));
+        commands.put(Pages.BOOKING, new AuthContext(null, User.Role.LIBRARIAN));
+        commands.put(Pages.USERS, new AuthContext(null, User.Role.ADMIN));
     }
     
     private static class AuthContext {

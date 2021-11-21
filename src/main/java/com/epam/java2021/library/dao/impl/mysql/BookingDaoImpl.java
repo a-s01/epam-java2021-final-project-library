@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.BookingDao;
+import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumns;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.Booking;
@@ -14,10 +15,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BookingDaoImpl implements BookingDao {
     private static final Logger logger = LogManager.getLogger(BookingDaoImpl.class);
+    private static final String BOOKING_COL = "state";
+    private static final SearchSortColumns searchSortColumns = new SearchSortColumns(logger, "email", "name", "state");
     private Connection conn;
 
     public BookingDaoImpl() {}
@@ -128,5 +133,65 @@ public class BookingDaoImpl implements BookingDao {
 
         logger.debug("result set pursing finished");
         return builder.build();
+    }
+
+    @Override
+    public List<Booking> findByPattern(String what, String searchBy, String sortBy, int num, int page) throws ServiceException, DaoException {
+        logger.debug("start");
+        searchSortColumns.check(searchBy, "search");
+        searchSortColumns.check(sortBy, "sort");
+
+        final String query = patternQuery(searchBy, sortBy, false);
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper( c -> {
+            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            List<Booking> bookings = dao.findByPattern(what, num, page,query, this::parse);
+
+            UserDaoImpl userDao = new UserDaoImpl(c);
+            BookSuperDao bookDao = new BookSuperDao(c);
+
+            for (Booking b: bookings) {
+                User u = userDao.read(b.getUser().getId());
+                b.setUser(u);
+
+                List<Book> books = bookDao.getBooksInBooking(b.getId());
+                b.setBooks(books);
+            }
+
+            return bookings;
+        });
+    }
+
+    @Override
+    public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
+        logger.debug("start");
+
+        searchSortColumns.check(searchBy, "search");
+        searchSortColumns.check(sortBy, "sort");
+
+        final String query = patternQuery(searchBy, sortBy, true);
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            return dao.count(what, query);
+        });
+    }
+
+    private String patternQuery(String searchBy, String sortBy, boolean count) {
+        final String orderCol = sortBy.equals(BOOKING_COL) ? "b." + sortBy : "u." + sortBy;
+        final String searchCol = searchBy.equals(BOOKING_COL) ? "b" + sortBy : "u." + searchBy;
+        final String what = count ? "COUNT(*)" : "*";
+
+        String query = "SELECT " + what + " FROM booking AS b\n" +
+                "  JOIN user AS u\n" +
+                "    ON u.id = b.user_id\n" +
+                " WHERE " + searchCol + " LIKE ?";
+        if (count) {
+            return query;
+        }
+
+        query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
+        return query;
     }
 }

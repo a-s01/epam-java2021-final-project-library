@@ -12,7 +12,7 @@
         <c:if test="${not empty books}">
             <table class="table table-hover">
                 <thead>
-                    <th scope="col">Name</th>
+                    <th scope="col">Title</th>
                     <th scope="col">Authors</th>
                     <th scope="col">ISBN</th>
                     <th scope="col">Year</th>

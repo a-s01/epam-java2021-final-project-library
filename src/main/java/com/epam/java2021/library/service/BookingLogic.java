@@ -14,6 +14,8 @@ import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.util.SafeRequest;
+import com.epam.java2021.library.service.util.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -174,25 +176,21 @@ public class BookingLogic {
             throw new ServiceException("Isn't supported for LIBRARIAN yet");
         }
 
-        logger.debug("getBooksInSubscription finished");
+        logger.debug("end");
         return books;
     }
 
-    public static String search(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        // /booking?command=search - user or all (for librarian) bookings
-        logger.debug("search request init...");
-        User u = (User) session.getAttribute("user");
-
-
-
-
-        logger.debug("search request finished");
-        return Pages.BOOKING;
+    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        // /booking?command=find - (mb later user) or all (for librarian) bookings
+        // only for librarian now
+        logger.debug("start");
+        BookingDao dao = daoFactory.getBookingDao();
+        return CommonLogic.find(session, req, logger, dao, "bookings", Pages.BOOKING);
     }
 
     public static String basket(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         //  /booking?command=search&type=basket - user latest booking
-        logger.debug("basket request init...");
+        logger.debug("start");
         User u = (User) session.getAttribute("user");
         if (!u.getRole().equals(User.Role.USER)) {
             throw new ServiceException("Is allowed only for USER");
@@ -201,12 +199,12 @@ public class BookingLogic {
         Booking booking = findBookingForUser(session, req, u, false);
         session.setAttribute("booking", booking);
 
-        logger.debug("basket request finished");
+        logger.debug("end");
         return Pages.BASKET;
     }
 
     public static String addBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("addBook request init...");
+        logger.debug("start");
 
         //Booking booking, long id
         Booking booking = findBooking(session, req, true); // booking != null guarantied
@@ -240,12 +238,12 @@ public class BookingLogic {
             logger.debug("Book already exists in booking");
         }
         req.setAttribute(PLAIN_TEXT, String.valueOf(booking.getBooks().size()));
-        logger.debug("addBook request finished");
+        logger.debug("end");
         return null;
     }
 
     public static String removeBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("removeBook request init...");
+        logger.debug("start");
 
         // Booking booking, long id
         Booking booking = findBooking(session, req);
@@ -269,12 +267,12 @@ public class BookingLogic {
         Book book = bookDao.read(id);
         booking.getBooks().remove(book);
 
-        logger.debug("removeBook request finished");
+        logger.debug("end");
         return Pages.BASKET;
     }
 
     public static String cancel(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("cancel request init...");
+        logger.debug("start");
         // Booking booking
         Booking booking = findBooking(session, req);
 
@@ -304,12 +302,12 @@ public class BookingLogic {
 
         daoFactory.getBookingDao().update(booking);
         req.setAttribute(PAGE, Pages.BASKET);
-        logger.debug("cancel request finished");
+        logger.debug("end");
         return Pages.BOOKING; // TODO to think about
     }
 
     public static String book(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("book request init...");
+        logger.debug("start");
         // Booking booking
         Booking booking = findBooking(session, req);
 
@@ -332,12 +330,12 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().create(booking);
-        logger.debug("book request finished");
+        logger.debug("end");
         return Pages.BASKET;
     }
 
     public static String deliver(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("deliver request init...");
+        logger.debug("start");
 
         // Booking booking, boolean subscription
         Booking booking = findBooking(session, req);
@@ -369,12 +367,12 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().update(booking);
-        logger.debug("deliver request finished");
+        logger.debug("end");
         return Pages.BOOKING;
     }
 
     public static String done(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("done request init...");
+        logger.debug("start");
 
         // Booking booking
         Booking booking = findBooking(session, req);
@@ -396,7 +394,7 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().update(booking);
-        logger.debug("done request finished");
+        logger.debug("end");
         return Pages.BOOKING;
     }
 }

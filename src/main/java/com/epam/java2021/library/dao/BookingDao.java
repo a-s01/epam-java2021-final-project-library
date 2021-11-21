@@ -5,6 +5,6 @@ import com.epam.java2021.library.exception.DaoException;
 
 import java.util.List;
 
-public interface BookingDao extends AbstractDao<Booking> {
+public interface BookingDao extends SuperDao<Booking> {
     List<Booking> findDeliveredByUserID(long id) throws DaoException;
 }

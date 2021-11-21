@@ -1,33 +1,24 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
-import static com.epam.java2021.library.constant.ServletAttributes.*;
-import com.epam.java2021.library.dao.BookDao;
-import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.entity.impl.Book;
+import com.epam.java2021.library.dao.SuperDao;
+import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.util.SafeRequest;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-public class BookLogic {
-    private static final Logger logger = LogManager.getLogger(BookLogic.class);
-    private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
+public class CommonLogic {
 
-    private BookLogic() {}
+    private CommonLogic() {}
 
-    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
-        logger.debug("start");
-        BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(session, req, logger, dao, "books", Pages.HOME);
-        /*
+    public static <E extends Entity> String find(HttpSession session, HttpServletRequest req, Logger logger, SuperDao<E> dao, String reqAttribute, String desiredPage) throws ServiceException {
         SafeRequest safeReq = new SafeRequest(req);
         String query = safeReq.getString("query");
         String searchBy = safeReq.getNotEmptyString("searchBy").toLowerCase();
@@ -41,11 +32,10 @@ public class BookLogic {
         logger.trace("query={}, searchBy={}, sortBy={}, num={}, pageNum={}",
                 query, searchBy, sortBy, num, pageNum);
 
-        List<Book> books = null;
+        List<E> list = null;
         String page;
         int totalCount = -1;
         try {
-            BookDao dao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getBookDao();
             if (pageNum == 1) {
                 session.removeAttribute(PAGES_NUM);
                 totalCount = dao.findByPatternCount(query, searchBy, sortBy);
@@ -53,42 +43,25 @@ public class BookLogic {
                 logger.trace("totalCount={}", totalCount);
             }
             if ((pageNum == 1 && totalCount > 0) || pageNum > 1) {
-                books = dao.findByPattern(query, searchBy, sortBy, num, pageNum);
+                list = dao.findByPattern(query, searchBy, sortBy, num, pageNum);
             }
-            page = Pages.HOME;
+            page = desiredPage;
         } catch (DaoException | ServiceException e) {
             req.setAttribute(SERVICE_ERROR, e.getMessage());
             page = Pages.ERROR;
         }
 
         // books = null if totalCount < 1
-        if (books == null || books.isEmpty()) {
-            logger.trace("Books not found");
+        if (list == null || list.isEmpty()) {
+            logger.trace(reqAttribute + " not found");
             req.setAttribute(NOT_FOUND, "Nothing was found");
         }
 
-        req.setAttribute("books", books);
+        req.setAttribute(reqAttribute, list);
         req.setAttribute(SEARCH_LINK, req.getRequestURI()
                 + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
         req.setAttribute(CUR_PAGE, pageNum);
         logger.debug("end");
-        return page;
-
-         */
-    }
-
-    public static String add(HttpSession session, HttpServletRequest req) {
-        String page = null;
-        return page;
-    }
-
-    public static String edit(HttpSession session, HttpServletRequest req) {
-        String page = null;
-        return page;
-    }
-
-    public static String delete(HttpSession session, HttpServletRequest req) {
-        String page = null;
         return page;
     }
 }
