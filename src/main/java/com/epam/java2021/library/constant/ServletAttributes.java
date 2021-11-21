@@ -1,6 +1,8 @@
 package com.epam.java2021.library.constant;
 
 public class ServletAttributes {
+    private ServletAttributes() {}
+
     // Servlet only
     public static final String PAGE = "page";
 //??
@@ -23,4 +25,7 @@ public class ServletAttributes {
     public static final String REQ_TYPE = "reqType";
     public static final String COMMAND = "command";
     public static final String PLAIN_TEXT = "plainText";
+    public static final String PAGES_NUM = "pagesNum";
+    public static final String SEARCH_LINK = "searchLink";
+    public static final String CUR_PAGE = "curPage";
 }

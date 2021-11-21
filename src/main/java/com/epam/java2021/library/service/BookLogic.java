@@ -28,6 +28,9 @@ public class BookLogic {
         String sortBy = safeReq.getNotEmptyString("sortBy").toLowerCase();
         int num = safeReq.getNotNullParameter("num", Integer::parseInt);
         int pageNum = safeReq.getNotNullParameter("page", Integer::parseInt);
+        if (num == 0) {
+            throw new ServiceException("Amount of items cannot be equal to 0");
+        }
 
         logger.trace("query={}, searchBy={}, sortBy={}, num={}, pageNum={}",
                 query, searchBy, sortBy, num, pageNum);
@@ -37,13 +40,13 @@ public class BookLogic {
         int totalCount = -1;
         try {
             BookDao dao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getBookDao();
-            if (pageNum == 0) {
-                session.removeAttribute(TOTAL_COUNT);
+            if (pageNum == 1) {
+                session.removeAttribute(PAGES_NUM);
                 totalCount = dao.findByPatternCount(query, searchBy, sortBy);
-                session.setAttribute(TOTAL_COUNT, totalCount);
+                session.setAttribute(PAGES_NUM, Math.ceil(1.0 * totalCount / num));
                 logger.trace("totalCount={}", totalCount);
             }
-            if ((pageNum == 0 && totalCount > 0) || pageNum > 0) {
+            if ((pageNum == 1 && totalCount > 0) || pageNum > 1) {
                 books = dao.findByPattern(query, searchBy, sortBy, num, pageNum);
             }
             page = Pages.HOME;
@@ -59,6 +62,9 @@ public class BookLogic {
         }
 
         req.setAttribute("books", books);
+        req.setAttribute(SEARCH_LINK, req.getRequestURI()
+                + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
+        req.setAttribute(CUR_PAGE, pageNum);
         logger.debug("end");
         return page;
     }

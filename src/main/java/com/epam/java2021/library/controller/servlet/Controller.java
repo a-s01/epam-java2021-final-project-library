@@ -25,7 +25,9 @@ public class Controller extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        logger.debug("Post request start");
+        logger.debug("start");
+        logger.trace("uri={}, query={}", req.getRequestURI(), req.getQueryString());
+
 
         String page = proceed(req, resp);
         if (page == null) {
@@ -48,7 +50,8 @@ public class Controller extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        logger.debug("Get request start");
+        logger.debug("start");
+        logger.trace("uri={},query={}", req.getRequestURI(), req.getQueryString());
 
         String page = proceed(req, resp);
 

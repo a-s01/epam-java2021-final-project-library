@@ -110,7 +110,7 @@ public class DaoImpl<T extends Entity> {
             int i = START;
             ps.setString(i++, escapeForLike(pattern));
             ps.setInt(i++, num);
-            ps.setInt(i++, page * num);
+            ps.setInt(i++, (page - 1) * num);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(parser.accept(rs));

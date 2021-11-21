@@ -131,6 +131,7 @@ public class BookSuperDao implements BookDao {
         });
     }
 
+    @Override
     public int findByPatternCount(String what, String searchBy, String sortBy)
             throws ServiceException, DaoException {
         logger.trace("request: what={}, searchBy={}, sortBy={}",

@@ -1,15 +1,20 @@
-<ul class="pagination justify-content-end">
-    <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-        </a>
-    </li>
-    <li class="page-item"><a class="page-link" href="/findBook?page=0">1</a></li>
-    <li class="page-item"><a class="page-link" href="/findBook?page=1">2</a></li>
-    <li class="page-item"><a class="page-link" href="/findBook?page=2">3</a></li>
-    <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-        </a>
-    </li>
-</ul>
+<c:if test="${not empty pagesNum and pagesNum > 0}" >
+    <l:redirectIfEmpty value="${searchLink}" errorMsg="SearchLink isn't set" />
+    <ul class="pagination justify-content-end">
+        <li class="page-item  <c:if test='${curPage eq 1}'>disabled</c:if>">
+            <a class="page-link"
+                href="${searchLink}&page=${curPage - 1}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <c:forEach begin="1" end="${pagesNum}" varStatus="loop" >
+            <li class="page-item  <c:if test='${loop.index eq curPage}'>active</c:if>"><a class="page-link" href="${searchLink}&page=${loop.index}">${loop.index}</a></li>
+        </c:forEach>
+        <li class="page-item  <c:if test='${curPage eq pagesNum}'>disabled</c:if>">
+            <a class="page-link"
+                href="${searchLink}&page=${curPage + 1}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</c:if>
