@@ -69,12 +69,10 @@ public class Controller extends HttpServlet {
 
         try {
             Command command = CommandContext.getCommand(commandStr);
-            command.execute(session, req);
+            return command.execute(session, req);
         } catch (DaoException | ServiceException e) {
             return redirectToError(e.getMessage(), session);
         }
-
-        return (String) req.getAttribute(PAGE);
     }
 
     private String redirectToError(String msg, HttpSession session) {

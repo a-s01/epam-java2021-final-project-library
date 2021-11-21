@@ -81,7 +81,7 @@ public class UserLogic {
         return user;
     }
 
-    public static void login(HttpSession session, HttpServletRequest req) {
+    public static String login(HttpSession session, HttpServletRequest req) {
         logger.debug("start");
         String email = req.getParameter("email");
         String pass = req.getParameter("password");
@@ -111,11 +111,11 @@ public class UserLogic {
             page = Pages.HOME;
         }
 
-        req.setAttribute(ServletAttributes.PAGE, page);
         logger.debug("end");
+        return page;
     }
 
-    public static void register(HttpSession session, HttpServletRequest req) {
+    public static String register(HttpSession session, HttpServletRequest req) {
         String email = req.getParameter(ServletAttributes.REG_EMAIL);
         logger.trace("Request for creating new user: '{}'", email);
         String pass = req.getParameter(ServletAttributes.REG_PASS);
@@ -151,10 +151,10 @@ public class UserLogic {
             page = Pages.LOGIN;
         }
 
-        req.setAttribute(ServletAttributes.PAGE, page);
+        return page;
     }
 
-    public static void logout(HttpSession session, HttpServletRequest req) {
+    public static String logout(HttpSession session, HttpServletRequest req) {
         logger.debug("start");
         logger.trace("Session: id={}", session.getId());
 
@@ -162,13 +162,17 @@ public class UserLogic {
 
         session.invalidate();
 
-        req.setAttribute(ServletAttributes.PAGE, Pages.HOME);
         logger.debug("end");
+        return Pages.HOME;
     }
 
-    public static void edit(HttpSession session, HttpServletRequest request) {
+    public static String edit(HttpSession session, HttpServletRequest request) {
+        String page = null;
+        return page;
     }
 
-    public static void delete(HttpSession session, HttpServletRequest request) {
+    public static String delete(HttpSession session, HttpServletRequest request) {
+        String page = null;
+        return page;
     }
 }

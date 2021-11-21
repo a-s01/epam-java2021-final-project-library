@@ -7,5 +7,5 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public interface Command {
-    void execute(HttpSession session, HttpServletRequest req) throws DaoException, ServiceException;
+    String execute(HttpSession session, HttpServletRequest req) throws DaoException, ServiceException;
 }

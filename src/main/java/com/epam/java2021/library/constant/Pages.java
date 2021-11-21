@@ -9,4 +9,5 @@ public class Pages {
     public static final String MY_BOOKS = "/jsp/my_books.jsp";
     public static final String BASKET = "/jsp/basket.jsp";
     public static final String REGISTER = "/jsp/register.jsp";
+    public static final String BOOKING = "/jsp/booking.jsp";
 }

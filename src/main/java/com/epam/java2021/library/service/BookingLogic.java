@@ -44,11 +44,11 @@ public class BookingLogic {
 
     private BookingLogic() {}
 
-    public static Booking findBooking(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    private static Booking findBooking(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         return findBooking(session, req, false);
     }
 
-    public static Booking findBooking(HttpSession session, HttpServletRequest req, boolean create) throws ServiceException, DaoException {
+    private static Booking findBooking(HttpSession session, HttpServletRequest req, boolean create) throws ServiceException, DaoException {
         logger.debug("findBooking request init..");
         logger.trace("sessionID={}, reqURI={}", session.getId(), req.getRequestURI());
         User u = (User) session.getAttribute("user");
@@ -104,24 +104,28 @@ public class BookingLogic {
     /**
      * 2 cases: listBooks in particular booking (should have bookingID then) or listBooks on subscription
      */
-    public static void listBooks(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("listBook request init...");
+    public static String listBooks(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug("init...");
 
         boolean subscription = Boolean.parseBoolean(req.getParameter("subscription"));
         User u = (User) session.getAttribute("user");
         logger.trace("subscription={}, user={}", subscription, u);
 
         List<Book> books;
+        String page;
         if (subscription) {
             books = getBooksInSubscription(req, u);
+            page = Pages.BASKET; // TODO think about this
         } else {
             // or we have bookingID
             books = getBooksForBookingID(req);
+            page = Pages.BOOKING;
         }
 
         logger.trace("set 'booksInBooking' session attribute to: books={}", books);
         session.setAttribute(BOOKS_IN_BOOKING, books);
-        logger.debug("listBook request finished");
+        logger.debug("finished");
+        return page;
     }
 
     private static List<Book> getBooksForBookingID(HttpServletRequest req) throws DaoException, ServiceException {
@@ -174,7 +178,7 @@ public class BookingLogic {
         return books;
     }
 
-    public static void search(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String search(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         // /booking?command=search - user or all (for librarian) bookings
         logger.debug("search request init...");
         User u = (User) session.getAttribute("user");
@@ -183,9 +187,10 @@ public class BookingLogic {
 
 
         logger.debug("search request finished");
+        return Pages.BOOKING;
     }
 
-    public static void basket(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String basket(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         //  /booking?command=search&type=basket - user latest booking
         logger.debug("basket request init...");
         User u = (User) session.getAttribute("user");
@@ -196,11 +201,11 @@ public class BookingLogic {
         Booking booking = findBookingForUser(session, req, u, false);
         session.setAttribute("booking", booking);
 
-        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("basket request finished");
+        return Pages.BASKET;
     }
 
-    public static void addBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String addBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("addBook request init...");
 
         //Booking booking, long id
@@ -236,9 +241,10 @@ public class BookingLogic {
         }
         req.setAttribute(PLAIN_TEXT, String.valueOf(booking.getBooks().size()));
         logger.debug("addBook request finished");
+        return null;
     }
 
-    public static void removeBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String removeBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("removeBook request init...");
 
         // Booking booking, long id
@@ -263,11 +269,11 @@ public class BookingLogic {
         Book book = bookDao.read(id);
         booking.getBooks().remove(book);
 
-        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("removeBook request finished");
+        return Pages.BASKET;
     }
 
-    public static void cancel(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String cancel(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("cancel request init...");
         // Booking booking
         Booking booking = findBooking(session, req);
@@ -286,7 +292,7 @@ public class BookingLogic {
         if (state == Booking.State.NEW) {
             // nothing was added to DB yet, so just delete and forget
             booking.setBooks(null);
-            return;
+            return Pages.BOOKING; // TODO to think about
         }
 
         // so state was BOOKED and written to DB
@@ -299,9 +305,10 @@ public class BookingLogic {
         daoFactory.getBookingDao().update(booking);
         req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("cancel request finished");
+        return Pages.BOOKING; // TODO to think about
     }
 
-    public static void book(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String book(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("book request init...");
         // Booking booking
         Booking booking = findBooking(session, req);
@@ -325,11 +332,11 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().create(booking);
-        req.setAttribute(PAGE, Pages.BASKET);
         logger.debug("book request finished");
+        return Pages.BASKET;
     }
 
-    public static void deliver(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String deliver(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("deliver request init...");
 
         // Booking booking, boolean subscription
@@ -363,9 +370,10 @@ public class BookingLogic {
 
         daoFactory.getBookingDao().update(booking);
         logger.debug("deliver request finished");
+        return Pages.BOOKING;
     }
 
-    public static void done(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String done(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug("done request init...");
 
         // Booking booking
@@ -389,5 +397,6 @@ public class BookingLogic {
 
         daoFactory.getBookingDao().update(booking);
         logger.debug("done request finished");
+        return Pages.BOOKING;
     }
 }
