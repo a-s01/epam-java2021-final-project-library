@@ -1,7 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.UserDao;
-import com.epam.java2021.library.dao.impl.util.Transaction;
+import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.EditRecord;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
@@ -27,13 +27,10 @@ public class UserDaoImpl implements UserDao {
     public User findByEmail(String email) throws DaoException {
         final String query = "SELECT * FROM user WHERE email = ?";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        User user = dao.findByUniqueString(email, query, this::parse);
-
-        tr.close();
-        return user;
+        return tr.noTransactionWrapper( c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            return dao.findByUniqueString(email, query, this::parse);
+        });
     }
 
     public static class SearchSortColumns {
@@ -58,12 +55,10 @@ public class UserDaoImpl implements UserDao {
     public void create(User user) throws DaoException {
         final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, DEFAULT, ?)";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        dao.create(user, query, this::fillStatement);
-
-        tr.close();
+        tr.transactionWrapper( c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            dao.create(user, query, this::fillStatement);
+        });
     }
 
     private int fillStatement(User user, PreparedStatement ps) throws SQLException {
@@ -88,13 +83,10 @@ public class UserDaoImpl implements UserDao {
     public User read(long id) throws DaoException {
         final String query = "SELECT * FROM user WHERE id = ?";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        User user = dao.read(id, query, this::parse);
-
-        tr.close();
-        return user;
+        return tr.noTransactionWrapper( c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            return dao.read(id, query, this::parse);
+        });
     }
 
     private User parse(ResultSet rs) throws SQLException {
@@ -125,29 +117,25 @@ public class UserDaoImpl implements UserDao {
         final String query = "UPDATE user SET email = ?, password = ?, salt = ?, role = ?, state = ?, " +
                 "fine = ?, name = ?, last_edit_id = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        dao.update(user, query,
-                (entity, ps) -> {
-                    int nextIndex = fillStatement(entity, ps);
-                    ps.setLong(nextIndex, entity.getId());
-                }
-        );
-
-        tr.close();
+        tr.transactionWrapper(c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            dao.update(user, query,
+                    (entity, ps) -> {
+                        int nextIndex = fillStatement(entity, ps);
+                        ps.setLong(nextIndex, entity.getId());
+                    }
+            );
+        });
     }
 
     @Override
     public void delete(User user) throws DaoException {
         final String query = "UPDATE user SET state = 'deleted' WHERE id = ?";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        dao.delete(user, query);
-
-        tr.close();
+        tr.transactionWrapper(c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            dao.delete(user, query);
+        });
     }
 
     @Override
@@ -159,12 +147,9 @@ public class UserDaoImpl implements UserDao {
 
         final String query = "SELECT * FROM user WHERE %s LIKE ?";
         Transaction tr = new Transaction(conn);
-        Connection c = tr.getConnection();
-
-        DaoImpl<User> dao = new DaoImpl<>(c, logger);
-        List<User> users = dao.findByPattern(what, num, page, query, this::parse);
-
-        tr.close();
-        return users;
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            return dao.findByPattern(what, num, page, query, this::parse);
+        });
     }
 }

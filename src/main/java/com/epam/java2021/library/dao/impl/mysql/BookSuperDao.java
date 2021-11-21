@@ -1,7 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.BookDao;
-import com.epam.java2021.library.dao.impl.util.Transaction;
+import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
@@ -48,7 +48,7 @@ public class BookSuperDao implements BookDao {
         logger.debug("Get books in booking request: id={}", id);
 
         Transaction tr = new Transaction(conn);
-        return tr.noTransactionWrapperList(c -> {
+        return tr.noTransactionWrapper(c -> {
             BookDaoImpl dao = new BookDaoImpl(c);
             List<Book> books = dao.getBooksInBooking(id);
 
@@ -131,17 +131,32 @@ public class BookSuperDao implements BookDao {
         });
     }
 
+    public int findByPatternCount(String what, String searchBy, String sortBy)
+            throws ServiceException, DaoException {
+        logger.trace("request: what={}, searchBy={}, sortBy={}",
+                what, searchBy, sortBy);
+
+        SearchSortColumns.check(searchBy, "Search");
+        SearchSortColumns.check(sortBy, "Sort");
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper( c -> {
+            BookDaoImpl dao = new BookDaoImpl(c);
+            return dao.findByPatternCount(what, searchBy, sortBy);
+        });
+    }
+
     @Override
     public List<Book> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
-        logger.trace("Find by pattern request: what={}, searchBy={}, sortBy={}, num={}, page={}",
+        logger.trace("request: what={}, searchBy={}, sortBy={}, num={}, page={}",
                 what, searchBy, sortBy, num, page);
 
         SearchSortColumns.check(searchBy, "Search");
         SearchSortColumns.check(sortBy, "Sort");
 
         Transaction tr = new Transaction(conn);
-        return tr.noTransactionWrapperList( c -> {
+        return tr.noTransactionWrapper( c -> {
             BookDaoImpl dao = new BookDaoImpl(c);
             List<Book> books;
             books = dao.findByPattern(what, searchBy, sortBy, num, page);

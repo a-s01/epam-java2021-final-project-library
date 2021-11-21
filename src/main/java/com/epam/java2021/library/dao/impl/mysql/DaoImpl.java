@@ -1,10 +1,10 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
-import com.epam.java2021.library.dao.impl.util.EntityParser;
+import com.epam.java2021.library.dao.impl.mysql.util.EntityParser;
 import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.Logger;
-import com.epam.java2021.library.dao.impl.util.StatementFiller;
+import com.epam.java2021.library.dao.impl.mysql.util.StatementFiller;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -60,6 +60,21 @@ public class DaoImpl<T extends Entity> {
             logAndThrow(e);
         }
         return null;
+    }
+
+    public int count(String pattern, String query) throws DaoException {
+        logger.trace("request: pattern={}, query={}", pattern, query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(START, escapeForLike(pattern));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(START);
+                }
+            }
+        } catch (SQLException e) {
+            logAndThrow(e);
+        }
+        return -1;
     }
 
     public void update(T entity, String query, StatementFiller<T> filler) throws DaoException {

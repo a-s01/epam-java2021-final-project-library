@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
 public class BookDaoImpl implements AbstractDao<Book> {
     private static final Logger logger = LogManager.getLogger(BookDaoImpl.class);
     private static final String AUTHOR_COL = "author";
-    private Connection conn;
+    private final Connection conn;
 
     public BookDaoImpl(Connection conn) {
         this.conn = conn;
@@ -90,20 +91,36 @@ public class BookDaoImpl implements AbstractDao<Book> {
     }
 
     public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page) throws DaoException {
-        final String orderBy = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
-        final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
+        final String query = patternQuery(searchBy, sortBy, false);
+        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
+        return dao.findByPattern(pattern, num, page, query, this::parse);
+    }
 
-        final String query = "SELECT *\n" +
+    private String patternQuery(String searchBy, String sortBy, boolean count) {
+        final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
+        final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
+        final String what = count ? "COUNT(*)" : "*";
+
+        String query = "SELECT " + what + "\n" +
                 "  FROM book AS b\n" +
                 "   JOIN book_author AS ba\n" +
                 "      ON b.id=ba.book_id\n" +
                 "      JOIN author AS a\n" +
                 "        ON a.id = ba.author_id\n" +
-                "     WHERE " + searchBy + " LIKE ?" +
-                "    ORDER BY " + orderBy +
-                "   LIMIT ? OFFSET ?";
+                "     WHERE " + searchCol + " LIKE ?";
+        if (count) {
+            return query;
+        }
+
+        query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
+        return query;
+    }
+
+    public int findByPatternCount(String pattern, String searchBy, String sortBy)
+            throws DaoException {
+        final String query = patternQuery(searchBy, sortBy, true);
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
-        return dao.findByPattern(pattern, num, page, query, this::parse);
+        return dao.count(pattern, query);
     }
 
     public List<Book> getBooksInBooking(long id) throws DaoException {
@@ -126,11 +143,11 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     public void updateBooksInBooking(long id, List<Book> books) throws DaoException {
         // book_id, author_id
-        final String addQuery = "INSERT INTO booking VALUES (?, ?)";
         final String delQuery = "DELETE FROM booking WHERE book_id = ?";
 
         List<Book> toDelete = getBooksInBooking(id);
-        List<Book> toAdd = books;
+        List<Book> toAdd = new ArrayList<>();
+        Collections.copy(books, toAdd);
         toAdd.removeAll(toDelete);
         toDelete.removeAll(books);
 

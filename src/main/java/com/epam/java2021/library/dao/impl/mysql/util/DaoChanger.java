@@ -1,4 +1,4 @@
-package com.epam.java2021.library.dao.impl.util;
+package com.epam.java2021.library.dao.impl.mysql.util;
 
 import com.epam.java2021.library.exception.DaoException;
 

@@ -1,13 +1,11 @@
-package com.epam.java2021.library.dao.impl.util;
+package com.epam.java2021.library.dao.impl.mysql.util;
 
-import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 public class Transaction {
     private static final ConnectionPool pool = ConnectionPool.getInstance();
@@ -100,17 +98,10 @@ public class Transaction {
         }
     }
 
-    public <T extends Entity> T noTransactionWrapper(DaoReader<T> reader) throws DaoException {
+    public <T> T noTransactionWrapper(DaoReader<T> reader) throws DaoException {
         Connection c = this.getConnection();
-        T t = (T) reader.proceed(c);
+        T t = reader.proceed(c);
         this.close();
         return t;
-    }
-
-    public <T extends Entity> List<T> noTransactionWrapperList(DaoListReader<T> reader) throws DaoException {
-        Connection c = this.getConnection();
-        List<T> list = (List<T>) reader.proceed(c);
-        this.close();
-        return list;
     }
 }
