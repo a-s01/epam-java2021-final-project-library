@@ -24,9 +24,9 @@
     <Logger name="TEST" level="trace">
       <AppenderRef ref="STDOUT"/>
     </Logger>
-    <Logger name="com.epam.java2021.library.jstltag" level="error">
+    <!-- <Logger name="com.epam.java2021.library.jstltag" level="trace">
       <AppenderRef ref="STDOUT"/>
-    </Logger>
+    </Logger> -->
     <Logger name="com.epam.java2021.library.controller.listener.ContextListener" level="error">
       <AppenderRef ref="STDOUT"/>
     </Logger>

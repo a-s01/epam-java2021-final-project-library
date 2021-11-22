@@ -1,8 +1,10 @@
 package com.epam.java2021.library.controller.servlet;
 
 import com.epam.java2021.library.constant.Pages;
+import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.exception.UserException;
 import com.epam.java2021.library.service.CommandContext;
 import com.epam.java2021.library.service.util.Command;
 import org.apache.logging.log4j.LogManager;
@@ -69,6 +71,7 @@ public class Controller extends HttpServlet {
         HttpSession session = req.getSession();
 
         session.removeAttribute(SERVICE_ERROR);
+        session.removeAttribute(ServletAttributes.REG_PAGE_ERROR_MSG);
 
         try {
             Command command = CommandContext.getCommand(commandStr);

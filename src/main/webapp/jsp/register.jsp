@@ -60,6 +60,12 @@
                     <div class="col-sm container overflow-hidden">
                         <p class="text-danger"><c:out value="${regErrorMsg}" /></p>
                         <button type="submit" class="btn btn-primary">Register</button>
+                        <c:if test="${not empty user and user.role eq 'ADMIN'}">
+                            <a class="btn btn-danger" href="/jsp/users.jsp">Cancel</a>
+                        </c:if>
+                        <c:if test="${empty user}">
+                            <a class="btn btn-danger" href="/jsp/home.jsp">Cancel</a>
+                        </c:if>
                     </div>
                 </div>
             </form>

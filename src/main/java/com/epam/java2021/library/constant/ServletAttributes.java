@@ -28,4 +28,7 @@ public class ServletAttributes {
     public static final String PAGES_NUM = "pagesNum";
     public static final String SEARCH_LINK = "searchLink";
     public static final String CUR_PAGE = "curPage";
+
+    public static final String START_MSG = "start";
+    public static final String END_MSG = "end";
 }

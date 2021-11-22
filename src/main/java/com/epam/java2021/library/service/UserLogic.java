@@ -1,16 +1,18 @@
 package com.epam.java2021.library.service;
 
+
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.exception.UserException;
 import com.epam.java2021.library.service.util.PasswordUtil;
+import com.epam.java2021.library.service.util.SafeRequest;
+import com.epam.java2021.library.service.util.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,18 +20,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 import static com.epam.java2021.library.constant.ServletAttributes.*;
-import static com.epam.java2021.library.constant.ServletAttributes.USER;
 
 public class UserLogic {
     private static final Logger logger = LogManager.getLogger(UserLogic.class);
     private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
     private static final String ERROR_DESCR = "{}: {}";
 
+    
     private UserLogic() {}
 
-    public static User getUser(String email, String password) throws DaoException, ServiceException {
+    private static User getUser(String email, String password) throws DaoException, ServiceException {
+        logger.debug(START_MSG);
         logger.trace("getUser request: email={}", email);
 
         UserDao userDao = daoFactory.getUserDao();
@@ -39,6 +43,8 @@ public class UserLogic {
             try {
                 String hash = PasswordUtil.genHash(password, user.getSalt());
                 if (hash.equals(user.getPassword())) {
+                    logger.trace("found: user={}", user);
+                    logger.debug(END_MSG);
                     return user;
                 }
             } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
@@ -47,42 +53,66 @@ public class UserLogic {
                 throw new ServiceException(msg, e);
             }
         }
+        logger.trace("user not found");
+        logger.debug(END_MSG);
         return null;
     }
 
-    public static User createUser(String email, String pass, String role, String name, long editBy, String comment)
-            throws ServiceException, DaoException, UserException {
-        logger.trace("createUser request: email={}", email);
+    public static String register(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
 
-        if (email == null || email.equals("")) {
-            throw new UserException("Email cannot be null");
+        User user;
+        try {
+            user = getValidParams(session, req);
+            if (user.getPassword().equals("")) {
+                throw new UserException("Password cannot be empty");
+            }
+        } catch (UserException e) {
+            session.setAttribute(REG_PAGE_ERROR_MSG, e.getMessage());
+            return Pages.REGISTER;
         }
-        if (pass == null || pass.equals("")) {
-            throw new UserException("Password cannot be null");
-        }
-
-        User.Builder uBuilder = new User.Builder();
-        uBuilder.setEmail(email);
+        
         try {
             String salt = PasswordUtil.genSalt();
-            pass = PasswordUtil.genHash(pass, salt);
-            uBuilder.setSalt(salt);
-            uBuilder.setPassword(pass);
+            String pass = PasswordUtil.genHash(user.getPassword(), salt);
+            user.setSalt(salt);
+            user.setPassword(pass);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new ServiceException("Unable to get salt/pass for user " + email);
+            throw new ServiceException("Unable to get salt/pass for user " + user.getEmail());
         }
-        uBuilder.setRole(role);
-        uBuilder.setName(name);
-        User user = uBuilder.build();
-        // TODO add history
-
+        
         UserDao dao = daoFactory.getUserDao();
-        dao.create(user);
-        return user;
+        try {
+            dao.create(user);
+        } catch (DaoException e) {
+            try {
+                if (e.getMessage().startsWith("Duplicate entry") && e.getMessage().endsWith("for key 'user.email'")) {
+                    throw new UserException("Email is already taken");
+                } else {
+                    throw e;
+                }
+            } catch (UserException userE) {
+                session.setAttribute(REG_PAGE_ERROR_MSG, userE.getMessage());
+                return Pages.REGISTER;
+            }
+        }
+
+        SafeSession safeSession = new SafeSession(session);
+        User currentUser = safeSession.getParameter(USER, User.class::cast);
+
+        String page;
+        if (currentUser != null) {
+            page = Pages.USERS;
+        } else {
+            session.setAttribute(USER, user);
+            logger.debug(END_MSG);
+            page = Pages.HOME;
+        }
+        return page;
     }
 
     public static String login(HttpSession session, HttpServletRequest req) {
-        logger.debug("start");
+        logger.debug(START_MSG);
         String email = req.getParameter("email");
         String pass = req.getParameter("password");
         logger.trace("Auth request for email '{}'", email);
@@ -111,68 +141,126 @@ public class UserLogic {
             page = Pages.HOME;
         }
 
-        logger.debug("end");
+        logger.debug(END_MSG);
         return page;
     }
 
-    public static String register(HttpSession session, HttpServletRequest req) {
-        String email = req.getParameter(ServletAttributes.REG_EMAIL);
-        logger.trace("Request for creating new user: '{}'", email);
-        String pass = req.getParameter(ServletAttributes.REG_PASS);
-        String role = req.getParameter("role");
-        String name = req.getParameter("name");
-        String comment = req.getParameter("comment");
+    private static User getValidParams(HttpSession session, HttpServletRequest req) throws UserException, ServiceException {
+        String email;
+        String pass;
+        String role;
+        
+        SafeRequest safe = new SafeRequest(req);
+
+        try {
+            email = safe.getNotEmptyString(REG_EMAIL);
+        } catch (ServiceException e) {
+            session.setAttribute(REG_PAGE_ERROR_MSG, e.getMessage());
+            throw new UserException(e.getMessage());
+        }
+        pass = safe.getString(REG_PASS);
+        role = safe.getString("role");
+
+        String name = safe.getString("name");
+        String comment = safe.getString("comment");
+
+        SafeSession safeSession = new SafeSession(session);
         long editBy = -1;
-
-        User currentUser = (User) session.getAttribute("user");
-        String page = null;
-
+        User currentUser = safeSession.getParameter("user", User.class::cast);
         if (currentUser != null) {
             editBy = currentUser.getId();
-            page = Pages.USERS;
         }
 
-        session.removeAttribute(ServletAttributes.REG_PAGE_ERROR_MSG);
-        session.removeAttribute(ServletAttributes.ERROR_PAGE_ERROR_MSG);
-        try {
-            User created = createUser(email, pass, role, name, editBy, comment);
-            logger.trace("User '{}' successfully created", email);
-            if (currentUser == null) {
-                session.setAttribute(ServletAttributes.USER, created);
-                page = Pages.HOME;
+        logger.trace("email={}, role={}, name={}, editBy={}, comment={}", 
+                email, role, name, editBy, comment);
+
+        User.Builder uBuilder = new User.Builder();
+        uBuilder.setEmail(email);
+        if (!role.equals("")) {
+            try {
+                uBuilder.setRole(role);
+            } catch (IllegalArgumentException e) {
+                throw new ServiceException("No such user role: " + role);
             }
-        } catch (ServiceException | DaoException e) {
-            session.setAttribute(ServletAttributes.ERROR_PAGE_ERROR_MSG, e.getMessage());
-            logger.trace("Service error in user '{}' creation", email);
-            page = Pages.ERROR;
-        } catch (UserException e) {
-            session.setAttribute(ServletAttributes.REG_PAGE_ERROR_MSG, e.getMessage());
-            logger.trace("User error in user '{}' creation", email);
-            page = Pages.LOGIN;
+        }
+        uBuilder.setName(name);
+        uBuilder.setPassword(pass);
+        // TODO add history
+        return uBuilder.build();
+    }
+
+
+    public static String edit(HttpSession session, HttpServletRequest req) throws DaoException, ServiceException {
+        logger.debug(START_MSG);
+
+        SafeRequest safeRequest = new SafeRequest(req);
+        long userID = safeRequest.getNotNullParameter("userID", Long::parseLong);
+        logger.trace("userID={}", userID);
+        User proceedUser = null;
+
+        SafeSession safeSession = new SafeSession(session);
+        List<User> users = safeSession.getNotNullParameter("users", List.class::cast);
+        for (User u : users) {
+            if (u.getId() == userID) {
+                proceedUser = u;
+                break;
+            }
         }
 
-        return page;
+        if (proceedUser == null) {
+            throw new ServiceException("User should be in cached list of users");
+        }
+
+        User params;
+        try {
+            params = getValidParams(session, req);
+        } catch (UserException e) {
+            return Pages.REGISTER;
+        }
+
+        proceedUser.setEmail(params.getEmail());
+        if (!params.getPassword().equals("")) {
+            String salt = proceedUser.getSalt();
+            try {
+                String pass = PasswordUtil.genHash(params.getPassword(), salt);
+                proceedUser.setPassword(pass);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                throw new ServiceException("Unable to get pass for user " + params.getEmail());
+            }
+        }
+        proceedUser.setRole(params.getRole());
+        proceedUser.setName(params.getName());
+        // TODO add history
+
+        UserDao dao = daoFactory.getUserDao();
+        dao.update(proceedUser);
+
+        logger.debug(END_MSG);
+        return Pages.USERS;
     }
 
     public static String logout(HttpSession session, HttpServletRequest req) {
-        logger.debug("start");
+        logger.debug(START_MSG);
         logger.trace("Session: id={}", session.getId());
 
         //Booking booking // TODO before invalidate load user booking to db and save it in cookie
 
         session.invalidate();
 
-        logger.debug("end");
+        logger.debug(END_MSG);
         return Pages.HOME;
-    }
-
-    public static String edit(HttpSession session, HttpServletRequest request) {
-        String page = null;
-        return page;
     }
 
     public static String delete(HttpSession session, HttpServletRequest request) {
         String page = null;
+
+
         return page;
+    }
+
+
+    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
+        logger.debug(START_MSG);
+        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), "users", Pages.USERS);
     }
 }

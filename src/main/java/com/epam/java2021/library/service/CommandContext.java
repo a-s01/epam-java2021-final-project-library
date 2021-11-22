@@ -30,7 +30,7 @@ public class CommandContext {
         commands.put("booking.cancel", new AuthContext(BookingLogic::cancel, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.done", new AuthContext(BookingLogic::done, User.Role.LIBRARIAN));
         commands.put("user.login", new AuthContext(UserLogic::login, User.Role.UNKNOWN));
-        commands.put("user.find", new AuthContext(UserLogic::find, User.Role.UNKNOWN));
+        commands.put("user.find", new AuthContext(UserLogic::find, User.Role.ADMIN));
         commands.put("user.register", new AuthContext(UserLogic::register, User.Role.UNKNOWN, User.Role.ADMIN));
         commands.put("user.logout", new AuthContext(UserLogic::logout, User.Role.USER, User.Role.LIBRARIAN, User.Role.ADMIN));
         commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.ADMIN));
@@ -45,6 +45,7 @@ public class CommandContext {
         commands.put(Pages.REGISTER, new AuthContext(null, User.Role.UNKNOWN, User.Role.ADMIN));
         commands.put(Pages.BOOKING, new AuthContext(null, User.Role.LIBRARIAN));
         commands.put(Pages.USERS, new AuthContext(null, User.Role.ADMIN));
+        commands.put(Pages.USER_EDIT, new AuthContext(null, User.Role.ADMIN));
     }
     
     private static class AuthContext {

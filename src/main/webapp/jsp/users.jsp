@@ -14,7 +14,8 @@
                     <th scope="col">Role</th>
                     <th scope="col">State</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Action</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
                 </thead>
                 <tbody>
                     <c:forEach var="user" items="${users}">
@@ -23,13 +24,15 @@
                             <td><c:out value="${user.role}"/></td>
                             <td><c:out value="${user.state}"/></td>
                             <td><c:out value="${user.name}"/></td>
-                            <td><a href="/controller?command=user.edit&id=${user.id}">Edit</a></td>
+                            <td><a href="/jsp/user_edit.jsp?id=${user.id}">Edit</a></td>
+                            <td><a class="text-danger" href="/controller?command=user.delete&id=${user.id}">Delete</a></td>
                         </tr>
                     </c:forEach>
                 </tbody>
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
+        <a class="btn btn-info" href="/jsp/register.jsp">Create user</a>
         <div class="container">
             <c:out value="${notFound}"/>
         </div>

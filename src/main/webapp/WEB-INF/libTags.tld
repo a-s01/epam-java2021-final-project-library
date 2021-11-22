@@ -43,4 +43,22 @@
             <required>true</required>
         </attribute>
     </tag>
+    <tag>
+        <name>getEntityByID</name>
+        <tag-class>com.epam.java2021.library.jstltag.GetEntityByID</tag-class>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>lookUpID</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

@@ -93,6 +93,7 @@ public class UserDaoImpl implements UserDao {
         User.Builder builder = new User.Builder();
         builder.setId(rs.getInt("id"));
         builder.setEmail(rs.getString("email"));
+        builder.setName(rs.getString("name"));
         builder.setPassword(rs.getString("password"));
         builder.setSalt(rs.getString("salt"));
         String dbRole = rs.getString("role");
@@ -145,11 +146,25 @@ public class UserDaoImpl implements UserDao {
         SearchSortColumns.check(searchBy, "Search");
         SearchSortColumns.check(sortBy, "Sort");
 
-        final String query = "SELECT * FROM user WHERE %s LIKE ?";
+        final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
             return dao.findByPattern(what, num, page, query, this::parse);
+        });
+    }
+
+    @Override
+    public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
+        logger.debug("start");
+        SearchSortColumns.check(searchBy, "Search");
+        SearchSortColumns.check(sortBy, "Sort");
+        final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ?";
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+           DaoImpl<User> dao = new DaoImpl<>(c, logger);
+           return dao.count(what, query);
         });
     }
 }
