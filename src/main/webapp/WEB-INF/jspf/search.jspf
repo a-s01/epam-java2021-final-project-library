@@ -1,31 +1,38 @@
 <l:redirectIfEmpty value="${action}" errorMsg="Action isn't set" />
 <l:redirectIfEmpty value="${list}" errorMsg="List isn't set" />
-<div class="container">
+<div class="container pt-4">
     <form action="/controller" >
         <input type="hidden" name="command" value="${action}">
         <input type="hidden" name="page" value="1">
-        <div class="row">
-            <input class="form-control-lg col-md-8 col-lg-8" type="text" name="query" placeholder="Let me find...">
-            <div class="form-group col-md-2 col-lg-2">
-                <label for="searchBy" class="col-md-2 col-lg-2">Search By</label>
-                <select class="col-md-1 col-lg-1" name="searchBy">
+        <div class="row align-items-center">
+            <input class="form-control-lg col-7" type="search" name="query" placeholder="Let me find" value="<c:out value='${param.query}' />">
+            <div class="form-floating col">
+                <select class="form-select" name="searchBy" id="searchBy" aria-label="Search by">
                     <c:forEach var="attr" items="${list}">
-                        <option><c:out value="${attr}"/></option>
+                        <option class="dropdown-item"><c:out value="${attr}"/></option>
                     </c:forEach>
                 </select>
-                <label for="searchBy" class="col-md-2 col-lg-2">Sort By</label>
-                <select class="col-md-1 col-lg-1" name="sortBy">
+                <label for="searchBy">Search By</label>
+            </div>
+            <div class="form-floating col">
+                <select class="form-select" name="sortBy" id="sortBy" aria-label="Sort by">
                     <c:forEach var="attr" items="${list}">
-                        <option><c:out value="${attr}"/></option>
+                        <option class="dropdown-item"><c:out value="${attr}"/></option>
                     </c:forEach>
                 </select>
-                <label for="num" class="col-md-2 col-lg-2">Show By</label>
-                <select class="col-md-1 col-lg-1" name="num">
+                <label for="sortBy">Sort By</label>
+            </div>
+            <div class="form-floating col">
+                <select class="form-select" id="showBy" aria-label="show by" name="num">
                     <option>5</option>
                     <option>10</option>
                     <option>20</option>
                 </select>
+                <label for="showBy">Show by</label>
             </div>
-            <button type="submit" class="btn btn-primary col-md-1 col-lg-1">Search</button>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
     </form>
 </div>

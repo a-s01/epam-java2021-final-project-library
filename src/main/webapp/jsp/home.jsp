@@ -8,7 +8,7 @@
     <div class="alert alert-success col-sm-6" style="display: none;" role="alert" id="addedBookAlert">
       Book successfully added!
     </div>
-    <div class="container">
+    <div class="container pt-4">
         <c:if test="${not empty books}">
             <table class="table table-hover">
                 <thead>
@@ -20,6 +20,11 @@
                         <th scope="col">Action</th>
                     </c:if>
                     <c:if test="${not empty user and user.role eq 'ADMIN'}">
+                        <th scope="col">Keep Period</th>
+                        <th scope="col">Total amount</th>
+                        <th scope="col">In stock</th>
+                        <th scope="col">Reserved</th>
+                        <th scope="col">Was booked</th>
                         <th scope="col">Action</th>
                     </c:if>
                 </thead>
@@ -52,7 +57,25 @@
                                 </td>
                             </c:if>
                             <c:if test="${not empty user and user.role eq 'ADMIN'}">
-                                <td><a href="/controller?command=book.edit&id=${book.id}">Edit</a></td>
+                                <td scope="col"><c:out value="${book.keepPeriod}" /></td>
+                                <td scope="col"><c:out value="${book.bookStat.total}" /></td>
+                                <td scope="col"><c:out value="${book.bookStat.inStock}" /></td>
+                                <td scope="col"><c:out value="${book.bookStat.reserved}" /></td>
+                                <td scope="col"><c:out value="${book.bookStat.timesWasBooked}" /></td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-sm">
+                                            <a class="btn btn-warning" href="/jsp/book_edit.jsp?command=book.edit&id=${book.id}">Edit</a>
+                                        </div>
+                                        <div class="col-sm">
+                                            <form action="/controller" method="post">
+                                                <input type="hidden" name="command" value="book.delete">
+                                                <input type="hidden" name="id" value="${book.id}">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
                             </c:if>
                         </tr>
                     </c:forEach>
@@ -60,31 +83,13 @@
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
+        <c:if test="${not empty user and user.role eq 'ADMIN'}">
+            <a class="btn btn-info" href="/jsp/book_edit.jsp?command=book.add">Create book</a>
+        </c:if>
         <div class="container">
-            <c:out value="${notFound}"/>
+            <h5><c:out value="${notFound}"/></h5>
         </div>
     </div>
 </div>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-<script type="text/javascript">
-    function addBook(id) {
-        var id = id;
-        $.ajax({
-            url     : '/controller',
-            method  : 'POST',
-            data    : {id : id, command : 'booking.addBook'},
-            success : function(resultText) {
-                        $('#' + id).prop("disabled", true);
-                        if ( !$( "#bookedBooksNum" ).length ) {
-                            $("#bookedBooksNumParent").html('My booking<span class="position-absolute top-0 start-99 translate-middle badge rounded-pill bg-success" id="bookedBooksNum"></span>');
-                        }
-                        $( "#bookedBooksNum" ).text(resultText);
-                        $('#addedBookAlert').show("slow", "swing", function(){ $('#addedBookAlert').delay(700).hide("slow") } );
-                      },
-            error   : function(jqXHR, exception) {
-                        console.log('Error occured!!!');
-                      },
-        });
-    }
-</script>
 <jsp:include page="/html/footer.html"/>

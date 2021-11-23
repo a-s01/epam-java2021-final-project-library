@@ -14,25 +14,26 @@
                 <div class="row mb-1">
                     <label for="email" class="col-md-3 col-form-label">Email: </label>
                     <div class="col-md-7">
-                        <input name="emailReg" type="email" id="email" class=" form-control" required><br/>
+                        <input name="email" type="email" id="email" class="form-control" onkeyup="check(this);" required>
                     </div>
                 </div>
                 <div class="row mb-1">
                     <label for="password" class="col-md-3 col-form-label">Password: </label>
                     <div class="col-md-7">
-                        <input name="passwordReg" type="password" id="password" class="col-md-6 form-control" required><br/>
+                        <input name="password" type="password" id="password" class="col-md-6 form-control" onkeyup='checkPass();' required>
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <label for="anotherPass" class="col-md-3 col-form-label">Retype password: </label>
+                    <label for="confirmPass" class="col-md-3 col-form-label">Confirm password: </label>
                     <div class="col-md-7">
-                        <input name="anotherPass" type="password" id="anotherPass" class="col-md-6 form-control" required><br/>
+                        <input name="confirmPass" type="password" id="confirmPass" class="col-md-6 form-control" onkeyup='checkPass();' required>
+                        <span id='message'></span>
                     </div>
                 </div>
                 <div class="row mb-2">
                     <label for="name" class="col-md-3 col-form-label">Name: </label>
                     <div class="col-md-7">
-                        <input name="name" type="text" id="name" class="form-control"><br />
+                        <input name="name" type="text" id="name" class="form-control">
                     </div>
                 </div>
                 <c:if test="${not empty user and user.role eq 'ADMIN'}">
@@ -56,9 +57,8 @@
                     </div>
                 </c:if>
                 <div class="row mb-2 my-2">
-                <!-- TODO check if retype is the same as password -->
                     <div class="col-sm container overflow-hidden">
-                        <p class="text-danger"><c:out value="${regErrorMsg}" /></p>
+                        <p class="text-danger fw-bold"><c:out value="${userError}" /></p>
                         <button type="submit" class="btn btn-primary">Register</button>
                         <c:if test="${not empty user and user.role eq 'ADMIN'}">
                             <a class="btn btn-danger" href="/jsp/users.jsp">Cancel</a>
@@ -71,4 +71,6 @@
             </form>
         </div>
     </div>
+
+
 <jsp:include page="/html/footer.html"/>

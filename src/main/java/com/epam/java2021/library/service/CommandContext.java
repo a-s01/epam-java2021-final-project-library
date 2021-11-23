@@ -47,6 +47,7 @@ public class CommandContext {
         commands.put(Pages.USERS, new AuthContext(null, User.Role.ADMIN));
         commands.put(Pages.USER_EDIT, new AuthContext(null, User.Role.ADMIN));
         commands.put(Pages.BOOK_EDIT, new AuthContext(null, User.Role.ADMIN));
+        commands.put("/js/libraryCustom.js", new AuthContext(null, User.Role.UNKNOWN));
     }
     
     private static class AuthContext {

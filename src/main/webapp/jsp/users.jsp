@@ -6,7 +6,7 @@
 
 <div class="container">
     <%@ include file="/WEB-INF/jspf/search.jspf" %>
-    <div class="container">
+    <div class="container pt-4">
         <c:if test="${not empty users}">
             <table class="table table-hover">
                 <thead>
@@ -19,14 +19,22 @@
                 </thead>
                 <tbody>
                     <c:forEach var="user" items="${users}">
-                        <tr class="table-light">
-                            <td><c:out value="${user.email}"/></td>
-                            <td><c:out value="${user.role}"/></td>
-                            <td><c:out value="${user.state}"/></td>
-                            <td><c:out value="${user.name}"/></td>
-                            <td><a href="/jsp/user_edit.jsp?id=${user.id}">Edit</a></td>
-                            <td><a class="text-danger" href="/controller?command=user.delete&id=${user.id}">Delete</a></td>
-                        </tr>
+                        <c:if test="${user.state ne 'DELETED'}" >
+                            <tr class="table-light">
+                                <td><c:out value="${user.email}"/></td>
+                                <td><c:out value="${user.role}"/></td>
+                                <td><c:out value="${user.state}"/></td>
+                                <td><c:out value="${user.name}"/></td>
+                                <td><a class="btn btn-warning" href="/jsp/user_edit.jsp?id=${user.id}">Edit</a></td>
+                                <td>
+                                    <form action="/controller" method="post">
+                                        <input type="hidden" value="user.delete" name="command">
+                                        <input type="hidden" value="${user.id}" name="id">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:if>
                     </c:forEach>
                 </tbody>
             </table>
@@ -34,7 +42,7 @@
         </c:if>
         <a class="btn btn-info" href="/jsp/register.jsp">Create user</a>
         <div class="container">
-            <c:out value="${notFound}"/>
+            <h5><c:out value="${notFound}"/></h5>
         </div>
     </div>
 </div>

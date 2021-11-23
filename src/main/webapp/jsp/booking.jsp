@@ -25,12 +25,30 @@
                                 <td><c:out value="${booking.books.size()}"/></td>
                                 <td>
                                     <c:if test="${booking.state eq 'BOOKED'}">
-                                        <a class="btn btn-primary" href="/controller?command=booking.deliver&subscription=true&bookingID=${booking.id}">Subscription</a>
-                                        <a class="btn btn-secondary" href="/controller?command=booking.deliver&subscription=false&bookingID=${booking.id}">In-house</a>
-                                        <a class="btn btn-danger" href="/controller?command=booking.cancel&bookingID=${booking.id}">Cancel</a>
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.deliver">
+                                            <input type="hidden" name="subscription" value="true">
+                                            <input type="hidden" name="bookingID" value="${booking.id}">
+                                            <button class="btn btn-primary" type="submit">Subscription</a>
+                                        </form>
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.deliver">
+                                            <input type="hidden" name="subscription" value="false">
+                                            <input type="hidden" name="bookingID" value="${booking.id}">
+                                            <button class="btn btn-secondary" type="submit">In-house</a>
+                                        </form>
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.cancel">
+                                            <input type="hidden" name="bookingID" value="${booking.id}">
+                                            <button class="btn btn-danger" type="submit">Cancel</a>
+                                        </form>
                                     </c:if>
                                     <c:if test="${booking.state eq 'DELIVERED'}">
-                                        <a class="btn btn-primary" href="/controller?command=booking.done&bookingID=${booking.id}">Done</a>
+                                        <form action="/controller" method="post">
+                                            <input type="hidden" name="command" value="booking.done">
+                                            <input type="hidden" name="bookingID" value="${booking.id}">
+                                            <button class="btn btn-primary" type="submit">Done</a>
+                                        </form>
                                     </c:if>
                                 </td>
                             </tr>

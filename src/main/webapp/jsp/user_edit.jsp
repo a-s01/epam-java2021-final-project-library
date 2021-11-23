@@ -59,7 +59,7 @@
                 <div class="row mb-2 my-2">
                 <!-- TODO check if retype is the same as password -->
                     <div class="col-sm container overflow-hidden">
-                        <p class="text-danger"><c:out value="${regErrorMsg}" /></p>
+                        <p class="text-danger fw-bold"><c:out value="${regErrorMsg}" /></p>
                         <button type="submit" class="btn btn-primary">Update</button>
                         <a class="btn btn-danger" href="/jsp/users.jsp">Cancel</a>
                     </div>
