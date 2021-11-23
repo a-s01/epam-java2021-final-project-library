@@ -130,12 +130,12 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void delete(User user) throws DaoException {
+    public void delete(long id) throws DaoException {
         final String query = "UPDATE user SET state = 'deleted' WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
-            dao.delete(user, query);
+            dao.delete(id, query);
         });
     }
 

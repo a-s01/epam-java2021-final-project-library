@@ -119,13 +119,13 @@ public class BookSuperDao implements BookDao {
     }
 
     @Override
-    public void delete(Book book) throws DaoException {
-        logger.trace("Delete request: book={}", book);
+    public void delete(long id) throws DaoException {
+        logger.trace("Delete request: id={}", id);
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
                 BookDaoImpl dao = new BookDaoImpl(c);
-                dao.delete(book);
+                dao.delete(id);
                 // book_stat deletes by cascade
                 // book_author also
         });

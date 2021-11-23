@@ -8,5 +8,5 @@ public interface AbstractDao<E extends Entity> {
     void create(E entity) throws DaoException, ServiceException;
     E read(long id) throws DaoException, ServiceException;
     void update(E entity) throws DaoException, ServiceException;
-    void delete(E entity) throws DaoException, ServiceException;
+    void delete(long id) throws DaoException, ServiceException;
 }

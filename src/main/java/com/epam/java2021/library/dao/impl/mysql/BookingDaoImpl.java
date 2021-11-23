@@ -57,7 +57,7 @@ public class BookingDaoImpl implements BookingDao {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
             Booking booking = dao.read(id, query, this::parse);
 
-            BookDaoImpl bookDao = new BookDaoImpl(c);
+            BookSuperDao bookDao = new BookSuperDao(c);
             booking.setBooks(bookDao.getBooksInBooking(id));
             logger.debug("read booking request finished");
             return booking;
@@ -69,18 +69,18 @@ public class BookingDaoImpl implements BookingDao {
         logger.debug("update booking request init...");
 
         // user id we don't change
-        final String query = "UPDATE booking SET user_id = ?, state = ?, located = ?";
+        final String query = "UPDATE booking SET user_id = ?, state = ?, located = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
-            dao.update(booking, query, this::statementFiller);
+            dao.update(booking, query, (b, ps) -> { int i = statementFiller(b, ps); ps.setLong(i, b.getId()); });
             BookDaoImpl bookDao = new BookDaoImpl(c);
             bookDao.updateBooksInBooking(booking.getId(), booking.getBooks());
         });
         logger.debug("update booking request finished");
     }
 
-    private void statementFiller(Booking booking, PreparedStatement ps) throws SQLException {
+    private int statementFiller(Booking booking, PreparedStatement ps) throws SQLException {
         logger.debug("fill statement");
 
         int i = DaoImpl.START;
@@ -89,10 +89,11 @@ public class BookingDaoImpl implements BookingDao {
         ps.setString(i++, booking.getLocated().name());
 
         logger.debug("finish filling statement");
+        return i;
     }
 
     @Override
-    public void delete(Booking entity) throws DaoException, ServiceException {
+    public void delete(long id) throws DaoException, ServiceException {
         throw new UnsupportedOperationException("not yet supported");
     }
 

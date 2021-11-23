@@ -96,7 +96,7 @@ public class TestUserDaoImpl {
 
     @Test
     public void testDeleteUser() throws DaoException, SQLException, ServiceException {
-        userDao.delete(user);
+        userDao.delete(user.getId());
         Assert.assertFalse(dbManager.read(conn, TABLE, EMAIL_COLUMN, user.getEmail()));
     }
 

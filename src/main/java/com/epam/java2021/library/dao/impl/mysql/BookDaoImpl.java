@@ -42,19 +42,24 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     @Override
     public void update(Book book) throws DaoException {
-        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, " +
-                "lang_id = ?, keep_period = ?, last_edit_id = ?";
+        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, keep_period = ? WHERE id = ?";
+         //       "lang_id = ?
 
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
-        dao.update(book, query, this::fillStatement);
+        dao.update(book, query,
+                (b, ps) -> {
+                    int last = fillStatement(b, ps);
+                    ps.setLong(last, b.getId());
+                }
+        );
     }
 
     @Override
-    public void delete(Book book) throws DaoException {
-        final String query = "DELETE * FROM book WHERE id = ?";
+    public void delete(long id) throws DaoException {
+        final String query = "DELETE FROM book WHERE id = ?";
 
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
-        dao.delete(book, query);
+        dao.delete(id, query);
     }
 
     private Book parse(ResultSet rs) throws SQLException {
@@ -77,17 +82,20 @@ public class BookDaoImpl implements AbstractDao<Book> {
         return book;
     }
 
-    private void fillStatement(Book book, PreparedStatement ps) throws SQLException {
+    private int fillStatement(Book book, PreparedStatement ps) throws SQLException {
         int i = DaoImpl.START;
         ps.setString(i++, book.getTitle());
         ps.setString(i++, book.getIsbn());
         ps.setInt(i++, book.getKeepPeriod());
-        EditRecord lastEdit = book.getLastEdit();
+        ps.setInt(i++, book.getYear());
+        /*EditRecord lastEdit = book.getLastEdit();
         if (lastEdit != null) {
             ps.setLong(i++, lastEdit.getId());
         } else {
             ps.setNull(i++, Types.INTEGER);
-        }
+        } */
+
+        return i;
     }
 
     public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page) throws DaoException {
@@ -155,7 +163,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
         createBooksInBooking(id, toAdd);
 
         for (Book b: toDelete) {
-            dao.delete(b, delQuery);
+            dao.delete(b.getId(), delQuery);
         }
     }
 

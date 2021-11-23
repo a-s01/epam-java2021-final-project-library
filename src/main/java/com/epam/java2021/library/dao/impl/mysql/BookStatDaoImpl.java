@@ -83,7 +83,7 @@ public class BookStatDaoImpl implements AbstractDao<BookStat> {
     }
 
     @Override
-    public void delete(BookStat entity) throws DaoException {
+    public void delete(long id) throws DaoException {
         throw new UnsupportedOperationException("No need to implement this, it deletes automatically on cascade");
     }
 }

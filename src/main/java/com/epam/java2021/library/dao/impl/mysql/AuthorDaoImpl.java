@@ -73,7 +73,7 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     @Override
-    public void delete(Author entity) {
+    public void delete(long id) {
         throw new UnsupportedOperationException("not supported");
     }
 

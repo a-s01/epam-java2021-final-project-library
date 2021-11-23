@@ -118,4 +118,17 @@ public class Booking extends EditableEntity {
     public int hashCode() {
         return Objects.hash(user, books);
     }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "created=" + created +
+                ", lastEdit=" + lastEdit +
+                ", id=" + id +
+                ", user=" + user +
+                ", state=" + state +
+                ", located=" + located +
+                ", books=" + books +
+                '}';
+    }
 }

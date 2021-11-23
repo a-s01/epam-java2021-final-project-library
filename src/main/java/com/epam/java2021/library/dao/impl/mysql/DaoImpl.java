@@ -89,12 +89,12 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
-    public void delete(T entity, String query) throws DaoException {
-        logger.trace("Delete request: entity={}, query={}", entity, query);
+    public void delete(long id, String query) throws DaoException {
+        logger.trace("Delete request: id={}, query={}", id, query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setLong(START, entity.getId());
+            ps.setLong(START, id);
             if (ps.executeUpdate() > 0) {
-                logger.info("Successful deleting: id={}", entity.getId());
+                logger.info("Successful deleting: id={}", id);
             }
         } catch (SQLException e) {
             logAndThrow(e);
