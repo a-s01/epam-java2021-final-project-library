@@ -46,6 +46,7 @@ public class CommandContext {
         commands.put(Pages.BOOKING, new AuthContext(null, User.Role.LIBRARIAN));
         commands.put(Pages.USERS, new AuthContext(null, User.Role.ADMIN));
         commands.put(Pages.USER_EDIT, new AuthContext(null, User.Role.ADMIN));
+        commands.put(Pages.BOOK_EDIT, new AuthContext(null, User.Role.ADMIN));
     }
     
     private static class AuthContext {

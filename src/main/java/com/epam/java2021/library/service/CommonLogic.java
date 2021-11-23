@@ -20,11 +20,11 @@ public class CommonLogic {
 
     public static <E extends Entity> String find(HttpSession session, HttpServletRequest req, Logger logger, SuperDao<E> dao, String reqAttribute, String desiredPage) throws ServiceException {
         SafeRequest safeReq = new SafeRequest(req);
-        String query = safeReq.getString("query");
-        String searchBy = safeReq.getNotEmptyString("searchBy").toLowerCase();
-        String sortBy = safeReq.getNotEmptyString("sortBy").toLowerCase();
-        int num = safeReq.getNotNullParameter("num", Integer::parseInt);
-        int pageNum = safeReq.getNotNullParameter("page", Integer::parseInt);
+        String query = safeReq.get("query").escape().convert();
+        String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
+        String sortBy = safeReq.get("sortBy").notEmpty().escape().convert().toLowerCase();
+        int num = safeReq.get("num").notNull().convert(Integer::parseInt);
+        int pageNum = safeReq.get("page").notNull().convert(Integer::parseInt);
         if (num == 0) {
             throw new ServiceException("Amount of items cannot be equal to 0");
         }

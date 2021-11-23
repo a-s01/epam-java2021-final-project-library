@@ -2,7 +2,6 @@ package com.epam.java2021.library.service;
 
 
 import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
@@ -98,7 +97,7 @@ public class UserLogic {
         }
 
         SafeSession safeSession = new SafeSession(session);
-        User currentUser = safeSession.getParameter(USER, User.class::cast);
+        User currentUser = safeSession.get(USER).convert(User.class::cast);
 
         String page;
         if (currentUser != null) {
@@ -150,23 +149,23 @@ public class UserLogic {
         String pass;
         String role;
         
-        SafeRequest safe = new SafeRequest(req);
+        SafeRequest safeReq = new SafeRequest(req);
 
         try {
-            email = safe.getNotEmptyString(REG_EMAIL);
+            email = safeReq.get(REG_EMAIL).notEmpty().asEmail().convert();
         } catch (ServiceException e) {
             session.setAttribute(REG_PAGE_ERROR_MSG, e.getMessage());
             throw new UserException(e.getMessage());
         }
-        pass = safe.getString(REG_PASS);
-        role = safe.getString("role");
+        pass = safeReq.get(REG_PASS).convert();
+        role = safeReq.get("role").escape().convert();
 
-        String name = safe.getString("name");
-        String comment = safe.getString("comment");
+        String name = safeReq.get("name").escape().convert();
+        String comment = safeReq.get("comment").escape().convert();
 
         SafeSession safeSession = new SafeSession(session);
         long editBy = -1;
-        User currentUser = safeSession.getParameter("user", User.class::cast);
+        User currentUser = safeSession.get(USER).convert(User.class::cast);
         if (currentUser != null) {
             editBy = currentUser.getId();
         }
@@ -194,12 +193,12 @@ public class UserLogic {
         logger.debug(START_MSG);
 
         SafeRequest safeRequest = new SafeRequest(req);
-        long userID = safeRequest.getNotNullParameter("userID", Long::parseLong);
+        long userID = safeRequest.get("userID").notNull().convert(Long::parseLong);
         logger.trace("userID={}", userID);
         User proceedUser = null;
 
         SafeSession safeSession = new SafeSession(session);
-        List<User> users = safeSession.getNotNullParameter("users", List.class::cast);
+        List<User> users = safeSession.get(USERS).notNull().convert(List.class::cast);
         for (User u : users) {
             if (u.getId() == userID) {
                 proceedUser = u;
@@ -248,19 +247,32 @@ public class UserLogic {
         session.invalidate();
 
         logger.debug(END_MSG);
-        return Pages.HOME;
+        return Pages.LOGIN;
     }
 
-    public static String delete(HttpSession session, HttpServletRequest request) {
-        String page = null;
+    public static String delete(HttpSession session, HttpServletRequest request) throws ServiceException, DaoException {
+        SafeRequest safeReq = new SafeRequest(request);
+        long id = safeReq.get("id").notNull().convert(Long::parseLong);
 
+        UserDao dao = daoFactory.getUserDao();
+        dao.delete(id);
 
-        return page;
+        SafeSession safeSession = new SafeSession(session);
+        List<User> users = safeSession.get(USERS).convert(List.class::cast);
+        if (users != null) {
+            for (User u: users) {
+                if (u.getId() == id) {
+                    users.remove(u);
+                    break;
+                }
+            }
+        }
+        return Pages.USERS;
     }
 
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), "users", Pages.USERS);
+        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), USERS, Pages.USERS);
     }
 }

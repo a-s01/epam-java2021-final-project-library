@@ -1,94 +1,154 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
-import static com.epam.java2021.library.constant.ServletAttributes.*;
+import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Book;
+import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.util.SafeRequest;
+import com.epam.java2021.library.service.util.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Calendar;
 import java.util.List;
+
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class BookLogic {
     private static final Logger logger = LogManager.getLogger(BookLogic.class);
     private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
-
 
     private BookLogic() {}
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug("start");
         BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(session, req, logger, dao, "books", Pages.HOME);
-        /*
+        return CommonLogic.find(session, req, logger, dao, BOOKS, Pages.HOME);
+    }
+
+    private static Book getValidParams(HttpServletRequest req) throws ServiceException {
         SafeRequest safeReq = new SafeRequest(req);
-        String query = safeReq.getString("query");
-        String searchBy = safeReq.getNotEmptyString("searchBy").toLowerCase();
-        String sortBy = safeReq.getNotEmptyString("sortBy").toLowerCase();
-        int num = safeReq.getNotNullParameter("num", Integer::parseInt);
-        int pageNum = safeReq.getNotNullParameter("page", Integer::parseInt);
-        if (num == 0) {
-            throw new ServiceException("Amount of items cannot be equal to 0");
+
+        String title = safeReq.get("title").notEmpty().escape().convert();
+        String isbn = safeReq.get("isbn").notEmpty().escape().convert();
+        int year = safeReq.get("year").notEmpty().convert(Integer::parseInt);
+        int keepPeriod = safeReq.get("keepPeriod").convert(Integer::parseInt); // TODO add default value to JSP
+        long total = safeReq.get("total").convert(Long::parseLong);
+
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        if (year < 1500 || year > currentYear) {
+            throw new ServiceException("Your year is in future, not accepted");
         }
 
-        logger.trace("query={}, searchBy={}, sortBy={}, num={}, pageNum={}",
-                query, searchBy, sortBy, num, pageNum);
+        logger.trace("title={}, year={}, isbn={}, total={}, keepPeriod={}", title, year, isbn, total, keepPeriod);
+        Book.Builder builder = new Book.Builder();
+        builder.setTitle(title);
+        builder.setYear(year);
+        builder.setIsbn(isbn);
+        builder.setKeepPeriod(keepPeriod);
+        builder.setBookStat(new BookStat.Builder().setTotal(total).build());
 
-        List<Book> books = null;
-        String page;
-        int totalCount = -1;
+        return builder.build();
+    }
+    public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
+
+        Book book;
         try {
-            BookDao dao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getBookDao();
-            if (pageNum == 1) {
-                session.removeAttribute(PAGES_NUM);
-                totalCount = dao.findByPatternCount(query, searchBy, sortBy);
-                session.setAttribute(PAGES_NUM, Math.ceil(1.0 * totalCount / num));
-                logger.trace("totalCount={}", totalCount);
-            }
-            if ((pageNum == 1 && totalCount > 0) || pageNum > 1) {
-                books = dao.findByPattern(query, searchBy, sortBy, num, pageNum);
-            }
-            page = Pages.HOME;
-        } catch (DaoException | ServiceException e) {
-            req.setAttribute(SERVICE_ERROR, e.getMessage());
-            page = Pages.ERROR;
+            book = getValidParams(req);
+        } catch (ServiceException e) {
+            session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
+            return Pages.BOOK_EDIT;
         }
 
-        // books = null if totalCount < 1
-        if (books == null || books.isEmpty()) {
-            logger.trace("Books not found");
-            req.setAttribute(NOT_FOUND, "Nothing was found");
+        // TODO authors
+        BookDao dao = daoFactory.getBookDao();
+        dao.create(book);
+
+        logger.debug(END_MSG);
+        return Pages.HOME;
+    }
+
+    public static String edit(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
+
+        Book params;
+        try {
+            params = getValidParams(req);
+        } catch (ServiceException e) {
+            session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
+            return Pages.BOOK_EDIT;
         }
 
-        req.setAttribute("books", books);
-        req.setAttribute(SEARCH_LINK, req.getRequestURI()
-                + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
-        req.setAttribute(CUR_PAGE, pageNum);
-        logger.debug("end");
-        return page;
+        SafeRequest safeReq = new SafeRequest(req);
+        long bookID = safeReq.get("bookID").convert(Long::parseLong);
+        logger.trace("bookID={}", bookID);
 
-         */
+        SafeSession safeSession = new SafeSession(session);
+        List<Book> books = safeSession.get(BOOKS).notNull().convert(List.class::cast);
+
+        Book proceed = null;
+        for (Book b: books) {
+            if (b.getId() == bookID) {
+                proceed = b;
+            }
+        }
+
+        if (proceed == null) {
+            throw new ServiceException("Edited book should be present in session");
+        }
+
+        proceed.setIsbn(params.getIsbn());
+        proceed.setYear(params.getYear());
+        proceed.setTitle(params.getTitle());
+        proceed.setKeepPeriod(params.getKeepPeriod());
+
+        BookStat old = proceed.getBookStat();
+        long totalInStockDiff = old.getTotal() - old.getInStock();
+        old.setTotal(params.getBookStat().getTotal());
+        long newInStock = params.getBookStat().getTotal() - totalInStockDiff;
+        if (newInStock < 0) {
+            session.setAttribute(ServletAttributes.USER_ERROR, "In stock reminder should be more than 0");
+            return Pages.BOOK_EDIT;
+        }
+        old.setInStock(newInStock);
+        BookDao dao = daoFactory.getBookDao();
+        dao.update(proceed);
+
+        logger.debug(END_MSG);
+        return Pages.HOME;
     }
 
-    public static String add(HttpSession session, HttpServletRequest req) {
-        String page = null;
-        return page;
-    }
+    public static String delete(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
 
-    public static String edit(HttpSession session, HttpServletRequest req) {
-        String page = null;
-        return page;
-    }
+        SafeRequest safeReq = new SafeRequest(req);
+        long id = safeReq.get("id").notNull().convert(Long::parseLong);
 
-    public static String delete(HttpSession session, HttpServletRequest req) {
-        String page = null;
-        return page;
+        SafeSession safeSession = new SafeSession(session);
+        List<Book> books = safeSession.get(BOOKS).convert(List.class::cast);
+        if (books != null) {
+            for (Book b: books) {
+                if (b.getId() == id) {
+                    books.remove(b);
+                    session.setAttribute(BOOKS, books);
+                    logger.debug("books in session updated");
+                    break;
+                }
+            }
+        }
+
+        BookDao dao = daoFactory.getBookDao();
+        dao.delete(id);
+
+        logger.debug(END_MSG);
+        return Pages.HOME;
     }
 }

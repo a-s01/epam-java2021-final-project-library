@@ -3,42 +3,26 @@ package com.epam.java2021.library.service.util;
 import com.epam.java2021.library.exception.ServiceException;
 
 public abstract class Safe<K> {
-    
-    public abstract K get(String s);
-    public abstract String getStr(String s);
-    
-    public  <V> V getNotNullParameter(String param, TypeConverter<K, V> converter) throws ServiceException {
-        V v = getParameter(param, converter);
-        if (v == null) {
+    protected K value;
+    protected String param;
+    public abstract Safe<K> get(String s);
+
+    public <V> V convert(TypeConverter<K, V> converter) throws ServiceException {
+        try {
+            return converter.process(value);
+        } catch (IllegalArgumentException e) {
+            throw new ServiceException(param + " has wrong type: " + e.getMessage());
+        }
+    }
+
+    public Safe<K> notNull() throws ServiceException {
+        if (value == null) {
             throw new ServiceException(param + " cannot be empty.");
         }
-        return v;
+        return this;
     }
 
-    public  <V> V getParameter(String param, TypeConverter<K, V> converter) {
-        K k = get(param);
-        if (k == null) {
-            return null;
-        }
-
-        return converter.process(k);
-    }
-    
-    public String getNotEmptyString(String param) throws ServiceException {
-        String s = getStr(param);
-        if (s == null || s.trim().equals("")) {
-            throw new ServiceException(param + " cannot be empty.");
-        }
-
-        return s.trim();
-    }
-
-    public String getString(String param) {
-        String s = getStr(param);
-        if (s == null) {
-            return "";
-        }
-
-        return s.trim();
+    protected void setParam(String param) {
+        this.param = param;
     }
 }

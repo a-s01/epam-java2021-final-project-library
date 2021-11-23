@@ -10,12 +10,9 @@ public class SafeSession extends Safe<Object> {
     }
 
     @Override
-    public Object get(String s) {
-        return session.getAttribute(s);
-    }
-
-    @Override
-    public String getStr(String s) {
-        return (String) s;
+    public SafeSession get(String s) {
+        value = session.getAttribute(s);
+        setParam(s);
+        return this;
     }
 }

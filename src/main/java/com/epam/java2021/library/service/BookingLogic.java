@@ -15,7 +15,6 @@ import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.util.SafeRequest;
-import com.epam.java2021.library.service.util.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +50,7 @@ public class BookingLogic {
     }
 
     private static Booking findBooking(HttpSession session, HttpServletRequest req, boolean create) throws ServiceException, DaoException {
-        logger.debug("findBooking request init..");
+        logger.debug(START_MSG);
         logger.trace("sessionID={}, reqURI={}", session.getId(), req.getRequestURI());
         User u = (User) session.getAttribute("user");
 
@@ -64,7 +63,7 @@ public class BookingLogic {
             String bookingID = req.getParameter(BOOKING_ID);
             if (bookingID != null) {
                 logger.debug("found {} in request", BOOKING_ID);
-                logger.trace("{}}={}", BOOKING_ID, bookingID);
+                logger.trace("{}={}", BOOKING_ID, bookingID);
                 BookingDao dao = daoFactory.getBookingDao();
                 booking = dao.read(Long.parseLong(bookingID));
             }
@@ -72,7 +71,8 @@ public class BookingLogic {
                 throw new ServiceException("Unable to find booking");
             }
         }
-        logger.debug("findBooking request finished");
+        logger.trace("booking={}", booking);
+        logger.debug(END_MSG);
         return booking;
     }
 
@@ -117,7 +117,7 @@ public class BookingLogic {
         String page;
         if (subscription) {
             books = getBooksInSubscription(req, u);
-            page = Pages.BASKET; // TODO think about this
+            page = Pages.MY_BOOKS;
         } else {
             // or we have bookingID
             books = getBooksForBookingID(req);
@@ -302,6 +302,9 @@ public class BookingLogic {
 
         daoFactory.getBookingDao().update(booking);
         req.setAttribute(PAGE, Pages.BASKET);
+
+        updateBookingInSession(session, booking);
+
         logger.debug("end");
         return Pages.BOOKING; // TODO to think about
     }
@@ -330,6 +333,9 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().create(booking);
+
+        updateBookingInSession(session, booking);
+
         logger.debug("end");
         return Pages.BASKET;
     }
@@ -340,12 +346,10 @@ public class BookingLogic {
         // Booking booking, boolean subscription
         Booking booking = findBooking(session, req);
 
-        boolean subscription = false;
-        if (req.getParameter("subscription") != null) {
-            subscription = Boolean.parseBoolean(req.getParameter("subscription"));
-        }
+        SafeRequest safeRequest = new SafeRequest(req);
+        boolean subscription = safeRequest.get("subscription").convert(Boolean::parseBoolean);
 
-        logger.trace("deliver request: booking={}, subscription={}", booking, subscription);
+        logger.trace("booking={}, subscription={}", booking, subscription);
 
         if (booking == null) {
             throw new ServiceException("Cannot move to DELIVER state null booking");
@@ -358,6 +362,7 @@ public class BookingLogic {
         booking.setState(Booking.State.DELIVERED);
         if (subscription) {
             booking.setLocated(Booking.Place.USER);
+            logger.trace("deliver to user");
         }
 
         for (Book book: booking.getBooks()) {
@@ -366,7 +371,11 @@ public class BookingLogic {
             stat.setInStock(stat.getInStock() - 1);
         }
 
-        daoFactory.getBookingDao().update(booking);
+        BookingDao dao = daoFactory.getBookingDao();
+        dao.update(booking);
+
+        updateBookingInSession(session, booking);
+
         logger.debug("end");
         return Pages.BOOKING;
     }
@@ -394,7 +403,27 @@ public class BookingLogic {
         }
 
         daoFactory.getBookingDao().update(booking);
+
+        updateBookingInSession(session, booking);
+
         logger.debug("end");
         return Pages.BOOKING;
+    }
+
+    private static void updateBookingInSession(HttpSession session, Booking booking) {
+        /*logger.debug(START_MSG);
+        SafeSession safeSession = new SafeSession(session);
+        List<Booking> bookings = safeSession.getParameter("bookings", List.class::cast);
+        if (bookings != null) {
+            int i = 0;
+            for (Booking b: bookings) {
+                if (b.getId() == booking.getId()) {
+                    bookings.remove(b);
+                    bookings.add(i, booking);
+                }
+                i++;
+            }
+        }
+        logger.debug(END_MSG); */
     }
 }
