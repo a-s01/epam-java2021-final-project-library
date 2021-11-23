@@ -71,7 +71,6 @@ public class Controller extends HttpServlet {
         HttpSession session = req.getSession();
 
         session.removeAttribute(SERVICE_ERROR);
-        session.removeAttribute(ServletAttributes.REG_PAGE_ERROR_MSG);
 
         try {
             Command command = CommandContext.getCommand(commandStr);

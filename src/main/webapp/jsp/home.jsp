@@ -11,7 +11,7 @@
     <div class="container pt-4">
         <c:if test="${not empty books}">
             <table class="table table-hover">
-                <thead>
+                <thead class="bg-secondary bg-gradient text-white">
                     <th scope="col">Title</th>
                     <th scope="col">Authors</th>
                     <th scope="col">ISBN</th>

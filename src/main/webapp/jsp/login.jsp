@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="row my-2">
-            <p class="text-danger"><c:out value="${errorErrorMsg}" /></p>
+            <p class="text-danger fw-bold"><c:out value="${userError}" /></p>
             <div class="col-sm container overflow-hidden">
                 <button type="submit" class="btn btn-primary">Sign in</button>
                 <a href="/jsp/register.jsp" class="btn btn-secondary">Sign up</a>
@@ -29,3 +29,4 @@
     </form>
 </div>
 <jsp:include page="/html/footer.html"/>
+<c:set var="userError" scope="session" value="" />

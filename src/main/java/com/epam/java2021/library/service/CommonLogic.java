@@ -57,10 +57,9 @@ public class CommonLogic {
             req.setAttribute(NOT_FOUND, "Nothing was found");
         }
 
-        session.setAttribute(reqAttribute, list);
-        session.setAttribute(SEARCH_LINK, req.getRequestURI()
+        req.setAttribute(reqAttribute, list);
+        req.setAttribute(SEARCH_LINK, req.getRequestURI()
                 + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
-        req.setAttribute(CUR_PAGE, pageNum);
         logger.debug("end");
         return page;
     }

@@ -25,7 +25,7 @@
                                 <td><c:out value="${user.role}"/></td>
                                 <td><c:out value="${user.state}"/></td>
                                 <td><c:out value="${user.name}"/></td>
-                                <td><a class="btn btn-warning" href="/jsp/user_edit.jsp?id=${user.id}">Edit</a></td>
+                                <td><a class="btn btn-warning" href="/jsp/admin/user_edit.jsp?id=${user.id}">Edit</a></td>
                                 <td>
                                     <form action="/controller" method="post">
                                         <input type="hidden" value="user.delete" name="command">

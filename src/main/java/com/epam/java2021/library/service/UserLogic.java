@@ -67,7 +67,7 @@ public class UserLogic {
                 throw new UserException("Password cannot be empty");
             }
         } catch (UserException e) {
-            session.setAttribute(REG_PAGE_ERROR_MSG, e.getMessage());
+            session.setAttribute(USER_ERROR, e.getMessage());
             return Pages.REGISTER;
         }
         
@@ -91,7 +91,7 @@ public class UserLogic {
                     throw e;
                 }
             } catch (UserException userE) {
-                session.setAttribute(REG_PAGE_ERROR_MSG, userE.getMessage());
+                session.setAttribute(USER_ERROR, userE.getMessage());
                 return Pages.REGISTER;
             }
         }
@@ -118,8 +118,7 @@ public class UserLogic {
         User user = null;
 
         logger.trace("Session id: {}", session.getId());
-        session.removeAttribute(SERVICE_ERROR);
-        session.removeAttribute(LOGIN_PAGE_ERROR_MSG);
+
         String page;
         try {
             user = UserLogic.getUser(email, pass);
@@ -131,7 +130,7 @@ public class UserLogic {
 
         if (user == null) {
             logger.trace("User not found");
-            session.setAttribute(LOGIN_PAGE_ERROR_MSG, "Incorrect login or password");
+            session.setAttribute(USER_ERROR, "Incorrect login or password");
             page = Pages.LOGIN;
         } else {
             logger.trace("User '{}' authenticated successfully", user.getEmail());
@@ -152,12 +151,12 @@ public class UserLogic {
         SafeRequest safeReq = new SafeRequest(req);
 
         try {
-            email = safeReq.get(REG_EMAIL).notEmpty().asEmail().convert();
+            email = safeReq.get(EMAIL).notEmpty().asEmail().convert();
         } catch (ServiceException e) {
-            session.setAttribute(REG_PAGE_ERROR_MSG, e.getMessage());
+            session.setAttribute(USER_ERROR, e.getMessage());
             throw new UserException(e.getMessage());
         }
-        pass = safeReq.get(REG_PASS).convert();
+        pass = safeReq.get(PASS).convert();
         role = safeReq.get("role").escape().convert();
 
         String name = safeReq.get("name").escape().convert();
