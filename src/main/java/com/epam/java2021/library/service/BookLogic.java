@@ -67,7 +67,7 @@ public class BookLogic {
             session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
             return Pages.BOOK_EDIT;
         }
-
+        book.setModified(Calendar.getInstance());
         // TODO authors
         BookDao dao = daoFactory.getBookDao();
         dao.create(book);
@@ -101,6 +101,7 @@ public class BookLogic {
             }
         }
 
+        // TODO they wont' be in session
         if (proceed == null) {
             throw new ServiceException("Edited book should be present in session");
         }
@@ -109,6 +110,7 @@ public class BookLogic {
         proceed.setYear(params.getYear());
         proceed.setTitle(params.getTitle());
         proceed.setKeepPeriod(params.getKeepPeriod());
+        proceed.setModified(Calendar.getInstance());
 
         BookStat old = proceed.getBookStat();
         long totalInStockDiff = old.getTotal() - old.getInStock();

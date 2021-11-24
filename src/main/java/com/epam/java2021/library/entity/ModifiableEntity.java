@@ -1,20 +1,20 @@
 package com.epam.java2021.library.entity;
 
-import java.sql.Date;
+import java.util.Calendar;
 
 public class ModifiableEntity extends Entity {
-    protected Date modified;
+    protected Calendar modified;
 
-    protected ModifiableEntity(long id, Date modified) {
+    protected ModifiableEntity(long id, Calendar modified) {
         super(id);
         this.modified = modified;
     }
 
-    public Date getModified() {
+    public Calendar getModified() {
         return modified;
     }
 
-    public void setModified(Date modified) {
+    public void setModified(Calendar modified) {
         this.modified = modified;
     }
 }

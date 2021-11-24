@@ -8,10 +8,8 @@ import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +71,7 @@ public class UserDaoImpl implements UserDao {
         ps.setDouble(i++, user.getFine());
         ps.setString(i++, user.getName());
         ps.setLong(i++, user.getPreferredLang().getId());
-        ps.setDate(i++, user.getModified());
+        ps.setDate(i++, new Date(user.getModified().getTimeInMillis()));
         return i;
     }
 
@@ -99,7 +97,11 @@ public class UserDaoImpl implements UserDao {
         String dbState = rs.getString("state");
         builder.setState(User.State.valueOf(dbState));
         builder.setFine(rs.getDouble("fine"));
-        builder.setModified(rs.getDate("modified"));
+
+        Date sqlDate = rs.getDate("modified");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sqlDate);
+        builder.setModified(cal);
 
         // get dependencies
         long langID = rs.getInt("preferred_lang_id");

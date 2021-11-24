@@ -9,10 +9,8 @@ import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Calendar;
 import java.util.List;
 
 // TODO add i18n
@@ -27,7 +25,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public void create(Author author) throws DaoException {
-        final String query = "INSERT INTO author VALUES (DEFAULT, ?, DEFAULT, DEFAULT)";
+        final String query = "INSERT INTO author VALUES (DEFAULT, ?, ?)";
 
         Transaction transaction = new Transaction(conn);
         Connection c = transaction.getConnection();
@@ -39,7 +37,9 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     private void statementFiller(Author author, PreparedStatement ps) throws SQLException {
-        ps.setString(DaoImpl.START, author.getName());
+        int i = DaoImpl.START;
+        ps.setString(i++, author.getName());
+        ps.setDate(i++, new Date(author.getModified().getTimeInMillis()));
     }
 
     @Override
@@ -54,7 +54,12 @@ public class AuthorDaoImpl implements AuthorDao {
         Author.Builder builder = new Author.Builder();
         builder.setId(rs.getInt("id"));
         builder.setName(rs.getString("name"));
-        builder.setModified(rs.getDate("modified"));
+
+        Date sqlDate = rs.getDate("modified");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sqlDate);
+        builder.setModified(cal);
+
         Author author = builder.build();
 
         logger.trace("parse author result: {}", author);

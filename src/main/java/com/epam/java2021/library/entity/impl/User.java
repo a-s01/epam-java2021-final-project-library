@@ -2,7 +2,7 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
 
-import java.sql.Date;
+import java.util.Calendar;
 
 public class User extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
@@ -28,7 +28,7 @@ public class User extends ModifiableEntity {
      */
     public static class Builder {
         private long id;
-        private Date modified;
+        private Calendar modified;
         private String email;
         private String password;
         private String salt;
@@ -43,7 +43,7 @@ public class User extends ModifiableEntity {
             return this;
         }
 
-        public Builder setModified(Date modified) {
+        public Builder setModified(Calendar modified) {
             this.modified = modified;
             return this;
         }
@@ -107,7 +107,7 @@ public class User extends ModifiableEntity {
         }
     }
 
-    public User(long id, Date modified, String email,
+    public User(long id, Calendar modified, String email,
                 String password, String salt, Role role, State state, double fine, String name, Lang preferredLang) {
         super(id, modified);
         this.email = email;

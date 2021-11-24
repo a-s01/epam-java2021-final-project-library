@@ -2,21 +2,21 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
 
-import java.sql.Date;
+import java.util.Calendar;
 
 public class Author extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String name;
 
-    private Author(long id, Date created, String name) {
+    private Author(long id, Calendar created, String name) {
         super(id, created);
         this.name = name;
     }
 
     public static class Builder {
         private long id;
-        private Date modified;
+        private Calendar modified;
         private String name;
 
         public Builder setName(String name) {
@@ -29,7 +29,7 @@ public class Author extends ModifiableEntity {
             return this;
         }
 
-        public Builder setModified(Date modified) {
+        public Builder setModified(Calendar modified) {
             this.modified = modified;
             return this;
         }

@@ -11,10 +11,8 @@ import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Calendar;
 import java.util.List;
 
 public class BookingDaoImpl implements BookingDao {
@@ -33,7 +31,7 @@ public class BookingDaoImpl implements BookingDao {
         logger.debug("create booking request init...");
 
         // user id we don't change
-        final String query = "INSERT INTO booking VALUES(DEFAULT, ?, ?, ?, DEFAULT, DEFAULT)";
+        final String query = "INSERT INTO booking VALUES(DEFAULT, ?, ?, ?, ?)";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
@@ -66,7 +64,7 @@ public class BookingDaoImpl implements BookingDao {
         logger.debug("update booking request init...");
 
         // user id we don't change
-        final String query = "UPDATE booking SET user_id = ?, state = ?, located = ? WHERE id = ?";
+        final String query = "UPDATE booking SET user_id = ?, state = ?, located = ?, modified = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
@@ -84,6 +82,7 @@ public class BookingDaoImpl implements BookingDao {
         ps.setLong(i++, booking.getUser().getId());
         ps.setString(i++, booking.getState().name());
         ps.setString(i++, booking.getLocated().name());
+        ps.setDate(i++, new Date(booking.getModified().getTimeInMillis()));
 
         logger.debug("finish filling statement");
         return i;
@@ -119,7 +118,11 @@ public class BookingDaoImpl implements BookingDao {
         builder.setId(rs.getInt("id"));
         builder.setState(Booking.State.valueOf(rs.getString(BOOKING_COL)));
         builder.setLocated(Booking.Place.valueOf(rs.getString("located")));
-        builder.setModified(rs.getDate("modified"));
+
+        Date sqlDate = rs.getDate("modified");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sqlDate);
+        builder.setModified(cal);
 
         // get dependencies
         long userID = rs.getInt("user_id");

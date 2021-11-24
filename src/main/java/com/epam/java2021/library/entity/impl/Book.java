@@ -19,7 +19,7 @@ public class Book extends ModifiableEntity {
     private int keepPeriod; // int should be enough for keeping period, it will not be too long
     private List<Author> authors;
 
-    private Book(long id, Date modified, String title, String isbn, int year, String langCode,
+    private Book(long id, Calendar modified, String title, String isbn, int year, String langCode,
                  BookStat bookStat, int keepPeriod, List<Author> authors) {
         super(id, modified);
         this.title = title;
@@ -33,7 +33,7 @@ public class Book extends ModifiableEntity {
     
     public static class Builder {
         private long id;
-        private Date modified;
+        private Calendar modified;
         private String title;
         private String isbn;
         private int year;
@@ -47,7 +47,7 @@ public class Book extends ModifiableEntity {
             return this;
         }
 
-        public Builder setModified(Date modified) {
+        public Builder setModified(Calendar modified) {
             this.modified = modified;
             return this;
         }

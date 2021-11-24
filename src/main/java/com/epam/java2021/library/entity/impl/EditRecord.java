@@ -2,7 +2,7 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
 
-import java.sql.Date;
+import java.util.Calendar;
 
 public class EditRecord extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
@@ -11,7 +11,7 @@ public class EditRecord extends ModifiableEntity {
     private String description;
     private String remark;
 
-    public EditRecord(long id, Date modified, long editBy, String description, String remark) {
+    public EditRecord(long id, Calendar modified, long editBy, String description, String remark) {
         super(id, modified);
         this.editBy = editBy;
         this.description = description;
@@ -20,7 +20,7 @@ public class EditRecord extends ModifiableEntity {
 
     public static class Builder {
         private long id;
-        private Date modified;
+        private Calendar modified;
         private long editBy;
         private String description;
         private String remark;
@@ -30,7 +30,7 @@ public class EditRecord extends ModifiableEntity {
             return this;
         }
 
-        public Builder setModified(Date modified) {
+        public Builder setModified(Calendar modified) {
             this.modified = modified;
             return this;
         }

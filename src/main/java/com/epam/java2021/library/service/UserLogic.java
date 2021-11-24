@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.epam.java2021.library.constant.ServletAttributes.*;
@@ -79,7 +81,9 @@ public class UserLogic {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new ServiceException("Unable to get salt/pass for user " + user.getEmail());
         }
-        
+
+        user.setModified(Calendar.getInstance());
+
         UserDao dao = daoFactory.getUserDao();
         try {
             dao.create(user);
@@ -228,6 +232,7 @@ public class UserLogic {
         }
         proceedUser.setRole(params.getRole());
         proceedUser.setName(params.getName());
+        proceedUser.setModified(Calendar.getInstance());
         // TODO add history
 
         UserDao dao = daoFactory.getUserDao();

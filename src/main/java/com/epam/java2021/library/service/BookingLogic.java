@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -299,6 +300,7 @@ public class BookingLogic {
             bookStat.setReserved(bookStat.getReserved() - 1);
         }
         booking.setState(Booking.State.CANCELED);
+        booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().update(booking);
         req.setAttribute(PAGE, Pages.BASKET);
@@ -331,6 +333,8 @@ public class BookingLogic {
             bookStat.setReserved(bookStat.getReserved() + 1);
             bookStat.setTimesWasBooked(bookStat.getTimesWasBooked() + 1);
         }
+
+        booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().create(booking);
 
@@ -370,6 +374,7 @@ public class BookingLogic {
             stat.setReserved(stat.getReserved() - 1);
             stat.setInStock(stat.getInStock() - 1);
         }
+        booking.setModified(Calendar.getInstance());
 
         BookingDao dao = daoFactory.getBookingDao();
         dao.update(booking);
@@ -401,6 +406,7 @@ public class BookingLogic {
             BookStat stat = book.getBookStat();
             stat.setInStock(stat.getInStock() + 1);
         }
+        booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().update(booking);
 

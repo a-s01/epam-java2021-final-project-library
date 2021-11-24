@@ -6,11 +6,9 @@ import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,7 +67,12 @@ public class BookDaoImpl implements AbstractDao<Book> {
         builder.setTitle(rs.getString("title"));
         builder.setIsbn(rs.getString("ISBN"));
         builder.setKeepPeriod(rs.getInt("keep_period"));
-        builder.setModified(rs.getDate("modified"));
+
+        Date sqlDate = rs.getDate("modified");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sqlDate);
+        builder.setModified(cal);
+
         builder.setYear(rs.getDate("year"));
         builder.setLangCode(rs.getString("lang_code"));
 
@@ -83,7 +86,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
         ps.setInt(i++, book.getYear());
         ps.setString(i++, book.getLangCode());
         ps.setInt(i++, book.getKeepPeriod());
-        ps.setDate(i++, book.getModified());
+        ps.setDate(i++, new Date(book.getModified().getTimeInMillis()));
 
         return i;
     }
