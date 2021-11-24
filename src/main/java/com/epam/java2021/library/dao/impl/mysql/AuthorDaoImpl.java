@@ -2,10 +2,10 @@ package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
-import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.EditRecord;
 import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,20 +49,14 @@ public class AuthorDaoImpl implements AuthorDao {
         //return daoImpl.read(id, query, this::parse);
     }
 
-    private Author parse(ResultSet rs) throws SQLException {
+    private Author parse(Connection c, ResultSet rs) throws SQLException {
         logger.trace("parse author...");
         Author.Builder builder = new Author.Builder();
         builder.setId(rs.getInt("id"));
         builder.setName(rs.getString("name"));
-        builder.setCreated(rs.getDate("created"));
+        builder.setModified(rs.getDate("modified"));
         Author author = builder.build();
 
-        long lastEditId = rs.getInt("last_edit_id");
-        if (lastEditId != 0) {
-            EditRecord dumb = new EditRecord.Builder().build();
-            dumb.setId(lastEditId);
-            author.setLastEdit(dumb);
-        }
         logger.trace("parse author result: {}", author);
         return author;
     }
@@ -93,7 +87,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public List<Author> findByBookID(long id) throws DaoException {
-        final String query = "SELECT a.id, a.name, a.created, a.last_edit_id FROM author AS a\n" +
+        final String query = "SELECT a.id, a.name, a.modified, a.last_edit_id FROM author AS a\n" +
                 "  JOIN book_author AS ba\n" +
                 "    ON ba.author_id = a.id\n" +
                 "  JOIN book AS b\n" +

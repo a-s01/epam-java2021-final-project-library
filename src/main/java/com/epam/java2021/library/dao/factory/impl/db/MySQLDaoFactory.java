@@ -3,10 +3,8 @@ package com.epam.java2021.library.dao.factory.impl.db;
 import com.epam.java2021.library.dao.*;
 import com.epam.java2021.library.dao.impl.mysql.*;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
-import com.epam.java2021.library.entity.impl.Language;
-import com.epam.java2021.library.entity.impl.User;
+import com.epam.java2021.library.entity.impl.Lang;
 
 public class MySQLDaoFactory implements IDaoFactoryImpl {
 
@@ -37,7 +35,7 @@ public class MySQLDaoFactory implements IDaoFactoryImpl {
 
 
     @Override
-    public AbstractDao<Language> getLangDao() {
+    public AbstractDao<Lang> getLangDao() {
         throw new UnsupportedOperationException("not supported yet");
     }
 

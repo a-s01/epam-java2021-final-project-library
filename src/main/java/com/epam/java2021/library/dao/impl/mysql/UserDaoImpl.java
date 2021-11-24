@@ -2,14 +2,16 @@ package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
-import com.epam.java2021.library.entity.impl.EditRecord;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +55,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void create(User user) throws DaoException {
-        final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, DEFAULT, ?)";
+        final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
@@ -70,12 +72,8 @@ public class UserDaoImpl implements UserDao {
         ps.setInt(i++, user.getState().ordinal());
         ps.setDouble(i++, user.getFine());
         ps.setString(i++, user.getName());
-        EditRecord lastEdit = user.getLastEdit();
-        if (lastEdit != null) {
-            ps.setLong(i++, lastEdit.getId());
-        } else {
-            ps.setNull(i++, Types.INTEGER);
-        }
+        ps.setLong(i++, user.getPreferredLang().getId());
+        ps.setDate(i++, user.getModified());
         return i;
     }
 
@@ -89,7 +87,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
-    private User parse(ResultSet rs) throws SQLException {
+    private User parse(Connection c, ResultSet rs) throws SQLException {
         User.Builder builder = new User.Builder();
         builder.setId(rs.getInt("id"));
         builder.setEmail(rs.getString("email"));
@@ -101,22 +99,20 @@ public class UserDaoImpl implements UserDao {
         String dbState = rs.getString("state");
         builder.setState(User.State.valueOf(dbState));
         builder.setFine(rs.getDouble("fine"));
-        builder.setCreated(rs.getDate("created"));
+        builder.setModified(rs.getDate("modified"));
 
-        /*
-        long editRecordId = rs.getInt("last_edit_id");
-        if (editRecordId != 0) {
-            EditRecord holder = new EditRecord.Builder().build();
-            holder.setId(editRecordId);
-            builder.setLastEdit(holder);
-        } */
+        // get dependencies
+        long langID = rs.getInt("preferred_lang_id");
+        LangDaoImpl langDao = new LangDaoImpl(c);
+        builder.setPreferredLang(langDao.read(langID));
+
         return builder.build();
     }
 
     @Override
     public void update(User user) throws DaoException {
         final String query = "UPDATE user SET email = ?, password = ?, salt = ?, role = ?, state = ?, " +
-                "fine = ?, name = ?, last_edit_id = ? WHERE id = ?";
+                "fine = ?, name = ?, preferred_lang_id = ?, modified = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);

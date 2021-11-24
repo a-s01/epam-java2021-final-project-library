@@ -18,6 +18,7 @@ import java.util.Set;
 // TODO update book-author list
 public class BookSuperDao implements BookDao {
     private static final Logger logger = LogManager.getLogger(BookSuperDao.class);
+    private Connection conn;
 
     public static class SearchSortColumns {
         private SearchSortColumns() {}
@@ -35,8 +36,6 @@ public class BookSuperDao implements BookDao {
             }
         }
     }
-
-    private Connection conn;
 
     public BookSuperDao() {}
     public BookSuperDao(Connection conn) {
@@ -159,8 +158,7 @@ public class BookSuperDao implements BookDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
             BookDaoImpl dao = new BookDaoImpl(c);
-            List<Book> books;
-            books = dao.findByPattern(what, searchBy, sortBy, num, page);
+            List<Book> books = dao.findByPattern(what, searchBy, sortBy, num, page);
 
             AuthorDaoImpl authorDao = new AuthorDaoImpl(c);
             BookStatDaoImpl bookStatDao = new BookStatDaoImpl(c);

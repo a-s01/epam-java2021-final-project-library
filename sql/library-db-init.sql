@@ -8,8 +8,8 @@ SET @DEFAULT_KEEP_PERIOD = 14;
 -- ---------------------------------------------
 -- SCHEMA --
 -- DROP SCHEMA IF EXISTS `library-app`;
-CREATE SCHEMA IF NOT EXISTS `library-app-testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `library-app-testdb`;
+CREATE SCHEMA IF NOT EXISTS `library-app` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `library-app`;
 
 -- ---------------------------------------------
 -- DROP ALL TABLES --
@@ -33,7 +33,7 @@ SET FOREIGN_KEY_CHECKS=1;
 -- TABLE language --
 CREATE TABLE lang (
 	PRIMARY KEY (id),
-    id			INT UNSIGNED	NOT NULL	AUTO_INCREMENT,
+    id			INT UNSIGNED	NOT NULL	AUTO_INCREMENT, -- default app lang should be 1
     code	 	VARCHAR(2)		NOT NULL	-- ISO 639-1 code
 );
 
@@ -46,22 +46,26 @@ CREATE TABLE lang (
 -- If user is deleted, all their booking in state 'new' are canceled 
 CREATE TABLE user (
 	PRIMARY KEY (id),
-	id				INT	UNSIGNED						NOT NULL	AUTO_INCREMENT,
-    email			VARCHAR(50) 						NOT NULL,
-					UNIQUE INDEX (email),
-					CONSTRAINT valid_user_email
-                        CHECK (email RLIKE '^[[:alnum:]]+@[[:alnum:]\\.]+\\.[[:alpha:]]{2,6}$'), -- TODO should be checked and updated (add utf8 support)
-	password		CHAR(128)							NOT NULL,
-    salt			CHAR(50)							NOT NULL,
-    role			ENUM('USER', 'LIBRARIAN', 'ADMIN')	NOT NULL,	-- by default mysql behaviour first enum value will be default value 
+	id					INT	UNSIGNED						NOT NULL	AUTO_INCREMENT,
+    email				VARCHAR(50) 						NOT NULL,
+						UNIQUE INDEX (email),
+						CONSTRAINT valid_user_email
+							CHECK (email RLIKE '^[[:alnum:]]+@[[:alnum:]\\.]+\\.[[:alpha:]]{2,6}$'), -- TODO should be checked and updated (add utf8 support)
+	password			CHAR(128)							NOT NULL,
+    salt				CHAR(50)							NOT NULL,
+    role				ENUM('USER', 'LIBRARIAN', 'ADMIN')	NOT NULL,	-- by default mysql behaviour first enum value will be default value 
 																	-- for column. DON'T put 'admin' first!
-    state			ENUM('VALID', 'BLOCKED', 'DELETED')	NOT NULL,
-    fine			DECIMAL(9,2)				NOT NULL	DEFAULT (0),
-					CONSTRAINT
-						CHECK (fine >= 0),
-    name			VARCHAR(50),
-    created			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP,
-    last_edit_id	INT UNSIGNED
+    state				ENUM('VALID', 'BLOCKED', 'DELETED')	NOT NULL,
+    fine				DECIMAL(9,2)						NOT NULL	DEFAULT (0),
+						CONSTRAINT
+							CHECK (fine >= 0),
+    name				VARCHAR(50),
+    preferred_lang_id	INT UNSIGNED						NOT NULL,
+						FOREIGN KEY (preferred_lang_id)
+							REFERENCES lang (id)
+							ON DELETE RESTRICT
+							ON UPDATE CASCADE,
+    modified			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 AUTO_INCREMENT = 100; -- reserved space for system user
 
@@ -70,7 +74,7 @@ AUTO_INCREMENT = 100; -- reserved space for system user
 CREATE TABLE editing_history (
 	PRIMARY KEY (id),
 	id			INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
-	created		DATETIME					NOT NULL	DEFAULT CURRENT_TIMESTAMP,
+	modified	DATETIME					NOT NULL,
     edit_by		INT UNSIGNED,
 				FOREIGN KEY (edit_by)
 					REFERENCES user (id)
@@ -81,24 +85,12 @@ CREATE TABLE editing_history (
 	remark		VARCHAR(500)							-- field for user comment
 );
 
-ALTER TABLE user
-    ADD CONSTRAINT `fk_last_edit_id`
-			FOREIGN KEY (last_edit_id)
-			REFERENCES editing_history (id)
-			ON DELETE SET NULL
-			ON UPDATE CASCADE;
-            
 -- TABLE author --
 CREATE TABLE author (
 	PRIMARY KEY (id),
 	id				INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
-    name	VARCHAR(50)					NOT NULL, 
-    created			DATETIME					NOT NULL	DEFAULT CURRENT_TIMESTAMP,
-    last_edit_id	INT UNSIGNED,
-					FOREIGN KEY (last_edit_id)
-						REFERENCES editing_history (id)
-                        ON DELETE SET NULL
-                        ON UPDATE CASCADE        
+    name	VARCHAR(50)							NOT NULL,	-- fallback name in case no lang was found
+    modified			DATETIME				NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABLE author_names --
@@ -128,18 +120,9 @@ CREATE TABLE book (
     isbn				VARCHAR(17)				NOT NULL, 	-- 13 digits + 4 '-'
 						UNIQUE INDEX (isbn),
     year				YEAR					NOT NULL,
-    lang_id				INT UNSIGNED			NOT NULL,
-						FOREIGN KEY (lang_id)
-                            REFERENCES lang (id)
-                            ON DELETE RESTRICT
-                            ON UPDATE CASCADE,
+    lang_code			VARCHAR(2)				NOT NULL, 	-- valid ISO 639-1 code, any, NOT only from the app supported lang
 	keep_period			INT UNSIGNED			NOT NULL,	-- period of time in days book is allowed to be kept by user                        
-    created				DATETIME				NOT NULL	DEFAULT CURRENT_TIMESTAMP,
-    last_edit_id		INT UNSIGNED,
-						FOREIGN KEY (last_edit_id)
-							REFERENCES editing_history (id)
-							ON DELETE SET NULL
-							ON UPDATE CASCADE     
+    modified			DATETIME				NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE book_stat (
@@ -196,12 +179,7 @@ CREATE TABLE booking (
 						ON UPDATE CASCADE,
     state			ENUM('NEW', 'BOOKED', 'DELIVERED','DONE','CANCELED') NOT NULL,
     located			ENUM('LIBRARY', 'USER')					  NOT NULL,			
-	created			DATETIME			NOT NULL	DEFAULT CURRENT_TIMESTAMP,
-    last_edit_id		INT UNSIGNED,
-						FOREIGN KEY (last_edit_id)
-							REFERENCES editing_history (id)
-							ON DELETE SET NULL
-							ON UPDATE CASCADE
+	modified		DATETIME			NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABLE book_in_booking --

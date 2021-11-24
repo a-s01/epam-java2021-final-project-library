@@ -6,7 +6,7 @@ import com.epam.java2021.library.exception.ServiceException;
 
 import java.util.List;
 
-public interface AuthorDao extends EditableAbstractDao<Author>{
+public interface AuthorDao extends AbstractDao<Author>{
     List<Author> findByName(String name, int num, int page) throws DaoException, ServiceException;
     List<Author> findByBookID(long id) throws DaoException, ServiceException;
 }

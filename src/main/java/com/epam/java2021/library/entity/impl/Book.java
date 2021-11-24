@@ -1,6 +1,6 @@
 package com.epam.java2021.library.entity.impl;
 
-import com.epam.java2021.library.entity.EditableEntity;
+import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -8,36 +8,50 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
-public class Book extends EditableEntity {
+public class Book extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String title;
     private String isbn;
     private int year;
+    private String langCode;
     private BookStat bookStat;
     private int keepPeriod; // int should be enough for keeping period, it will not be too long
     private List<Author> authors;
 
-    private Book(long id, Date created, EditRecord lastEdit, String title, String isbn, int year,
+    private Book(long id, Date modified, String title, String isbn, int year, String langCode,
                  BookStat bookStat, int keepPeriod, List<Author> authors) {
-        super(id, created, lastEdit);
+        super(id, modified);
         this.title = title;
         this.isbn = isbn;
         this.year = year;
+        this.langCode = langCode;
         this.bookStat = bookStat;
         this.keepPeriod = keepPeriod;
         this.authors = authors;
     }
     
-    public static class Builder extends EditableEntity.Builder {
+    public static class Builder {
+        private long id;
+        private Date modified;
         private String title;
         private String isbn;
         private int year;
-        private Language lang;
+        private String langCode;
         private BookStat bookStat;
         private int keepPeriod;
         private List<Author> authors = new ArrayList<>();
-        
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setModified(Date modified) {
+            this.modified = modified;
+            return this;
+        }
+
         public Builder setTitle(String title) {
             this.title = title;
             return this;
@@ -48,8 +62,8 @@ public class Book extends EditableEntity {
             return this;
         }
 
-        public Builder setLang(Language lang) {
-            this.lang = lang;
+        public Builder setLangCode(String langCode) {
+            this.langCode = langCode;
             return this;
         }
 
@@ -86,8 +100,16 @@ public class Book extends EditableEntity {
         }
 
         public Book build() {
-            return new Book(id, created, lastEdit, title, isbn, year, bookStat, keepPeriod, authors);
+            return new Book(id, modified, title, isbn, year, langCode, bookStat, keepPeriod, authors);
         }
+    }
+
+    public String getLangCode() {
+        return langCode;
+    }
+
+    public void setLangCode(String langCode) {
+        this.langCode = langCode;
     }
 
     public String getTitle() {
@@ -154,12 +176,12 @@ public class Book extends EditableEntity {
     @Override
     public String toString() {
         return "Book{" +
-                "lastEdit=" + lastEdit +
-                ", id=" + id +
-                ", created=" + created +
+                "id=" + id +
+                ", modified=" + modified +
                 ", title='" + title + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", year=" + year +
+                ", langCode='" + langCode + '\'' +
                 ", bookStat=" + bookStat +
                 ", keepPeriod=" + keepPeriod +
                 ", authors=" + authors +

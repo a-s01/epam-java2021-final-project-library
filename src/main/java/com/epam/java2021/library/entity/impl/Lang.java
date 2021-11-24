@@ -2,25 +2,31 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.Entity;
 
-public class Language extends Entity {
+public class Lang extends Entity {
     private static final long serialVersionUID = 1L;
     private String code;
 
-    private Language(long id, String code) {
+    private Lang(long id, String code) {
         super(id);
         this.code = code;
     }
 
-    public static class Builder extends Entity.Builder {
+    public static class Builder {
+        private long id;
         String code;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setCode(String code) {
             this.code = code;
             return this;
         }
 
-        public Language build() {
-            return new Language(id, code);
+        public Lang build() {
+            return new Lang(id, code);
         }
     }
     public String getCode() {
@@ -35,7 +41,7 @@ public class Language extends Entity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Language language = (Language) o;
+        Lang language = (Lang) o;
         return code.equals(language.code);
     }
 
@@ -46,8 +52,9 @@ public class Language extends Entity {
 
     @Override
     public String toString() {
-        return "Language{" +
-                "code='" + code + '\'' +
+        return "Lang{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
                 '}';
     }
 }

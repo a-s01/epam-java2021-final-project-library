@@ -1,20 +1,22 @@
 package com.epam.java2021.library.entity.impl;
 
-import com.epam.java2021.library.entity.EditableEntity;
+import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.sql.Date;
 
-public class Author extends EditableEntity {
+public class Author extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String name;
 
-    private Author(long id, Date created, EditRecord lastEdit, String name) {
-        super(id, created, lastEdit);
+    private Author(long id, Date created, String name) {
+        super(id, created);
         this.name = name;
     }
 
-    public static class Builder extends EditableEntity.Builder {
+    public static class Builder {
+        private long id;
+        private Date modified;
         private String name;
 
         public Builder setName(String name) {
@@ -22,8 +24,18 @@ public class Author extends EditableEntity {
             return this;
         }
 
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setModified(Date modified) {
+            this.modified = modified;
+            return this;
+        }
+
         public Author build() {
-            return new Author(id, created, lastEdit, name);
+            return new Author(id, modified, name);
         }
     }
 
@@ -51,9 +63,8 @@ public class Author extends EditableEntity {
     @Override
     public String toString() {
         return "Author{" +
-                "lastEdit=" + lastEdit +
                 ", id=" + id +
-                ", created=" + created +
+                ", created=" + modified +
                 ", name='" + name + '\'' +
                 '}';
     }

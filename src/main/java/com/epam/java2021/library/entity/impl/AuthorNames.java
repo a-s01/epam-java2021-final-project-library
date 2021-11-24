@@ -2,8 +2,6 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.Entity;
 
-import java.util.Objects;
-
 public class AuthorNames extends Entity {
     private static final long serialVersionUID = 1L;
 
@@ -15,8 +13,9 @@ public class AuthorNames extends Entity {
         this.lang_id = lang_id;
         this.name = name;
     }
-
-    public static class Builder extends Entity.Builder {
+/*
+    public static class Builder {
+        private long id;
         private long lang_id;
         private String name;
 
@@ -72,4 +71,6 @@ public class AuthorNames extends Entity {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+     */
 }

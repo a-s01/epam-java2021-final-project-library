@@ -1,13 +1,13 @@
 package com.epam.java2021.library.entity.impl;
 
-import com.epam.java2021.library.entity.EditableEntity;
+import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Booking extends EditableEntity {
+public class Booking extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private User user;
@@ -15,20 +15,32 @@ public class Booking extends EditableEntity {
     private Place located;
     private List<Book> books;
 
-    private Booking(long id, Date created, EditRecord lastEdit, User user, State state, Place located,
+    private Booking(long id, Date modified, User user, State state, Place located,
                     List<Book> books) {
-        super(id, created, lastEdit);
+        super(id, modified);
         this.user = user;
         this.state = state;
         this.located = located;
         this.books = books;
     }
 
-    public static class Builder extends EditableEntity.Builder {
+    public static class Builder {
+        private long id;
+        private Date modified;
         private User user;
         private State state;
         private Place located;
         private List<Book> books = new ArrayList<>();
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setModified(Date modified) {
+            this.modified = modified;
+            return this;
+        }
 
         public Builder setUser(User user) {
             this.user = user;
@@ -63,7 +75,7 @@ public class Booking extends EditableEntity {
                 located = Place.LIBRARY;
             }
             
-            return new Booking(id, created, lastEdit, user, state, located, books);
+            return new Booking(id, modified, user, state, located, books);
         }
     }
     public enum State {
@@ -122,8 +134,7 @@ public class Booking extends EditableEntity {
     @Override
     public String toString() {
         return "Booking{" +
-                "created=" + created +
-                ", lastEdit=" + lastEdit +
+                "created=" + modified +
                 ", id=" + id +
                 ", user=" + user +
                 ", state=" + state +

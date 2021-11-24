@@ -20,11 +20,17 @@ public class BookStat extends Entity {
         this.timesWasBooked = timesWasBooked;
     }
 
-    public static class Builder extends Entity.Builder {
+    public static class Builder {
+        private long id;
         private long total;
         private long inStock = -1;
         private long reserved;
         private long timesWasBooked;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setTotal(long total) {
             this.total = total;

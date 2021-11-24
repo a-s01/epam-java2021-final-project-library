@@ -1,27 +1,39 @@
 package com.epam.java2021.library.entity.impl;
 
-import com.epam.java2021.library.entity.CreatableEntity;
+import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.sql.Date;
-// TODO ок ли возвращать юзер айди вместо юзера здесь?
-public class EditRecord extends CreatableEntity {
+
+public class EditRecord extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private long editBy;
     private String description;
     private String remark;
 
-    public EditRecord(long id, Date created, long editBy, String description, String remark) {
-        super(id, created);
+    public EditRecord(long id, Date modified, long editBy, String description, String remark) {
+        super(id, modified);
         this.editBy = editBy;
         this.description = description;
         this.remark = remark;
     }
 
-    public static class Builder extends CreatableEntity.Builder {
+    public static class Builder {
+        private long id;
+        private Date modified;
         private long editBy;
         private String description;
         private String remark;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setModified(Date modified) {
+            this.modified = modified;
+            return this;
+        }
 
         public Builder setEditBy(long editBy) {
             this.editBy = editBy;
@@ -39,7 +51,7 @@ public class EditRecord extends CreatableEntity {
         }
 
         public EditRecord build() {
-            return new EditRecord(id, created, editBy, description, remark);
+            return new EditRecord(id, modified, editBy, description, remark);
         }
     }
     public long getEditBy() {

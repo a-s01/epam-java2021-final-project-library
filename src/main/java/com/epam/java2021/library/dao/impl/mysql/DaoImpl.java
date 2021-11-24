@@ -53,7 +53,7 @@ public class DaoImpl<T extends Entity> {
             ps.setLong(START, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return parser.accept(rs);
+                    return parser.accept(conn, rs);
                 }
             }
         } catch (SQLException e) {
@@ -110,10 +110,10 @@ public class DaoImpl<T extends Entity> {
             int i = START;
             ps.setString(i++, escapeForLike(pattern));
             ps.setInt(i++, num);
-            ps.setInt(i++, (page - 1) * num);
+            ps.setInt(i, (page - 1) * num);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(parser.accept(rs));
+                    list.add(parser.accept(conn, rs));
                 }
             }
         } catch (SQLException e) {
@@ -128,7 +128,7 @@ public class DaoImpl<T extends Entity> {
         try(PreparedStatement ps = conn.prepareStatement(query)) {
             int i = START;
             ps.setLong(i++, id1);
-            ps.setLong(i++, id2);
+            ps.setLong(i, id2);
             if (ps.executeUpdate() > 0) {
                 logger.info("Successful update: id1={}, id2={}", id1, id2);
             }
@@ -138,17 +138,13 @@ public class DaoImpl<T extends Entity> {
     }
 
 
-    // TODO check if needed
-    public List<T> getRecords(int num, int page, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("getRecord request: num={}, page={}, {}", num, page, query);
+    public List<T> getRecords(String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("query={}", query);
         List<T> list = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            int i = START;
-            ps.setInt(i++, num);
-            ps.setInt(i, page * num);
-            try (ResultSet rs = ps.executeQuery()) {
+        try (Statement ps = conn.createStatement()) {
+            try (ResultSet rs = ps.executeQuery(query)) {
                 while (rs.next()) {
-                    list.add(parser.accept(rs));
+                    list.add(parser.accept(conn, rs));
                 }
             }
         } catch (SQLException e) {
@@ -165,7 +161,7 @@ public class DaoImpl<T extends Entity> {
             ps.setString(START, lookUp);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    result = parser.accept(rs);
+                    result = parser.accept(conn, rs);
                 }
             }
         } catch (SQLException e) {
@@ -183,7 +179,7 @@ public class DaoImpl<T extends Entity> {
             ps.setLong(START, id);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(parser.accept(rs));
+                    list.add(parser.accept(conn, rs));
                 }
             }
         } catch (SQLException e) {

@@ -2,12 +2,14 @@ package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.AbstractDao;
 import com.epam.java2021.library.entity.impl.Book;
-import com.epam.java2021.library.entity.impl.EditRecord;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,8 +44,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     @Override
     public void update(Book book) throws DaoException {
-        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, keep_period = ? WHERE id = ?";
-         //       "lang_id = ?
+        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, lang_code = ?, keep_period = ?, modified = ? WHERE id = ?";
 
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         dao.update(book, query,
@@ -62,38 +63,27 @@ public class BookDaoImpl implements AbstractDao<Book> {
         dao.delete(id, query);
     }
 
-    private Book parse(ResultSet rs) throws SQLException {
+    private Book parse(Connection c, ResultSet rs) throws SQLException {
         Book.Builder builder = new Book.Builder();
         builder.setId(rs.getInt("id"));
         builder.setTitle(rs.getString("title"));
         builder.setIsbn(rs.getString("ISBN"));
         builder.setKeepPeriod(rs.getInt("keep_period"));
-        builder.setCreated(rs.getDate("created"));
+        builder.setModified(rs.getDate("modified"));
         builder.setYear(rs.getDate("year"));
-        Book book = builder.build();
+        builder.setLangCode(rs.getString("lang_code"));
 
-        // TODO deal with lang id
-        long lastEditID = rs.getInt("last_edit_id");
-        if (lastEditID != 0) {
-            EditRecord dumb = new EditRecord.Builder().build();
-            dumb.setId(lastEditID);
-            book.setLastEdit(dumb);
-        }
-        return book;
+        return builder.build();
     }
 
     private int fillStatement(Book book, PreparedStatement ps) throws SQLException {
         int i = DaoImpl.START;
         ps.setString(i++, book.getTitle());
         ps.setString(i++, book.getIsbn());
-        ps.setInt(i++, book.getKeepPeriod());
         ps.setInt(i++, book.getYear());
-        /*EditRecord lastEdit = book.getLastEdit();
-        if (lastEdit != null) {
-            ps.setLong(i++, lastEdit.getId());
-        } else {
-            ps.setNull(i++, Types.INTEGER);
-        } */
+        ps.setString(i++, book.getLangCode());
+        ps.setInt(i++, book.getKeepPeriod());
+        ps.setDate(i++, book.getModified());
 
         return i;
     }
@@ -135,7 +125,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
         final String query = "SELECT * FROM book_in_booking WHERE booking_id = ?";
         DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
 
-        List<Book> bookGerms = dao.findById(id, query, rs -> {
+        List<Book> bookGerms = dao.findById(id, query, (c, rs) -> {
             Book.Builder builder = new Book.Builder();
             builder.setId(rs.getInt("book_id"));
             return builder.build();
@@ -177,7 +167,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 int i = DaoImpl.START;
                 ps.setLong(i++, id);
                 ps.setLong(i++, x.getId());
-                ps.setInt(i++, x.getKeepPeriod());
+                ps.setInt(i, x.getKeepPeriod());
             });
         }
     }

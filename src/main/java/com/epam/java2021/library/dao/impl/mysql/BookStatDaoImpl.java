@@ -36,7 +36,7 @@ public class BookStatDaoImpl implements AbstractDao<BookStat> {
     private void createFiller(BookStat bookStat, PreparedStatement ps) throws SQLException {
         int i = DaoImpl.START;
         ps.setLong(i++, bookStat.getId());
-        ps.setLong(i++, bookStat.getTotal());
+        ps.setLong(i, bookStat.getTotal());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class BookStatDaoImpl implements AbstractDao<BookStat> {
         return bookStat;
     }
 
-    private BookStat parse(ResultSet rs) throws SQLException {
+    private BookStat parse(Connection c, ResultSet rs) throws SQLException {
         BookStat.Builder builder = new BookStat.Builder();
         builder.setId(rs.getInt("book_id"));
         builder.setTotal(rs.getInt("total"));
@@ -79,7 +79,7 @@ public class BookStatDaoImpl implements AbstractDao<BookStat> {
         ps.setLong(i++, bookStat.getTotal());
         ps.setLong(i++, bookStat.getInStock());
         ps.setLong(i++, bookStat.getReserved());
-        ps.setLong(i++, bookStat.getTimesWasBooked());
+        ps.setLong(i, bookStat.getTimesWasBooked());
     }
 
     @Override

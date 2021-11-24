@@ -1,10 +1,10 @@
 package com.epam.java2021.library.entity.impl;
 
-import com.epam.java2021.library.entity.EditableEntity;
+import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.sql.Date;
 
-public class User extends EditableEntity {
+public class User extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String email;
@@ -14,6 +14,7 @@ public class User extends EditableEntity {
     private State state;
     private double fine;
     private String name;
+    private Lang preferredLang;
 
     public enum Role {
         UNKNOWN, USER, LIBRARIAN, ADMIN
@@ -25,7 +26,9 @@ public class User extends EditableEntity {
     /**
      * This class also sets defaults for id, role and state. If they are not defined, default values will be applied.
      */
-    public static class Builder extends EditableEntity.Builder {
+    public static class Builder {
+        private long id;
+        private Date modified;
         private String email;
         private String password;
         private String salt;
@@ -33,6 +36,17 @@ public class User extends EditableEntity {
         private State state;
         private double fine;
         private String name;
+        private Lang preferredLang;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setModified(Date modified) {
+            this.modified = modified;
+            return this;
+        }
 
         public Builder setEmail(String email) {
             this.email = email;
@@ -76,6 +90,10 @@ public class User extends EditableEntity {
             return this;
         }
 
+        public void setPreferredLang(Lang preferredLang) {
+            this.preferredLang = preferredLang;
+        }
+
         public User build() {
             // set default values
             if (role == null) {
@@ -85,13 +103,13 @@ public class User extends EditableEntity {
             if (state == null) {
                 state = State.VALID;
             }
-            return new User(id, created, lastEdit, email, password, salt, role, state, fine, name);
+            return new User(id, modified, email, password, salt, role, state, fine, name, preferredLang);
         }
     }
 
-    public User(long id, Date created, EditRecord lastEdit, String email,
-                String password, String salt, Role role, State state, double fine, String name) {
-        super(id, created, lastEdit);
+    public User(long id, Date modified, String email,
+                String password, String salt, Role role, State state, double fine, String name, Lang preferredLang) {
+        super(id, modified);
         this.email = email;
         this.password = password;
         this.salt = salt;
@@ -99,6 +117,7 @@ public class User extends EditableEntity {
         this.state = state;
         this.fine = fine;
         this.name = name;
+        this.preferredLang = preferredLang;
     }
 
     public String getEmail() {
@@ -157,6 +176,14 @@ public class User extends EditableEntity {
         this.name = name;
     }
 
+    public Lang getPreferredLang() {
+        return preferredLang;
+    }
+
+    public void setPreferredLang(Lang preferredLang) {
+        this.preferredLang = preferredLang;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -173,16 +200,16 @@ public class User extends EditableEntity {
     @Override
     public String toString() {
         return "User{" +
-                "lastEdit=" + lastEdit +
-                ", id=" + id +
-                ", created=" + created +
+                "id=" + id +
+                ", modified=" + modified +
                 ", email='" + email + '\'' +
-                ", password='hidden'" +
-                ", salt='hidden'" +
+                ", password=<hidden>" +
+                ", salt=<hidden>" +
                 ", role=" + role +
                 ", state=" + state +
                 ", fine=" + fine +
                 ", name='" + name + '\'' +
+                ", preferredLang=" + preferredLang +
                 '}';
     }
 }

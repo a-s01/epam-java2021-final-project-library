@@ -15,14 +15,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class BookingDaoImpl implements BookingDao {
     private static final Logger logger = LogManager.getLogger(BookingDaoImpl.class);
     private static final String BOOKING_COL = "state";
-    private static final SearchSortColumns searchSortColumns = new SearchSortColumns(logger, "email", "name", "state");
+    private static final SearchSortColumns searchSortColumns = new SearchSortColumns(logger, "email", "name", BOOKING_COL);
     private Connection conn;
 
     public BookingDaoImpl() {}
@@ -50,7 +48,6 @@ public class BookingDaoImpl implements BookingDao {
     public Booking read(long id) throws DaoException, ServiceException {
         logger.debug("read booking request init...");
 
-        // user id we don't change
         final String query = "SELECT * FROM booking WHERE id = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
@@ -106,12 +103,8 @@ public class BookingDaoImpl implements BookingDao {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
             List<Booking> bookings = dao.findById(id, query, this::parse);
 
-            UserDaoImpl userDao = new UserDaoImpl(c);
-            User u = userDao.read(id);
-
             BookSuperDao bookDao = new BookSuperDao(c);
             for (Booking b: bookings) {
-                b.setUser(u);
                 List<Book> books = bookDao.getBooksInBooking(b.getId());
                 b.setBooks(books);
             }
@@ -119,20 +112,22 @@ public class BookingDaoImpl implements BookingDao {
         });
     }
 
-    private Booking parse(ResultSet rs) throws SQLException {
+    private Booking parse(Connection c, ResultSet rs) throws SQLException, DaoException {
         logger.debug("result set parsing init...");
         Booking.Builder builder = new Booking.Builder();
 
         builder.setId(rs.getInt("id"));
-        builder.setState(Booking.State.valueOf(rs.getString("state")));
+        builder.setState(Booking.State.valueOf(rs.getString(BOOKING_COL)));
         builder.setLocated(Booking.Place.valueOf(rs.getString("located")));
-        builder.setCreated(rs.getDate("created"));
+        builder.setModified(rs.getDate("modified"));
 
-        User.Builder uBuilder = new User.Builder();
-        uBuilder.setId(rs.getInt("user_id"));
-        builder.setUser(uBuilder.build());
+        // get dependencies
+        long userID = rs.getInt("user_id");
+        UserDaoImpl userDao = new UserDaoImpl(c);
+        User user = userDao.read(userID);
+        builder.setUser(user);
 
-        logger.debug("result set pursing finished");
+        logger.debug("result set parsing finished");
         return builder.build();
     }
 
@@ -149,13 +144,8 @@ public class BookingDaoImpl implements BookingDao {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
             List<Booking> bookings = dao.findByPattern(what, num, page,query, this::parse);
 
-            UserDaoImpl userDao = new UserDaoImpl(c);
             BookSuperDao bookDao = new BookSuperDao(c);
-
             for (Booking b: bookings) {
-                User u = userDao.read(b.getUser().getId());
-                b.setUser(u);
-
                 List<Book> books = bookDao.getBooksInBooking(b.getId());
                 b.setBooks(books);
             }
