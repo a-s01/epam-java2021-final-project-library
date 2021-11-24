@@ -156,6 +156,23 @@ public class DaoImpl<T extends Entity> {
         return list;
     }
 
+    public List<T> findByPattern(String pattern, String query, EntityParser<T> parser)
+            throws DaoException {
+        logger.trace("Find by pattern request: pattern={}, query={}",
+                pattern, query);
+        List<T> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(START, escapeForLike(pattern));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(parser.accept(conn, rs));
+                }
+            }
+        } catch (SQLException e) {
+            logAndThrow(e);
+        }
+        return list;
+    }
 
     public void updateBound(long id1, long id2, String query) throws DaoException {
         logger.trace("id1={}, id2={}, query={}", id1, id2, query);
@@ -220,6 +237,4 @@ public class DaoImpl<T extends Entity> {
         }
         return list;
     }
-
-
 }

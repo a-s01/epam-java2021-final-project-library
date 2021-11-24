@@ -93,26 +93,15 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     @Override
-    public void delete(long id) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    /*@Override
-    public List<Author> findByName(String pattern, int num, int page) throws DaoException {
-        final String query = "SELECT * FROM author WHERE name LIKE ? ORDER by name LIMIT ? OFFSET ?";
+    public void delete(long id) throws DaoException {
+        final String query = "DELETE FROM author WHERE id = ?";
 
         Transaction tr = new Transaction(conn);
-        return tr.noTransactionWrapper( c -> {
+        tr.transactionWrapper(c -> {
             DaoImpl<Author> dao = new DaoImpl<>(c, logger);
-            List<Author> authors = dao.findByPattern(pattern, num, page, query, this::parse);
-
-            I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
-            for (Author a: authors) {
-                a.setI18Names(i18Dao.readByAuthorID(a.getId()));
-            }
-            return authors;
+            dao.delete(id, query); // i18n on delete cascade
         });
-    }*/
+    }
 
     @Override
     public List<Author> findByBookID(long id) throws DaoException {

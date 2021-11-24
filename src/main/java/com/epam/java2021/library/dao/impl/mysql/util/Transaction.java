@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql.util;
 
 import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

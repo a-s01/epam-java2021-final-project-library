@@ -1,5 +1,6 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
+import com.epam.java2021.library.service.util.Disjoint;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.LogManager;
@@ -9,8 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 // will be used only from AuthorDaoImpl
@@ -52,19 +51,13 @@ public class I18AuthorNameDaoImpl {
     }
 
     public void updateNamesForAuthor(long authorId, List<I18AuthorName> newList) throws DaoException {
-        List<I18AuthorName> toDel = readByAuthorID(authorId);
-        List<I18AuthorName> toAdd = new ArrayList<>();
+        Disjoint<I18AuthorName> disjoint = new Disjoint<>(readByAuthorID(authorId), newList);
 
-        Collections.copy(toAdd, newList);
-
-        toAdd.removeAll(toDel);
-        toDel.removeAll(newList);
-
-        for (I18AuthorName name: toDel) {
+        for (I18AuthorName name: disjoint.getToDelete()) {
             delete(authorId, name);
         }
 
-        for (I18AuthorName name: toAdd) {
+        for (I18AuthorName name: disjoint.getToAdd()) {
             create(authorId, name);
         }
     }

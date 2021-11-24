@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.UserDao;
+import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
@@ -10,12 +11,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class UserDaoImpl implements UserDao {
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
+    private static final SearchSortColumn validColumns =
+            new SearchSortColumn("email", "name", "role", "state");
     private Connection conn;
 
     public UserDaoImpl() {}
@@ -31,24 +32,6 @@ public class UserDaoImpl implements UserDao {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
             return dao.findByUniqueString(email, query, this::parse);
         });
-    }
-
-    public static class SearchSortColumns {
-        private SearchSortColumns() {}
-        private static final Set<String> COLUMNS = new HashSet<>();
-        static {
-            COLUMNS.add("email");
-            COLUMNS.add("name");
-            COLUMNS.add("role");
-            COLUMNS.add("state");
-        }
-
-        public static void check(String s, String action) throws ServiceException {
-            if (!COLUMNS.contains(s)) {
-                logger.error("{} forbidden for column {}", action, s);
-                throw new ServiceException(action + " forbidden for column " + s);
-            }
-        }
     }
 
     @Override
@@ -142,8 +125,8 @@ public class UserDaoImpl implements UserDao {
     public List<User> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
 
-        SearchSortColumns.check(searchBy, "Search");
-        SearchSortColumns.check(sortBy, "Sort");
+        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.check(sortBy, SearchSortColumn.SORT);
 
         final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
@@ -156,14 +139,27 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
         logger.debug("start");
-        SearchSortColumns.check(searchBy, "Search");
-        SearchSortColumns.check(sortBy, "Sort");
+        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.check(sortBy, SearchSortColumn.SORT);
         final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ?";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
            DaoImpl<User> dao = new DaoImpl<>(c, logger);
            return dao.count(what, query);
+        });
+    }
+
+    @Override
+    public List<User> findByPattern(String what, String searchBy) throws ServiceException, DaoException {
+        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+
+        final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ?";
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            return dao.findByPattern(what, query, this::parse);
         });
     }
 }

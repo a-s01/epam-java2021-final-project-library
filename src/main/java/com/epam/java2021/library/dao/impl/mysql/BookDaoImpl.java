@@ -1,15 +1,16 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.AbstractDao;
+import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.service.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,33 +19,34 @@ import java.util.List;
 public class BookDaoImpl implements AbstractDao<Book> {
     private static final Logger logger = LogManager.getLogger(BookDaoImpl.class);
     private static final String AUTHOR_COL = "author";
-    private final Connection conn;
+    private final DaoImpl<Book> dao;
 
     public BookDaoImpl(Connection conn) {
-        this.conn = conn;
+        dao = new DaoImpl<>(conn, logger);
     }
 
     @Override
     public void create(Book book) throws DaoException {
         final String query = "INSERT INTO book VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
 
-        DaoImpl<Book> daoImpl = new DaoImpl<>(conn, logger);
-        daoImpl.create(book, query, this::fillStatement);
+        dao.create(book, query, this::fillStatement);
+        for (Author author: book.getAuthors()) {
+            createBound(book, author);
+        }
     }
 
     @Override
     public Book read(long id) throws DaoException {
         final String query = "SELECT * FROM book WHERE id = ?";
 
-        DaoImpl<Book> daoImpl = new DaoImpl<>(conn, logger);
-        return daoImpl.read(id, query, this::parse);
+        return dao.read(id, query, this::parse);
     }
 
     @Override
     public void update(Book book) throws DaoException {
-        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, lang_code = ?, keep_period = ?, modified = ? WHERE id = ?";
+        final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, " +
+                "lang_code = ?, keep_period = ?, modified = ? WHERE id = ?";
 
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         dao.update(book, query,
                 (b, ps) -> {
                     int last = fillStatement(b, ps);
@@ -58,7 +60,6 @@ public class BookDaoImpl implements AbstractDao<Book> {
     public void delete(long id) throws DaoException {
         final String query = "DELETE FROM book WHERE id = ?";
 
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         dao.delete(id, query);
     }
 
@@ -94,12 +95,16 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page) throws DaoException {
         final String query = patternQuery(searchBy, sortBy, false);
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         return dao.findByPattern(pattern, num, page, query, this::parse);
     }
 
+    public List<Book> findByPattern(String pattern, String searchBy) throws DaoException {
+        final String query = patternQuery(searchBy, null, false);
+        return dao.findByPattern(pattern, query, this::parse);
+    }
+
     private String patternQuery(String searchBy, String sortBy, boolean count) {
-        final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
+
         final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
 
@@ -110,24 +115,23 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 "      JOIN author AS a\n" +
                 "        ON a.id = ba.author_id\n" +
                 "     WHERE " + searchCol + " LIKE ?";
-        if (count) {
-            return query;
+
+        if (sortBy != null) {
+            final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
+            query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
         }
 
-        query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
         return query;
     }
 
     public int findByPatternCount(String pattern, String searchBy, String sortBy)
             throws DaoException {
         final String query = patternQuery(searchBy, sortBy, true);
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         return dao.count(pattern, query);
     }
 
     public List<Book> getBooksInBooking(long id) throws DaoException {
         final String query = "SELECT * FROM book_in_booking WHERE booking_id = ?";
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
 
         List<Book> bookGerms = dao.findById(id, query, (c, rs) -> {
             Book.Builder builder = new Book.Builder();
@@ -147,16 +151,11 @@ public class BookDaoImpl implements AbstractDao<Book> {
         // book_id, author_id
         final String delQuery = "DELETE FROM booking WHERE booking_id = ? AND book_id = ?";
 
-        List<Book> toDelete = getBooksInBooking(id);
-        List<Book> toAdd = new ArrayList<>();
-        Collections.copy(books, toAdd);
-        toAdd.removeAll(toDelete);
-        toDelete.removeAll(books);
+        Disjoint<Book> disjoint = new Disjoint<>(getBooksInBooking(id), books);
 
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
-        createBooksInBooking(id, toAdd);
+        createBooksInBooking(id, disjoint.getToAdd());
 
-        for (Book b: toDelete) {
+        for (Book b: disjoint.getToDelete()) {
             dao.deleteBound(id, b.getId(), delQuery);
         }
     }
@@ -165,7 +164,6 @@ public class BookDaoImpl implements AbstractDao<Book> {
         // book_id, author_id
         final String addQuery = "INSERT INTO book_in_booking VALUES (?, ?, ?)";
 
-        DaoImpl<Book> dao = new DaoImpl<>(conn, logger);
         for (Book b: books) {
             dao.update(b, addQuery, (x, ps) -> {
                 int i = DaoImpl.START;
@@ -175,5 +173,17 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 return i;
             });
         }
+    }
+
+    public void deleteBound(Book book, Author author) throws DaoException {
+        final String boundQuery = "DELETE FROM book_author WHERE book_id = ? and author_id = ?";
+
+        dao.updateBound(book.getId(), author.getId(), boundQuery);
+    }
+
+    public void createBound(Book book, Author author) throws DaoException {
+        final String boundQuery = "INSERT INTO book_author VALUES (?, ?)";
+
+        dao.updateBound(book.getId(), author.getId(), boundQuery);
     }
 }

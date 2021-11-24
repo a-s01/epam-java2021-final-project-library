@@ -11,4 +11,5 @@ public interface SuperDao<E extends Entity> extends AbstractDao<E> {
             throws ServiceException, DaoException;
     int findByPatternCount(String what, String searchBy, String sortBy)
             throws ServiceException, DaoException;
+    List<E> findByPattern(String what, String searchBy) throws ServiceException, DaoException;
 }
