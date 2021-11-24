@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface LangDao {
     List<Lang> getAll() throws DaoException;
-    Lang read(long id);
-    Lang read(String code);
+    Lang read(long id) throws DaoException;
+    Lang read(String code) throws DaoException;
 }

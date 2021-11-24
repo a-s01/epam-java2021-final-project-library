@@ -153,7 +153,6 @@ public class DaoImpl<T extends Entity> {
         return list;
     }
 
-    // TODO check if needed
     public T findByUniqueString(String lookUp, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("findByString request: key={}, {}", lookUp, query);
         T result = null;

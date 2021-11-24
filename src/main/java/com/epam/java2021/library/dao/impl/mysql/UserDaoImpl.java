@@ -85,7 +85,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
-    private User parse(Connection c, ResultSet rs) throws SQLException {
+    private User parse(Connection c, ResultSet rs) throws SQLException, DaoException {
         User.Builder builder = new User.Builder();
         builder.setId(rs.getInt("id"));
         builder.setEmail(rs.getString("email"));

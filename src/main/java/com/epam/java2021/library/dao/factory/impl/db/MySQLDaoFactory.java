@@ -35,8 +35,8 @@ public class MySQLDaoFactory implements IDaoFactoryImpl {
 
 
     @Override
-    public AbstractDao<Lang> getLangDao() {
-        throw new UnsupportedOperationException("not supported yet");
+    public LangDao getLangDao() {
+        return new LangDaoImpl();
     }
 
     @Override

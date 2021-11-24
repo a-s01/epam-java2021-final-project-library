@@ -10,7 +10,7 @@ public interface IDaoFactoryImpl {
     BookDao getBookDao();
     AuthorDao getAuthorDao();
     EditRecordDao getEditRecordDao();
-    AbstractDao<Lang> getLangDao();
+    LangDao getLangDao();
     AbstractDao<BookStat> getBookStatDao();
     //AuthorNamesDao getAuthorNamesDao();
 }

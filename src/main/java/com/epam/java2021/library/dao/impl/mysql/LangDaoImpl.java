@@ -40,12 +40,24 @@ public class LangDaoImpl implements LangDao {
     }
 
     @Override
-    public Lang read(long id) {
-        return null;
+    public Lang read(long id) throws DaoException {
+        final String query = "SELECT * FROM lang WHERE id = ?";
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
+            return dao.read(id, query, this::parse);
+        });
     }
 
     @Override
-    public Lang read(String code) {
-        return null;
+    public Lang read(String code) throws DaoException {
+        final String query = "SELECT * FROM lang WHERE code = ?";
+
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
+            return dao.findByUniqueString(code, query, this::parse);
+        });
     }
 }
