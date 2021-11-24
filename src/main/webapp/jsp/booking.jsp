@@ -34,7 +34,7 @@
                                 aria-controls="collapse${booking.id}">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="col-2"><c:out value="${booking.created}"/></div>
+                                        <div class="col-2"><c:out value="${booking.modified}"/></div>
                                         <div class="col-2 text-lowercase"><c:out value="${booking.state}"/></div>
                                         <div class="col-2"><c:out value="${booking.user.email}"/></div>
                                         <div class="col-2"><c:out value="${booking.user.name}" default="none"/></div>

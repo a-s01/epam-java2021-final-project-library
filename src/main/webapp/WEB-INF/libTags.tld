@@ -61,4 +61,17 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <name>printCalendar</name>
+        <tag-class>com.epam.java2021.library.jstltag.PrintCalendar</tag-class>
+        <attribute>
+            <name>format</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>calendar</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>
