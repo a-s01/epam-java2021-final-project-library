@@ -121,7 +121,8 @@ public class UserDaoImpl implements UserDao {
             dao.update(user, query,
                     (entity, ps) -> {
                         int nextIndex = fillStatement(entity, ps);
-                        ps.setLong(nextIndex, entity.getId());
+                        ps.setLong(nextIndex++, entity.getId());
+                        return nextIndex;
                     }
             );
         });

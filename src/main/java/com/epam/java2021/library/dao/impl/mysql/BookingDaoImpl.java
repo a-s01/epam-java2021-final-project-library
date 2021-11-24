@@ -68,7 +68,7 @@ public class BookingDaoImpl implements BookingDao {
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
-            dao.update(booking, query, (b, ps) -> { int i = statementFiller(b, ps); ps.setLong(i, b.getId()); });
+            dao.update(booking, query, (b, ps) -> { int i = statementFiller(b, ps); ps.setLong(i++, b.getId()); return i; });
             BookDaoImpl bookDao = new BookDaoImpl(c);
             bookDao.updateBooksInBooking(booking.getId(), booking.getBooks());
         });

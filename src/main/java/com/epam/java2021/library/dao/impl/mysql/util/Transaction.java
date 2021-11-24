@@ -64,21 +64,29 @@ public class Transaction {
 
     public void commit() throws DaoException {
         logger.trace("commit connection: {}", conn);
-
-        try {
-            conn.commit();
-        } catch (SQLException e) {
-            logAndThrow(e);
+        if (close) {
+            logger.trace("close is true, committing...");
+            try {
+                conn.commit();
+            } catch (SQLException e) {
+                logAndThrow(e);
+            }
+        } else {
+            logger.trace("close is false, no commit yet");
         }
     }
 
     public void rollback() throws DaoException {
         logger.trace("rollback connection: {}", conn);
-
-        try {
-            conn.rollback();
-        } catch (SQLException e) {
-            logAndThrow(e);
+        if (close) {
+            logger.trace("close is true, initiate rollback...");
+            try {
+                conn.rollback();
+            } catch (SQLException e) {
+                logAndThrow(e);
+            }
+        } else {
+            logger.trace("close is false, no rollback yet");
         }
     }
 

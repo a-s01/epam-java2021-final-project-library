@@ -2,25 +2,32 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.Entity;
 
-public class AuthorNames extends Entity {
+import java.util.Objects;
+
+public class I18AuthorName extends Entity {
     private static final long serialVersionUID = 1L;
 
-    private long lang_id;
+    private long langId;
     private String name;
 
-    private AuthorNames(long id, long lang_id, String name) {
+    private I18AuthorName(long id, long langId, String name) {
         super(id);
-        this.lang_id = lang_id;
+        this.langId = langId;
         this.name = name;
     }
-/*
+
     public static class Builder {
         private long id;
-        private long lang_id;
+        private long langId;
         private String name;
 
-        public Builder setLang_id(long lang_id) {
-            this.lang_id = lang_id;
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setLangId(long langId) {
+            this.langId = langId;
             return this;
         }
 
@@ -29,17 +36,17 @@ public class AuthorNames extends Entity {
             return this;
         }
 
-        public AuthorNames build() {
-            return new AuthorNames(id, lang_id, name);
+        public I18AuthorName build() {
+            return new I18AuthorName(id, langId, name);
         }
     }
 
-    public long getLang_id() {
-        return lang_id;
+    public long getLangId() {
+        return langId;
     }
 
-    public void setLang_id(long lang_id) {
-        this.lang_id = lang_id;
+    public void setLangId(long langId) {
+        this.langId = langId;
     }
 
     public String getName() {
@@ -54,23 +61,21 @@ public class AuthorNames extends Entity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AuthorNames that = (AuthorNames) o;
-        return id == that.id && lang_id == that.lang_id;
+        I18AuthorName that = (I18AuthorName) o;
+        return langId == that.langId && name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lang_id);
+        return Objects.hash(langId, name);
     }
 
     @Override
     public String toString() {
-        return "AuthorNames{" +
+        return "I18AuthorName{" +
                 "id=" + id +
-                ", lang_id=" + lang_id +
+                ", langId=" + langId +
                 ", name='" + name + '\'' +
                 '}';
     }
-
-     */
 }

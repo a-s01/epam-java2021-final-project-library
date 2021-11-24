@@ -7,5 +7,5 @@ import java.sql.SQLException;
 
 @FunctionalInterface
 public interface StatementFiller<T extends Entity> {
-    void accept(T entity, PreparedStatement ps) throws SQLException;
+    int accept(T entity, PreparedStatement ps) throws SQLException;
 }

@@ -48,7 +48,8 @@ public class BookDaoImpl implements AbstractDao<Book> {
         dao.update(book, query,
                 (b, ps) -> {
                     int last = fillStatement(b, ps);
-                    ps.setLong(last, b.getId());
+                    ps.setLong(last++, b.getId());
+                    return last;
                 }
         );
     }
@@ -144,7 +145,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     public void updateBooksInBooking(long id, List<Book> books) throws DaoException {
         // book_id, author_id
-        final String delQuery = "DELETE FROM booking WHERE book_id = ?";
+        final String delQuery = "DELETE FROM booking WHERE booking_id = ? AND book_id = ?";
 
         List<Book> toDelete = getBooksInBooking(id);
         List<Book> toAdd = new ArrayList<>();
@@ -156,7 +157,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
         createBooksInBooking(id, toAdd);
 
         for (Book b: toDelete) {
-            dao.delete(b.getId(), delQuery);
+            dao.deleteBound(id, b.getId(), delQuery);
         }
     }
 
@@ -170,7 +171,8 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 int i = DaoImpl.START;
                 ps.setLong(i++, id);
                 ps.setLong(i++, x.getId());
-                ps.setInt(i, x.getKeepPeriod());
+                ps.setInt(i++, x.getKeepPeriod());
+                return i;
             });
         }
     }

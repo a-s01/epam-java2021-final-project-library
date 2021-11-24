@@ -1,14 +1,17 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.impl.mysql.util.EntityParser;
+import com.epam.java2021.library.dao.impl.mysql.util.StatementFiller;
 import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.Logger;
-import com.epam.java2021.library.dao.impl.mysql.util.StatementFiller;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.epam.java2021.library.constant.Common.NO_UPDATE;
+import static com.epam.java2021.library.constant.Common.SUCCESS;
 
 public class DaoImpl<T extends Entity> {
     public static final int START = 1;
@@ -101,6 +104,37 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
+    public void deleteBound(long id1, long id2, String query) throws DaoException {
+        logger.trace("Delete request: id1={}, id2={}, query={}", id1, id2, query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            int i = START;
+            ps.setLong(i++, id1);
+            ps.setLong(i, id2);
+            if (ps.executeUpdate() > 0) {
+                logger.info(SUCCESS);
+            } else {
+                logger.info(NO_UPDATE);
+            }
+        } catch (SQLException e) {
+            logAndThrow(e);
+        }
+    }
+
+    public void createBound(long id, T entity, String query, StatementFiller<T> filler) throws DaoException {
+        logger.trace("id={}, entity={}, query={}", id, entity, query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            int i = filler.accept(entity, ps);
+            ps.setLong(i, id);
+            if (ps.executeUpdate() > 0) {
+                logger.info(SUCCESS);
+            } else {
+                logger.info(NO_UPDATE);
+            }
+        } catch (SQLException e) {
+            logAndThrow(e);
+        }
+    }
+
     public List<T> findByPattern(String pattern, int num, int page, String query, EntityParser<T> parser)
             throws DaoException {
         logger.trace("Find by pattern request: pattern={}, query={}, num={}, page={}",
@@ -123,14 +157,14 @@ public class DaoImpl<T extends Entity> {
     }
 
 
-    public void updateLongField(long id1, long id2, String query) throws DaoException {
-        logger.trace("Update long field request: id1={}, id2={}, query={}", id1, id2, query);
+    public void updateBound(long id1, long id2, String query) throws DaoException {
+        logger.trace("id1={}, id2={}, query={}", id1, id2, query);
         try(PreparedStatement ps = conn.prepareStatement(query)) {
             int i = START;
             ps.setLong(i++, id1);
             ps.setLong(i, id2);
             if (ps.executeUpdate() > 0) {
-                logger.info("Successful update: id1={}, id2={}", id1, id2);
+                logger.info("success");
             }
         } catch (SQLException e) {
             logAndThrow(e);
@@ -186,4 +220,6 @@ public class DaoImpl<T extends Entity> {
         }
         return list;
     }
+
+
 }

@@ -74,7 +74,7 @@ public class BookSuperDao implements BookDao {
             DaoImpl<Book> daoImpl = new DaoImpl<>(c, logger);
             // authors should be already in DB
             for (Author author: book.getAuthors()) {
-                daoImpl.updateLongField(book.getId(), author.getId(), bookAuthorBound);
+                daoImpl.updateBound(book.getId(), author.getId(), bookAuthorBound);
             }
             BookStatDaoImpl bookStatDao = new BookStatDaoImpl(c);
             bookStatDao.create(book.getBookStat());

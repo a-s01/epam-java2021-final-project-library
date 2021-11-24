@@ -3,21 +3,25 @@ package com.epam.java2021.library.entity.impl;
 import com.epam.java2021.library.entity.ModifiableEntity;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class Author extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String name;
+    private List<I18AuthorName> i18Names;
 
-    private Author(long id, Calendar created, String name) {
+    private Author(long id, Calendar created, String name, List<I18AuthorName> i18Names) {
         super(id, created);
         this.name = name;
+        this.i18Names = i18Names;
     }
 
     public static class Builder {
         private long id;
         private Calendar modified;
         private String name;
+        private List<I18AuthorName> i18Names;
 
         public Builder setName(String name) {
             this.name = name;
@@ -34,8 +38,12 @@ public class Author extends ModifiableEntity {
             return this;
         }
 
+        public void setI18Names(List<I18AuthorName> i18Names) {
+            this.i18Names = i18Names;
+        }
+
         public Author build() {
-            return new Author(id, modified, name);
+            return new Author(id, modified, name, i18Names);
         }
     }
 
@@ -45,6 +53,14 @@ public class Author extends ModifiableEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<I18AuthorName> getI18Names() {
+        return i18Names;
+    }
+
+    public void setI18Names(List<I18AuthorName> i18Names) {
+        this.i18Names = i18Names;
     }
 
     @Override
@@ -63,9 +79,10 @@ public class Author extends ModifiableEntity {
     @Override
     public String toString() {
         return "Author{" +
-                ", id=" + id +
-                ", created=" + modified +
+                "id=" + id +
+                ", modified=" + modified +
                 ", name='" + name + '\'' +
+                ", i18Names=" + i18Names +
                 '}';
     }
 }
