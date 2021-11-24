@@ -94,19 +94,20 @@ public class BookDaoImpl implements AbstractDao<Book> {
     }
 
     public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page) throws DaoException {
-        final String query = patternQuery(searchBy, sortBy, false);
+        final String query = patternQuery(searchBy, sortBy, false, false);
         return dao.findByPattern(pattern, num, page, query, this::parse);
     }
 
-    public List<Book> findByPattern(String pattern, String searchBy) throws DaoException {
-        final String query = patternQuery(searchBy, null, false);
+    public List<Book> findBy(String pattern, String searchBy) throws DaoException {
+        final String query = patternQuery(searchBy, null, false, true);
         return dao.findByPattern(pattern, query, this::parse);
     }
 
-    private String patternQuery(String searchBy, String sortBy, boolean count) {
+    private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) {
 
         final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
+        final String operator = exactSearch ? " = ?" : " LIKE ?";
 
         String query = "SELECT " + what + "\n" +
                 "  FROM book AS b\n" +
@@ -114,7 +115,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
                 "      ON b.id=ba.book_id\n" +
                 "      JOIN author AS a\n" +
                 "        ON a.id = ba.author_id\n" +
-                "     WHERE " + searchCol + " LIKE ?";
+                "     WHERE " + searchCol + operator;
 
         if (sortBy != null) {
             final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
@@ -126,7 +127,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     public int findByPatternCount(String pattern, String searchBy, String sortBy)
             throws DaoException {
-        final String query = patternQuery(searchBy, sortBy, true);
+        final String query = patternQuery(searchBy, sortBy, true, false);
         return dao.count(pattern, query);
     }
 

@@ -111,7 +111,7 @@ public class BookSuperDao implements BookDao {
     }
 
     @Override
-    public List<Book> findByPattern(String what, String searchBy) throws ServiceException, DaoException {
+    public List<Book> findBy(String what, String searchBy) throws ServiceException, DaoException {
         logger.trace("request: what={}, searchBy={}",
                 what, searchBy);
 
@@ -120,7 +120,7 @@ public class BookSuperDao implements BookDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
             BookDaoImpl dao = new BookDaoImpl(c);
-            return resolveDependencies(c, dao.findByPattern(what, searchBy));
+            return resolveDependencies(c, dao.findBy(what, searchBy));
         });
     }
 

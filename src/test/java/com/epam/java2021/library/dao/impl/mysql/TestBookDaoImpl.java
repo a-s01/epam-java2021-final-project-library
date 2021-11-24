@@ -1,9 +1,6 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
-import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.SuperDao;
-import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactory;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;

@@ -151,10 +151,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findByPattern(String what, String searchBy) throws ServiceException, DaoException {
+    public List<User> findBy(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
-        final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ?";
+        final String query = "SELECT * FROM user WHERE " + searchBy + " = ?";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {

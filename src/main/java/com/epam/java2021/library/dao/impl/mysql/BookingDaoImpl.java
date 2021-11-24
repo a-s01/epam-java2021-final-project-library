@@ -141,7 +141,7 @@ public class BookingDaoImpl implements BookingDao {
     public List<Booking> findByPattern(String what, String searchBy, String sortBy, int num, int page) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
-        final String query = patternQuery(searchBy, sortBy, false);
+        final String query = patternQuery(searchBy, sortBy, false, false);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
@@ -162,7 +162,7 @@ public class BookingDaoImpl implements BookingDao {
     public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
-        final String query = patternQuery(searchBy, sortBy, true);
+        final String query = patternQuery(searchBy, sortBy, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
@@ -171,10 +171,10 @@ public class BookingDaoImpl implements BookingDao {
     }
 
     @Override
-    public List<Booking> findByPattern(String what, String searchBy) throws ServiceException, DaoException {
+    public List<Booking> findBy(String what, String searchBy) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
-        final String query = patternQuery(searchBy, null, false);
+        final String query = patternQuery(searchBy, null, false, true);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
@@ -191,20 +191,17 @@ public class BookingDaoImpl implements BookingDao {
         });
     }
 
-    private String patternQuery(String searchBy, String sortBy, boolean count) throws ServiceException {
+    private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) throws ServiceException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
         final String searchCol = searchBy.equals(BOOKING_COL) ? "b" + searchBy : "u." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
+        final String operator = exactSearch ? " = ?" : " LIKE ?";
 
         String query = "SELECT " + what + " FROM booking AS b\n" +
                 "  JOIN user AS u\n" +
                 "    ON u.id = b.user_id\n" +
-                " WHERE " + searchCol + " LIKE ?";
-
-        if (count) {
-            return query;
-        }
+                " WHERE " + searchCol + operator;
 
         if (sortBy != null) {
             validColumns.check(sortBy, SearchSortColumn.SORT);
