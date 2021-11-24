@@ -71,7 +71,7 @@ public class UserDaoImpl implements UserDao {
         ps.setDouble(i++, user.getFine());
         ps.setString(i++, user.getName());
         ps.setLong(i++, user.getPreferredLang().getId());
-        ps.setDate(i++, new Date(user.getModified().getTimeInMillis()));
+        ps.setTimestamp(i++, new Timestamp(user.getModified().getTimeInMillis()));
         return i;
     }
 
@@ -98,9 +98,9 @@ public class UserDaoImpl implements UserDao {
         builder.setState(User.State.valueOf(dbState));
         builder.setFine(rs.getDouble("fine"));
 
-        Date sqlDate = rs.getDate("modified");
+        Timestamp sqlTimestamp = rs.getTimestamp("modified");
         Calendar cal = Calendar.getInstance();
-        cal.setTime(sqlDate);
+        cal.setTime(sqlTimestamp);
         builder.setModified(cal);
 
         // get dependencies

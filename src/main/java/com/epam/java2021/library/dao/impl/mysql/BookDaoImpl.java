@@ -69,9 +69,9 @@ public class BookDaoImpl implements AbstractDao<Book> {
         builder.setIsbn(rs.getString("ISBN"));
         builder.setKeepPeriod(rs.getInt("keep_period"));
 
-        Date sqlDate = rs.getDate("modified");
+        Timestamp sqlTime = rs.getTimestamp("modified");
         Calendar cal = Calendar.getInstance();
-        cal.setTime(sqlDate);
+        cal.setTime(sqlTime);
         builder.setModified(cal);
 
         builder.setYear(rs.getDate("year"));
@@ -87,7 +87,7 @@ public class BookDaoImpl implements AbstractDao<Book> {
         ps.setInt(i++, book.getYear());
         ps.setString(i++, book.getLangCode());
         ps.setInt(i++, book.getKeepPeriod());
-        ps.setDate(i++, new Date(book.getModified().getTimeInMillis()));
+        ps.setTimestamp(i++, new Timestamp(book.getModified().getTimeInMillis()));
 
         return i;
     }

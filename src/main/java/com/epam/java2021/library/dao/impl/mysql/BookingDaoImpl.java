@@ -82,7 +82,7 @@ public class BookingDaoImpl implements BookingDao {
         ps.setLong(i++, booking.getUser().getId());
         ps.setString(i++, booking.getState().name());
         ps.setString(i++, booking.getLocated().name());
-        ps.setDate(i++, new Date(booking.getModified().getTimeInMillis()));
+        ps.setTimestamp(i++, new Timestamp(booking.getModified().getTimeInMillis()));
 
         logger.debug("finish filling statement");
         return i;
@@ -119,9 +119,9 @@ public class BookingDaoImpl implements BookingDao {
         builder.setState(Booking.State.valueOf(rs.getString(BOOKING_COL)));
         builder.setLocated(Booking.Place.valueOf(rs.getString("located")));
 
-        Date sqlDate = rs.getDate("modified");
+        Timestamp sqlTimestamp = rs.getTimestamp("modified");
         Calendar cal = Calendar.getInstance();
-        cal.setTime(sqlDate);
+        cal.setTime(sqlTimestamp);
         builder.setModified(cal);
 
         // get dependencies

@@ -41,7 +41,7 @@ public class AuthorDaoImpl implements AuthorDao {
     private int statementFiller(Author author, PreparedStatement ps) throws SQLException {
         int i = DaoImpl.START;
         ps.setString(i++, author.getName());
-        ps.setDate(i++, new Date(author.getModified().getTimeInMillis()));
+        ps.setTimestamp(i++, new Timestamp(author.getModified().getTimeInMillis()));
         return i;
     }
 
@@ -67,9 +67,9 @@ public class AuthorDaoImpl implements AuthorDao {
         builder.setId(rs.getInt("id"));
         builder.setName(rs.getString("name"));
 
-        Date sqlDate = rs.getDate("modified");
+        Timestamp sqlTime = rs.getTimestamp("modified");
         Calendar cal = Calendar.getInstance();
-        cal.setTime(sqlDate);
+        cal.setTime(sqlTime);
         builder.setModified(cal);
 
         Author author = builder.build();
@@ -97,7 +97,7 @@ public class AuthorDaoImpl implements AuthorDao {
         throw new UnsupportedOperationException("not supported");
     }
 
-    @Override
+    /*@Override
     public List<Author> findByName(String pattern, int num, int page) throws DaoException {
         final String query = "SELECT * FROM author WHERE name LIKE ? ORDER by name LIMIT ? OFFSET ?";
 
@@ -112,7 +112,7 @@ public class AuthorDaoImpl implements AuthorDao {
             }
             return authors;
         });
-    }
+    }*/
 
     @Override
     public List<Author> findByBookID(long id) throws DaoException {
