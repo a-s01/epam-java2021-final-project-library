@@ -21,6 +21,7 @@ public class DaoImpl<T extends Entity> {
     public DaoImpl(Connection conn, Logger logger) {
         this.conn = conn;
         this.logger = logger;
+        logger.trace("DaoImpl: conn={}, logger={}", conn, logger);
     }
 
     private void logAndThrow(SQLException e) throws DaoException {
@@ -44,6 +45,8 @@ public class DaoImpl<T extends Entity> {
                     }
                 }
                 logger.info("New entity added: id={}", entity.getId());
+            } else {
+                logger.info(NO_UPDATE);
             }
         } catch (SQLException e) {
             logAndThrow(e);
@@ -86,6 +89,8 @@ public class DaoImpl<T extends Entity> {
             filler.accept(entity, ps);
             if (ps.executeUpdate() > 0) {
                 logger.info("Successful update: id={}", entity.getId());
+            } else {
+                logger.info(NO_UPDATE);
             }
         } catch (SQLException e) {
             logAndThrow(e);

@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 
+// TODO think about deleted users
 public class UserDaoImpl implements UserDao {
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
     private static final SearchSortColumn validColumns =
@@ -31,6 +32,16 @@ public class UserDaoImpl implements UserDao {
         return tr.noTransactionWrapper( c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
             return dao.findByUniqueString(email, query, this::parse);
+        });
+    }
+
+    @Override
+    public List<User> getAll() throws DaoException {
+        final String query = "SELECT * FROM user WHERE state != 'DELETED'";
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            return dao.getRecords(query, this::parse);
         });
     }
 

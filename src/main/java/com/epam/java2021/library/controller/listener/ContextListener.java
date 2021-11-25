@@ -6,6 +6,8 @@ import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
+import com.epam.java2021.library.service.TaskScheduler;
+import com.epam.java2021.library.service.util.UpdateFineTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +34,7 @@ public class ContextListener implements ServletContextListener {
         ServletContext servletContext = event.getServletContext();
         initUserRoles(servletContext);
         initSupportedLanguages(servletContext);
+        initScheduledTasks();
 
         logger.debug("Servlet context initialization finished");
     }
@@ -64,5 +67,10 @@ public class ContextListener implements ServletContextListener {
             logger.error("Unable to load supported languages: {}", e.getMessage());
         }
         logger.debug(END_MSG);
+    }
+
+    private void initScheduledTasks() {
+        TaskScheduler scheduler = TaskScheduler.getInstance();
+        scheduler.proceed(new UpdateFineTask(), 3600_000); // every one hour
     }
 }
