@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jspf/error_page_directive.jspf" %>
 <div class="container">
-    <h1>Sorry!</h1>
-    <h5>This was not found</h5>
+    <h1><fmt:message key='message.sorry'/></h1>
+    <h5><fmt:message key='error.msg.404'/></h5>
 </div>
 <jsp:include page="/html/footer.html"/>

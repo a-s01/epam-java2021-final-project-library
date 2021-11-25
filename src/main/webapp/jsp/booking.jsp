@@ -16,11 +16,11 @@
                     <button class="accordion-button bg-secondary bg-gradient text-white">
                         <div class="container">
                             <div class="row fw-bold align-items-center">
-                                <div class="col-2">Created</div>
-                                <div class="col-2">State</div>
-                                <div class="col-2">User email</div>
-                                <div class="col-2">User name</div>
-                                <div class="col-2">Book count</div>
+                                <div class="col-2"><fmt:message key='header.created'/></div>
+                                <div class="col-2"><fmt:message key='header.state'/></div>
+                                <div class="col-2"><fmt:message key='header.email'/></div>
+                                <div class="col-2"><fmt:message key='header.name'/></div>
+                                <div class="col-2"><fmt:message key='header.book.count'/></div>
                             </div>
                         </div>
                     </button>
@@ -55,7 +55,9 @@
                                                     <input type="hidden" name="command" value="booking.deliver">
                                                     <input type="hidden" name="subscription" value="true">
                                                     <input type="hidden" name="bookingID" value="${booking.id}">
-                                                    <button class="btn btn-primary" type="submit">Subscription</button>
+                                                    <button class="btn btn-primary" type="submit">
+                                                        <fmt:message key='header.subscription'/>
+                                                    </button>
                                                 </form>
                                             </div>
                                             <div class="col">
@@ -63,14 +65,14 @@
                                                     <input type="hidden" name="command" value="booking.deliver">
                                                     <input type="hidden" name="subscription" value="false">
                                                     <input type="hidden" name="bookingID" value="${booking.id}">
-                                                    <button class="btn btn-secondary" type="submit">In-house</button>
+                                                    <button class="btn btn-secondary" type="submit"><fmt:message key='header.in.house'/></button>
                                                 </form>
                                             </div>
                                             <div class="col">
                                                 <form action="/controller" method="post">
                                                     <input type="hidden" name="command" value="booking.cancel">
                                                     <input type="hidden" name="bookingID" value="${booking.id}">
-                                                    <button class="btn btn-danger" type="submit">Cancel booking</button>
+                                                    <button class="btn btn-danger" type="submit"><fmt:message key='header.cancel.booking'/></button>
                                                 </form>
                                             </div>
                                         </c:if>
@@ -79,7 +81,7 @@
                                                 <form action="/controller" method="post">
                                                     <input type="hidden" name="command" value="booking.done">
                                                     <input type="hidden" name="bookingID" value="${booking.id}">
-                                                    <button class="btn btn-primary" type="submit">Return books</a>
+                                                    <button class="btn btn-primary" type="submit"><fmt:message key='header.done'/></a>
                                                 </form>
                                             </div>
                                         </c:if>

@@ -26,6 +26,9 @@ public class ServletAttributes {
     public static final String USERS = "users";
 
     public static final String SUPPORTED_LANGUAGES = "langs";
+    public static final String LANG = "lang";
+    public static final String DEFAULT_LANG = "defaultLang";
+    public static final String URL = "url";
 
     public static final String START_MSG = "start";
     public static final String END_MSG = "end";

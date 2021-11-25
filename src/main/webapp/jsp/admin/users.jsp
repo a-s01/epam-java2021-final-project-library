@@ -10,12 +10,12 @@
         <c:if test="${not empty users}">
             <table class="table table-hover">
                 <thead>
-                    <th scope="col">Email</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">State</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Edit</th>
-                    <th scope="col">Delete</th>
+                    <th scope="col"><fmt:message key='header.email'/></th>
+                    <th scope="col"><fmt:message key='header.role'/></th>
+                    <th scope="col"><fmt:message key='header.state'/></th>
+                    <th scope="col"><fmt:message key='header.name'/></th>
+                    <th scope="col"><fmt:message key='header.edit'/></th>
+                    <th scope="col"><fmt:message key='header.delete'/></th>
                 </thead>
                 <tbody>
                     <c:forEach var="user" items="${users}">
@@ -25,12 +25,12 @@
                                 <td><c:out value="${user.role}"/></td>
                                 <td><c:out value="${user.state}"/></td>
                                 <td><c:out value="${user.name}"/></td>
-                                <td><a class="btn btn-warning" href="/jsp/admin/user_edit.jsp?id=${user.id}">Edit</a></td>
+                                <td><a class="btn btn-warning" href="/jsp/admin/register.jsp?id=${user.id}">Edit</a></td>
                                 <td>
                                     <form action="/controller" method="post">
                                         <input type="hidden" value="user.delete" name="command">
                                         <input type="hidden" value="${user.id}" name="id">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger"><fmt:message key='header.delete'/></button>
                                     </form>
                                 </td>
                             </tr>
@@ -40,7 +40,7 @@
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
-        <a class="btn btn-info" href="/jsp/register.jsp">Create user</a>
+        <a class="btn btn-info" href="/jsp/register.jsp"><fmt:message key="header.create.user"/></a>
         <div class="container">
             <h5><c:out value="${notFound}"/></h5>
         </div>

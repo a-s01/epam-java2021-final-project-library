@@ -5,11 +5,13 @@ import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.exception.UserException;
 import com.epam.java2021.library.service.util.PasswordUtil;
+import com.epam.java2021.library.service.util.SafeContext;
 import com.epam.java2021.library.service.util.SafeRequest;
 import com.epam.java2021.library.service.util.SafeSession;
 import org.apache.logging.log4j.LogManager;
@@ -107,9 +109,10 @@ public class UserLogic {
             page = Pages.USERS;
         } else {
             session.setAttribute(USER, user);
-            logger.debug(END_MSG);
             page = Pages.HOME;
         }
+
+        logger.debug(END_MSG);
         return page;
     }
 
@@ -138,6 +141,7 @@ public class UserLogic {
         } else {
             logger.trace("User '{}' authenticated successfully", user.getEmail());
             session.setAttribute(USER, user);
+            session.setAttribute(LANG, user.getPreferredLang());
             logger.trace("Added attributes to session: {}={}", USER, user);
             page = Pages.HOME;
         }
@@ -167,13 +171,20 @@ public class UserLogic {
 
         SafeSession safeSession = new SafeSession(session);
         long editBy = -1;
+        Lang preferredLang;
         User currentUser = safeSession.get(USER).convert(User.class::cast);
         if (currentUser != null) {
             editBy = currentUser.getId();
+            preferredLang = (Lang) req.getServletContext().getContext(DEFAULT_LANG);
+            if (preferredLang == null) {
+                throw new ServiceException("unable to get default language for application");
+            }
+        } else {
+            preferredLang = safeSession.get(LANG).notNull().convert(Lang.class::cast);
         }
 
-        logger.trace("email={}, role={}, name={}, editBy={}, comment={}", 
-                email, role, name, editBy, comment);
+        logger.trace("email={}, role={}, name={}, editBy={}, comment={}, preferedLang={}",
+                email, role, name, editBy, comment, preferredLang);
 
         User.Builder uBuilder = new User.Builder();
         uBuilder.setEmail(email);
@@ -186,6 +197,7 @@ public class UserLogic {
         }
         uBuilder.setName(name);
         uBuilder.setPassword(pass);
+        uBuilder.setPreferredLang(preferredLang);
         // TODO add history
         return uBuilder.build();
     }
@@ -241,13 +253,22 @@ public class UserLogic {
         return Pages.USERS;
     }
 
-    public static String logout(HttpSession session, HttpServletRequest req) {
+    public static String logout(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
         logger.trace("Session: id={}", session.getId());
 
         //Booking booking // TODO before invalidate load user booking to db and save it in cookie
 
+        SafeSession safeSession = new SafeSession(session);
+        Lang lang = safeSession.get(LANG).convert(Lang.class::cast);
+
         session.invalidate();
+
+        if (lang != null) {
+            logger.trace("saving user language: lang={}", lang);
+            session = req.getSession();
+            session.setAttribute(LANG, lang);
+        }
 
         logger.debug(END_MSG);
         return Pages.LOGIN;
@@ -277,5 +298,43 @@ public class UserLogic {
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
         return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), USERS, Pages.USERS);
+    }
+
+    public static String setLang(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
+        SafeRequest safeReq = new SafeRequest(req);
+
+        String langRequest = safeReq.get(LANG).notEmpty().convert();
+        logger.trace("found lang in request: {}", langRequest);
+
+        SafeContext context = new SafeContext(req.getServletContext());
+        List<Lang> supported = context.get(SUPPORTED_LANGUAGES).notNull().convert(List.class::cast);
+
+        Lang lang = null;
+        for (Lang l: supported) {
+            if (l.getCode().equals(langRequest)) {
+                lang = l;
+            }
+        }
+
+        if (lang != null) {
+            session.setAttribute(LANG, lang);
+            logger.trace("language applied to session: {}", lang);
+
+            User user = (User) session.getAttribute(USER);
+            if (user != null) {
+                user.setPreferredLang(lang);
+                UserDao userDao = daoFactory.getUserDao();
+                userDao.update(user);
+                logger.trace("language saved for user as prefered: user={}, lang={}", user, lang);
+            }
+        } else {
+            throw new ServiceException("requested lang is not supported: lang=" + langRequest);
+        }
+
+        String url = safeReq.get(URL).notEmpty().convert();
+        logger.trace("proceed back to url={}", url);
+        logger.debug(END_MSG);
+        return url;
     }
 }

@@ -16,12 +16,12 @@
                 <c:if test="${not empty booking.books}">
                     <table class="table table-hover">
                         <thead>
-                            <th scope="col">Name</th>
-                            <th scope="col">Authors</th>
-                            <th scope="col">ISBN</th>
-                            <th scope="col">Year</th>
+                            <th scope="col"><fmt:message key='header.title'/></th>
+                            <th scope="col"><fmt:message key='header.authors'/></th>
+                            <th scope="col"><fmt:message key='header.isbn'/></th>
+                            <th scope="col"><fmt:message key='header.year'/></th>
                             <c:if test="${booking.state == 'NEW'}">
-                                <th scope="col">Action</th>
+                                <th scope="col"><fmt:message key='header.action'/></th>
                             </c:if>
                         </thead>
                         <tbody>
@@ -36,7 +36,11 @@
                                     <td><c:out value="${book.isbn}"/></td>
                                     <td><c:out value="${book.year}"/></td>
                                     <c:if test="${booking.state == 'NEW'}">
-                                        <td><a href="/controller?command=booking.removeBook&id=${book.id}">Delete</a></td>
+                                        <td>
+                                            <a href="/controller?command=booking.removeBook&id=${book.id}">
+                                                <fmt:message key='header.delete'/>
+                                            </a>
+                                        </td>
                                     </c:if>
                                 </tr>
                             </c:forEach>
@@ -48,13 +52,15 @@
                                 <div class="col">
                                     <form action="/controller" method="post">
                                         <input type="hidden" name="command" value="booking.book">
-                                        <button type="submit" class="btn btn-primary">Finish booking</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <fmt:message key='header.finish.booking'/>
+                                        </button>
                                     </form>
                                 </div>
                                 <div class="col">
                                     <form action="/controller" method="post">
                                         <input type="hidden" name="command" value="booking.cancel">
-                                        <button type="submit" class="btn btn-danger">Cancel booking</button>
+                                        <button type="submit" class="btn btn-danger"><fmt:message key='header.cancel.booking'/></button>
                                     </form>
                                 </div>
                             </c:if>
@@ -65,7 +71,7 @@
         </div>
     </c:if>
     <c:if test="${empty booking}">
-        <div>You don't have any booking yet</div>
+        <div><fmt:message key='message.no.booking'/></div>
     </c:if>
 </div>
 

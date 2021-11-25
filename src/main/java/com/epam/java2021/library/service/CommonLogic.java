@@ -53,7 +53,7 @@ public class CommonLogic {
 
         // books = null if totalCount < 1
         if (list == null || list.isEmpty()) {
-            logger.trace(reqAttribute + " not found");
+            logger.trace("{} not found", reqAttribute);
             req.setAttribute(NOT_FOUND, "Nothing was found");
         }
 

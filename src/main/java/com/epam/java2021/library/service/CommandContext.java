@@ -35,6 +35,7 @@ public class CommandContext {
         commands.put("user.logout", new AuthContext(UserLogic::logout, User.Role.USER, User.Role.LIBRARIAN, User.Role.ADMIN));
         commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.ADMIN));
         commands.put("user.delete", new AuthContext(UserLogic::delete, User.Role.ADMIN));
+        commands.put("user.setLang", new AuthContext(UserLogic::setLang, User.Role.UNKNOWN));
 
         commands.put(Pages.ERROR, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.MY_BOOKS, new AuthContext(null, User.Role.USER));

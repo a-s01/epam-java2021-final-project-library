@@ -11,12 +11,12 @@
         <div class="card-body">
             <table class="table table-hover">
                 <thead>
-                    <th scope="col">Name</th>
-                    <th scope="col">Authors</th>
-                    <th scope="col">ISBN</th>
-                    <th scope="col">Year</th>
+                    <th scope="col"><fmt:message key='header.title'/></th>
+                    <th scope="col"><fmt:message key='header.authors'/></th>
+                    <th scope="col"><fmt:message key='header.isbn'/></th>
+                    <th scope="col"><fmt:message key='header.year'/></th>
                     <c:if test="${state eq 'DELIVERED'}">
-                        <th scope="col">Return up to date</th>
+                        <th scope="col"><fmt:message key='header.return.up.to'/></th>
                     </c:if>
                 </thead>
                 <tbody>
