@@ -3,7 +3,7 @@
                packages="org.apache.logging.log4j.test">
   <Properties>
     <Property name="filename">/Users/snu/IdeaProjects/epam.official.tasks/Library/library-app.log</Property>
-    <Property name="pattern">%d %p [%t] %logger{36}: %M - %m%n</Property>
+    <Property name="pattern">%d %p [%t] %c{1}: %M - %m%n</Property>
   </Properties>
   <Filter type="ThresholdFilter" level="trace"/>
 
@@ -27,9 +27,6 @@
     <!-- <Logger name="com.epam.java2021.library.jstltag" level="trace">
       <AppenderRef ref="STDOUT"/>
     </Logger> -->
-    <Logger name="com.epam.java2021.library.controller.listener.ContextListener" level="error">
-      <AppenderRef ref="STDOUT"/>
-    </Logger>
     <!-- <Logger name="com.epam.java2021.library.dao.impl.mysql" level="error">
       <AppenderRef ref="STDOUT"/>
     </Logger> -->

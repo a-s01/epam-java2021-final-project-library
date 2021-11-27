@@ -4,21 +4,20 @@
 <div class="container pt-4">
     <form action="/controller" >
         <input type="hidden" name="command" value="${action}">
-        <input type="hidden" name="page" value="1">
         <div class="row align-items-center">
             <input class="form-control-lg col-7" type="search" name="query" placeholder="<fmt:message key='search.placeholder.msg'/>" value="<c:out value='${param.query}' />">
-            <div class="form-floating col">
+            <div class="form-floating col" <c:if test="${list.size() eq 1}">hidden</c:if> >
                 <select class="form-select" name="searchBy" id="searchBy" aria-label="searchBy">
                     <c:forEach var="attr" items="${list}">
-                        <option class="dropdown-item"><c:out value="${attr}"/></option>
+                        <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>
                     </c:forEach>
                 </select>
                 <label for="searchBy"><fmt:message key="header.search.by"/></label>
             </div>
-            <div class="form-floating col">
+            <div class="form-floating col" <c:if test="${list.size() eq 1}">hidden</c:if>>
                 <select class="form-select" name="sortBy" id="sortBy" aria-label="Sort by">
                     <c:forEach var="attr" items="${list}">
-                        <option class="dropdown-item"><c:out value="${attr}"/></option>
+                        <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>
                     </c:forEach>
                 </select>
                 <label for="sortBy"><fmt:message key='header.sort.by'/></label>

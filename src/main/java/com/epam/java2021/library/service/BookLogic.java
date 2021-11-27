@@ -16,9 +16,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
+import static com.epam.java2021.library.constant.Common.END_MSG;
+import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class BookLogic {
@@ -30,17 +31,23 @@ public class BookLogic {
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug("start");
         BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(session, req, logger, dao, BOOKS, Pages.HOME);
+        return CommonLogic.find(session, req, logger, dao, ATTR_BOOKS, Pages.HOME);
     }
 
     private static Book getValidParams(HttpServletRequest req) throws ServiceException {
+        logger.debug(START_MSG);
         SafeRequest safeReq = new SafeRequest(req);
 
         String title = safeReq.get("title").notEmpty().escape().convert();
         String isbn = safeReq.get("isbn").notEmpty().escape().convert();
         int year = safeReq.get("year").notEmpty().convert(Integer::parseInt);
-        int keepPeriod = safeReq.get("keepPeriod").convert(Integer::parseInt); // TODO add default value to JSP
-        long total = safeReq.get("total").convert(Long::parseLong);
+        int keepPeriod = safeReq.get("keepPeriod").notEmpty().convert(Integer::parseInt); // TODO add default value to JSP
+        long total = safeReq.get("total").notEmpty().convert(Long::parseLong);
+        String langCode = safeReq.get("langCode").notEmpty().convert();
+
+        if (!isValidISOLanguage(langCode)) {
+            throw new ServiceException(ERR_WRONG_LANG_CODE);
+        }
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1500 || year > currentYear) {
@@ -54,9 +61,24 @@ public class BookLogic {
         builder.setIsbn(isbn);
         builder.setKeepPeriod(keepPeriod);
         builder.setBookStat(new BookStat.Builder().setTotal(total).build());
+        builder.setLangCode(langCode);
 
+        logger.debug(END_MSG);
         return builder.build();
     }
+
+    private static boolean isValidISOLanguage(String langCode) {
+        logger.debug("check if {} is a valid ISO-639 code", langCode);
+        for (String code: Locale.getISOLanguages()) {
+            if (code.equals(langCode)) {
+                logger.debug("{} is valid", langCode);
+                return true;
+            }
+        }
+        logger.debug("{} is not valid", langCode);
+        return false;
+    }
+
     public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
@@ -65,7 +87,7 @@ public class BookLogic {
             book = getValidParams(req);
         } catch (ServiceException e) {
             session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
-            return Pages.BOOK_EDIT;
+            return Pages.BOOK_EDIT + "?command=book.add";
         }
         book.setModified(Calendar.getInstance());
         // TODO authors
@@ -79,6 +101,20 @@ public class BookLogic {
     public static String edit(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
+        SafeRequest safeReq = new SafeRequest(req);
+        try {
+            long bookID = safeReq.get("id").notEmpty().convert(Long::parseLong);
+            logger.trace("id={}", bookID);
+
+            BookDao dao = daoFactory.getBookDao();
+            Book book = dao.read(bookID);
+            session.setAttribute(ATTR_PROCEED_BOOK, book);
+            return Pages.BOOK_EDIT;
+        } catch (ServiceException e) {
+            // it doesn't have id, move on
+            logger.trace("no id was passed, try to proceed with book editing");
+        }
+
         Book params;
         try {
             params = getValidParams(req);
@@ -86,31 +122,17 @@ public class BookLogic {
             session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
             return Pages.BOOK_EDIT;
         }
-
-        SafeRequest safeReq = new SafeRequest(req);
-        long bookID = safeReq.get("bookID").convert(Long::parseLong);
-        logger.trace("bookID={}", bookID);
-
+        
         SafeSession safeSession = new SafeSession(session);
-        List<Book> books = safeSession.get(BOOKS).notNull().convert(List.class::cast);
-
-        Book proceed = null;
-        for (Book b: books) {
-            if (b.getId() == bookID) {
-                proceed = b;
-            }
-        }
-
-        // TODO they wont' be in session
-        if (proceed == null) {
-            throw new ServiceException("Edited book should be present in session");
-        }
+        Book proceed = safeSession.get(ATTR_PROCEED_BOOK).notNull().convert(Book.class::cast);
+        session.removeAttribute(ATTR_PROCEED_BOOK);
 
         proceed.setIsbn(params.getIsbn());
         proceed.setYear(params.getYear());
         proceed.setTitle(params.getTitle());
         proceed.setKeepPeriod(params.getKeepPeriod());
         proceed.setModified(Calendar.getInstance());
+        proceed.setLangCode(params.getLangCode());
 
         BookStat old = proceed.getBookStat();
         long totalInStockDiff = old.getTotal() - old.getInStock();
@@ -121,11 +143,21 @@ public class BookLogic {
             return Pages.BOOK_EDIT;
         }
         old.setInStock(newInStock);
+        
         BookDao dao = daoFactory.getBookDao();
         dao.update(proceed);
 
         logger.debug(END_MSG);
-        return Pages.HOME;
+        return nextPageLogic(safeSession);
+    }
+
+    private static String nextPageLogic(SafeSession safeSession) throws ServiceException {
+        String page = safeSession.get(ATTR_SEARCH_LINK).convert(String.class::cast);
+        if (page == null) {
+            logger.trace("previous search is null, set page to home={}", Pages.HOME);
+            page = Pages.HOME;
+        }
+        return page;
     }
 
     public static String delete(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
@@ -135,12 +167,12 @@ public class BookLogic {
         long id = safeReq.get("id").notNull().convert(Long::parseLong);
 
         SafeSession safeSession = new SafeSession(session);
-        List<Book> books = safeSession.get(BOOKS).convert(List.class::cast);
+        List<Book> books = safeSession.get(ATTR_BOOKS).convert(List.class::cast);
         if (books != null) {
             for (Book b: books) {
                 if (b.getId() == id) {
                     books.remove(b);
-                    session.setAttribute(BOOKS, books);
+                    session.setAttribute(ATTR_BOOKS, books);
                     logger.debug("books in session updated");
                     break;
                 }
@@ -151,6 +183,6 @@ public class BookLogic {
         dao.delete(id);
 
         logger.debug(END_MSG);
-        return Pages.HOME;
+        return nextPageLogic(safeSession);
     }
 }

@@ -7,6 +7,13 @@ public abstract class Safe<K> {
     protected String param;
     public abstract Safe<K> get(String s);
 
+    /**
+     * for string convertion you must use notEmpty first
+     * @param converter
+     * @param <V>
+     * @return
+     * @throws ServiceException
+     */
     public <V> V convert(TypeConverter<K, V> converter) throws ServiceException {
         try {
             return converter.process(value);

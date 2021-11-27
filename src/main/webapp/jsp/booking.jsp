@@ -4,7 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
 
 <c:set var="action" value="booking.find" />
-<l:setList var="list" value="Email Name State" />
+<l:setList var="list" value="email name state" />
 
 <div class="container">
     <%@ include file="/WEB-INF/jspf/search.jspf" %>
@@ -34,7 +34,7 @@
                                 aria-controls="collapse${booking.id}">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="col-2"><c:out value="${booking.modified}"/></div>
+                                        <div class="col-2"><l:printCalendar calendar="${booking.modified}" format="yyyy-MM-dd HH:mm:ss"/></div>
                                         <div class="col-2 text-lowercase"><c:out value="${booking.state}"/></div>
                                         <div class="col-2"><c:out value="${booking.user.email}"/></div>
                                         <div class="col-2"><c:out value="${booking.user.name}" default="none"/></div>
@@ -46,7 +46,7 @@
                         <div id="collapse${booking.id}" class="accordion-collapse collapse"
                             aria-labelledby="heading${booking.id}" data-bs-parent="#bookingAccordion">
                             <div class="accordion-body">
-                                <t:listBooks books="${booking.books}" error="No books in this booking" state="${booking.state}"/>
+                                <t:listBooks books="${booking.books}" error="No books in this booking" state="${booking.state}" booking="${booking}"/>
                                 <div class="container pt-2">
                                     <div class="row justify-content-end row-cols-auto">
                                         <c:if test="${booking.state eq 'BOOKED'}">
@@ -95,8 +95,10 @@
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </div>
     </c:if>
-    <div class="container">
-        <c:out value="${notFound}"/>
-    </div>
+    <c:if test="${not empty notFound}">
+        <div class="container pt-4">
+            <h5><fmt:message key='${notFound}'/></h5>
+        </div>
+    </c:if>
 </div>
 <jsp:include page="/html/footer.html"/>

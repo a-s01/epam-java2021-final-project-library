@@ -11,6 +11,5 @@ public interface IDaoFactoryImpl {
     AuthorDao getAuthorDao();
     EditRecordDao getEditRecordDao();
     LangDao getLangDao();
-    AbstractDao<BookStat> getBookStatDao();
     //AuthorNamesDao getAuthorNamesDao();
 }

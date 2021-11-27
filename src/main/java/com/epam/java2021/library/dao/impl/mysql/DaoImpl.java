@@ -209,8 +209,8 @@ public class DaoImpl<T extends Entity> {
         return list;
     }
 
-    public T findByUniqueString(String lookUp, String query, EntityParser<T> parser) throws DaoException {
-        logger.trace("findByString request: key={}, {}", lookUp, query);
+    public T read(String lookUp, String query, EntityParser<T> parser) throws DaoException {
+        logger.trace("read by string request: key={}, {}", lookUp, query);
         T result = null;
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, lookUp);

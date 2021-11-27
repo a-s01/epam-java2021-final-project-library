@@ -39,10 +39,6 @@ public class MySQLDaoFactory implements IDaoFactoryImpl {
         return new LangDaoImpl();
     }
 
-    @Override
-    public AbstractDao<BookStat> getBookStatDao() {
-        return new BookStatDaoImpl();
-    }
 /*
     @Override
     public AuthorNamesDao getAuthorNamesDao() {

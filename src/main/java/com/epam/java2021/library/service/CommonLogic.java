@@ -24,9 +24,16 @@ public class CommonLogic {
         String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
         String sortBy = safeReq.get("sortBy").notEmpty().escape().convert().toLowerCase();
         int num = safeReq.get("num").notNull().convert(Integer::parseInt);
-        int pageNum = safeReq.get("page").notNull().convert(Integer::parseInt);
+
+        int pageNum = 1;
+        try {
+            pageNum = safeReq.get("page").notEmpty().convert(Integer::parseInt);
+        } catch (ServiceException e) {
+            logger.trace("page is empty, set it to 1");
+        }
+
         if (num == 0) {
-            throw new ServiceException("Amount of items cannot be equal to 0");
+            throw new ServiceException("error.amount.cannot.be.zero");
         }
 
         logger.trace("query={}, searchBy={}, sortBy={}, num={}, pageNum={}",
@@ -38,7 +45,7 @@ public class CommonLogic {
         try {
             if (pageNum == 1) {
                 session.removeAttribute(PAGES_NUM);
-                totalCount = dao.findByPatternCount(query, searchBy, sortBy);
+                totalCount = dao.findByPatternCount(query, searchBy);
                 session.setAttribute(PAGES_NUM, Math.ceil(1.0 * totalCount / num));
                 logger.trace("totalCount={}", totalCount);
             }
@@ -54,11 +61,11 @@ public class CommonLogic {
         // books = null if totalCount < 1
         if (list == null || list.isEmpty()) {
             logger.trace("{} not found", reqAttribute);
-            req.setAttribute(NOT_FOUND, "Nothing was found");
+            req.setAttribute(NOT_FOUND, "error.not.found");
         }
 
         req.setAttribute(reqAttribute, list);
-        req.setAttribute(SEARCH_LINK, req.getRequestURI()
+        session.setAttribute(ATTR_SEARCH_LINK, req.getRequestURI()
                 + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
         logger.debug("end");
         return page;

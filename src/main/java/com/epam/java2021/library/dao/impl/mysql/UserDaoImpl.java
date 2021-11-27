@@ -31,7 +31,7 @@ public class UserDaoImpl implements UserDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
             DaoImpl<User> dao = new DaoImpl<>(c, logger);
-            return dao.findByUniqueString(email, query, this::parse);
+            return dao.read(email, query, this::parse);
         });
     }
 
@@ -148,10 +148,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
+    public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         logger.debug("start");
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
-        validColumns.check(sortBy, SearchSortColumn.SORT);
         final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ?";
 
         Transaction tr = new Transaction(conn);
@@ -161,6 +160,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
+    /*
     @Override
     public List<User> findBy(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
@@ -173,4 +173,6 @@ public class UserDaoImpl implements UserDao {
             return dao.findByPattern(what, query, this::parse);
         });
     }
+
+     */
 }

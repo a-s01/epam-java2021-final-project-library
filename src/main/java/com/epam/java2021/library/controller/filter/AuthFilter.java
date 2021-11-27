@@ -69,6 +69,6 @@ public class AuthFilter implements Filter {
             return false;
         }
 
-        throw new ServiceException("Resource is forbidden");
+        throw new ServiceException("error.resource.forbidden");
     }
 }

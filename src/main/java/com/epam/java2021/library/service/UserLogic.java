@@ -24,6 +24,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.epam.java2021.library.constant.Common.END_MSG;
+import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class UserLogic {
@@ -60,18 +62,19 @@ public class UserLogic {
         return null;
     }
 
-    public static String register(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
+        String errorPage = Pages.REGISTER + "?command=user.add";
 
         User user;
         try {
             user = getValidParams(session, req);
             if (user.getPassword().equals("")) {
-                throw new UserException("Password cannot be empty");
+                throw new UserException("error.password.is.empty");
             }
         } catch (UserException e) {
             session.setAttribute(USER_ERROR, e.getMessage());
-            return Pages.REGISTER;
+            return errorPage;
         }
         
         try {
@@ -80,7 +83,7 @@ public class UserLogic {
             user.setSalt(salt);
             user.setPassword(pass);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new ServiceException("Unable to get salt/pass for user " + user.getEmail());
+            throw new ServiceException("error.password.generation");
         }
 
         user.setModified(Calendar.getInstance());
@@ -91,13 +94,13 @@ public class UserLogic {
         } catch (DaoException e) {
             try {
                 if (e.getMessage().startsWith("Duplicate entry") && e.getMessage().endsWith("for key 'user.email'")) {
-                    throw new UserException("Email is already taken");
+                    throw new UserException("error.duplicated.user.email");
                 } else {
                     throw e;
                 }
             } catch (UserException userE) {
                 session.setAttribute(USER_ERROR, userE.getMessage());
-                return Pages.REGISTER;
+                return errorPage;
             }
         }
 
@@ -130,13 +133,13 @@ public class UserLogic {
             user = UserLogic.getUser(email, pass);
         } catch (DaoException | ServiceException e) {
             page = Pages.ERROR;
-            session.setAttribute(SERVICE_ERROR, "Error in app working. Please, try again later.");
+            session.setAttribute(SERVICE_ERROR, "error.app.general");
             logger.trace("Forward to error page '{}'", page);
         }
 
         if (user == null) {
             logger.trace("User not found");
-            session.setAttribute(USER_ERROR, "Incorrect login or password");
+            session.setAttribute(USER_ERROR, "error.incorrect.login");
             page = Pages.LOGIN;
         } else {
             logger.trace("User '{}' authenticated successfully", user.getEmail());
@@ -151,6 +154,7 @@ public class UserLogic {
     }
 
     private static User getValidParams(HttpSession session, HttpServletRequest req) throws UserException, ServiceException {
+        logger.debug(START_MSG);
         String email;
         String pass;
         String role;
@@ -169,15 +173,20 @@ public class UserLogic {
         String name = safeReq.get("name").escape().convert();
         String comment = safeReq.get("comment").escape().convert();
 
+        logger.debug("1");
         SafeSession safeSession = new SafeSession(session);
         long editBy = -1;
         Lang preferredLang;
         User currentUser = safeSession.get(USER).convert(User.class::cast);
+        logger.debug("2");
+
         if (currentUser != null) {
             editBy = currentUser.getId();
-            preferredLang = (Lang) req.getServletContext().getContext(DEFAULT_LANG);
+            logger.debug("3");
+
+            preferredLang = (Lang) req.getServletContext().getAttribute(DEFAULT_LANG);
             if (preferredLang == null) {
-                throw new ServiceException("unable to get default language for application");
+                throw new ServiceException("error.default.app.language.not.found");
             }
         } else {
             preferredLang = safeSession.get(LANG).notNull().convert(Lang.class::cast);
@@ -199,6 +208,8 @@ public class UserLogic {
         uBuilder.setPassword(pass);
         uBuilder.setPreferredLang(preferredLang);
         // TODO add history
+        
+        logger.debug(END_MSG);
         return uBuilder.build();
     }
 
@@ -207,22 +218,19 @@ public class UserLogic {
         logger.debug(START_MSG);
 
         SafeRequest safeRequest = new SafeRequest(req);
-        long userID = safeRequest.get("userID").notNull().convert(Long::parseLong);
-        logger.trace("userID={}", userID);
-        User proceedUser = null;
+        try {
+            long userID = safeRequest.get("id").notEmpty().convert(Long::parseLong);
+            logger.trace("id={}", userID);
+            UserDao dao = daoFactory.getUserDao();
+            User user = dao.read(userID);
+            session.setAttribute(ATTR_PROCEED_USER, user);
+            return Pages.REGISTER;
+        } catch (ServiceException e) {
+            logger.trace("id isn't in request, try to proceed with user editing");
+        }
 
         SafeSession safeSession = new SafeSession(session);
-        List<User> users = safeSession.get(USERS).notNull().convert(List.class::cast);
-        for (User u : users) {
-            if (u.getId() == userID) {
-                proceedUser = u;
-                break;
-            }
-        }
-
-        if (proceedUser == null) {
-            throw new ServiceException("User should be in cached list of users");
-        }
+        User proceedUser = safeSession.get(ATTR_PROCEED_USER).notNull().convert(User.class::cast);
 
         User params;
         try {
@@ -238,7 +246,7 @@ public class UserLogic {
                 String pass = PasswordUtil.genHash(params.getPassword(), salt);
                 proceedUser.setPassword(pass);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new ServiceException("Unable to get pass for user " + params.getEmail());
+                throw new ServiceException("error.password.generation");
             }
         }
         proceedUser.setRole(params.getRole());
@@ -250,7 +258,16 @@ public class UserLogic {
         dao.update(proceedUser);
 
         logger.debug(END_MSG);
-        return Pages.USERS;
+        return nextPageLogic(safeSession);
+    }
+
+    private static String nextPageLogic(SafeSession safeSession) throws ServiceException {
+        String page = safeSession.get(ATTR_SEARCH_LINK).convert(String.class::cast);
+        if (page == null) {
+            logger.trace("no previous search link in session");
+            page = Pages.USERS;
+        }
+        return page;
     }
 
     public static String logout(HttpSession session, HttpServletRequest req) throws ServiceException {
@@ -275,6 +292,8 @@ public class UserLogic {
     }
 
     public static String delete(HttpSession session, HttpServletRequest request) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
+
         SafeRequest safeReq = new SafeRequest(request);
         long id = safeReq.get("id").notNull().convert(Long::parseLong);
 
@@ -282,7 +301,7 @@ public class UserLogic {
         dao.delete(id);
 
         SafeSession safeSession = new SafeSession(session);
-        List<User> users = safeSession.get(USERS).convert(List.class::cast);
+        List<User> users = safeSession.get(ATTR_USERS).convert(List.class::cast);
         if (users != null) {
             for (User u: users) {
                 if (u.getId() == id) {
@@ -291,13 +310,15 @@ public class UserLogic {
                 }
             }
         }
-        return Pages.USERS;
+
+        logger.debug(END_MSG);
+        return nextPageLogic(safeSession);
     }
 
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), USERS, Pages.USERS);
+        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), ATTR_USERS, Pages.USERS);
     }
 
     public static String setLang(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
@@ -329,7 +350,7 @@ public class UserLogic {
                 logger.trace("language saved for user as prefered: user={}, lang={}", user, lang);
             }
         } else {
-            throw new ServiceException("requested lang is not supported: lang=" + langRequest);
+            throw new ServiceException("error.requested.lang.is.not.supported");
         }
 
         String url = safeReq.get(URL).notEmpty().convert();

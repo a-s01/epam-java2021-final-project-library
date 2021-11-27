@@ -14,18 +14,20 @@ public class SafeRequest extends Safe<String> {
     @Override
     public SafeRequest get(String s) {
         value = req.getParameter(s);
-        value = value == null ? "" : value.trim();
+        if (value != null) {
+            value = value.trim();
+        }
         setParam(s);
 
         return this;
     }
     
     public String convert() {
-        return value;
+        return value == null ? "" : value;
     }
 
     public SafeRequest notEmpty() throws ServiceException {
-        if (value.equals("")) {
+        if (value == null || value.equals("")) {
             throw new ServiceException(param + " cannot be empty.");
         }
 
@@ -33,18 +35,16 @@ public class SafeRequest extends Safe<String> {
     }
 
     public SafeRequest asEmail() throws ServiceException {
-        // ^[\\p{L}!#$%&’*+/=?`{|}~^-]+(?:\\\\.[\\p{L}!#$%&’*+/=?`{|}~^-]+)*@(?:[\\p{L}-]+\\\\.)" +
-        //                "+[\\p{L}]{2,6}$
-
-        //^[\p{LD}\.-_*]+@[\p{LD}\\.-_]+\\.[\p{L}]{2,6}$
-        if (!value.matches("^[\\p{LD}\\\\._-]+@[\\p{LD}\\\\._-]+\\.[\\p{L}]{2,6}$")) {
+        if (value == null || !value.matches("^[\\p{LD}\\\\._-]+@[\\p{LD}\\\\._-]+\\.[\\p{L}]{2,6}$")) {
             throw new ServiceException(param + " should be valid email");
         }
         return this;
     }
 
     public SafeRequest escape() {
-        value = value.replaceAll("([<>\\*\\+\\?^\\$\\{\\}\\(\\)\\|\\[\\]\\\\])", "\\\\$1");
+        if (value != null) {
+            value = value.replaceAll("([<>\\*\\+\\?^\\$\\{\\}\\(\\)\\|\\[\\]\\\\])", "\\\\$1");
+        }
         return this;
     }
 }

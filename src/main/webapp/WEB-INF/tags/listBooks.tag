@@ -1,5 +1,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<fmt:setLocale value="${lang.code}" />
+<fmt:setBundle basename="i18n" />
+
+<%@ attribute name="booking" required="true" rtexprvalue="true" type="com.epam.java2021.library.entity.impl.Booking"%>
 <%@ attribute name="books" required="true" rtexprvalue="true" type="java.util.List"%>
 <%@ attribute name="state" required="true" rtexprvalue="true"%>
 <%@ attribute name="error" required="true" %>
@@ -31,7 +38,7 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${state eq 'DELIVERED'}" >
-                                <td class="text-danger">NOT READY YET</td>
+                                <td class="text-danger fw-bold"><l:printCalendar calendar="${booking.modified}" addDays="${book.keepPeriod}" format="yyyy-MM-dd HH:mm:ss"/></td>
                             </c:if>
                         </tr>
                     </c:forEach>

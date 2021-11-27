@@ -21,10 +21,10 @@
             </div>
         </div>
         <div class="row my-2">
-            <p class="text-danger fw-bold"><c:out value="${userError}" /></p>
+            <p class="text-danger fw-bold"><c:if test="${not empty userError}"><fmt:message key='${userError}'/></c:if></p>
             <div class="col-sm container overflow-hidden">
                 <button type="submit" class="btn btn-primary"><fmt:message key='link.sign.in'/></button>
-                <a href="/jsp/register.jsp" class="btn btn-secondary"><fmt:message key='link.sign.up'/></a>
+                <a href="/jsp/register.jsp?command=user.add" class="btn btn-secondary"><fmt:message key='link.sign.up'/></a>
             </div>
         </div>
     </form>

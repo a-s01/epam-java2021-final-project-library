@@ -9,7 +9,7 @@ import java.util.List;
 public interface SuperDao<E extends Entity> extends AbstractDao<E> {
     List<E> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException;
-    int findByPatternCount(String what, String searchBy, String sortBy)
+    int findByPatternCount(String what, String searchBy)
             throws ServiceException, DaoException;
-    List<E> findBy(String what, String searchBy) throws ServiceException, DaoException; // TODO to delete
+    //List<E> findBy(String what, String searchBy) throws ServiceException, DaoException; // TODO to delete
 }

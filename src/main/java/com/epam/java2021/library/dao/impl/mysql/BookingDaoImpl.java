@@ -159,10 +159,10 @@ public class BookingDaoImpl implements BookingDao {
     }
 
     @Override
-    public int findByPatternCount(String what, String searchBy, String sortBy) throws ServiceException, DaoException {
+    public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
-        final String query = patternQuery(searchBy, sortBy, true, false);
+        final String query = patternQuery(searchBy, null, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             DaoImpl<Booking> dao = new DaoImpl<>(c, logger);

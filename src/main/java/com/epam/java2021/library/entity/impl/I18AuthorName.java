@@ -7,18 +7,18 @@ import java.util.Objects;
 public class I18AuthorName extends Entity {
     private static final long serialVersionUID = 1L;
 
-    private long langId;
+    private Lang lang;
     private String name;
 
-    private I18AuthorName(long id, long langId, String name) {
+    private I18AuthorName(long id, Lang lang, String name) {
         super(id);
-        this.langId = langId;
+        this.lang = lang;
         this.name = name;
     }
 
     public static class Builder {
-        private long id;
-        private long langId;
+        private long id = -1;
+        private Lang lang;
         private String name;
 
         public Builder setId(long id) {
@@ -26,8 +26,8 @@ public class I18AuthorName extends Entity {
             return this;
         }
 
-        public Builder setLangId(long langId) {
-            this.langId = langId;
+        public Builder setLang(Lang lang) {
+            this.lang = lang;
             return this;
         }
 
@@ -37,16 +37,16 @@ public class I18AuthorName extends Entity {
         }
 
         public I18AuthorName build() {
-            return new I18AuthorName(id, langId, name);
+            return new I18AuthorName(id, lang, name);
         }
     }
 
-    public long getLangId() {
-        return langId;
+    public Lang getLang() {
+        return lang;
     }
 
-    public void setLangId(long langId) {
-        this.langId = langId;
+    public void setLang(Lang lang) {
+        this.lang = lang;
     }
 
     public String getName() {
@@ -62,19 +62,19 @@ public class I18AuthorName extends Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         I18AuthorName that = (I18AuthorName) o;
-        return langId == that.langId && name.equals(that.name);
+        return lang == that.lang && name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(langId, name);
+        return Objects.hash(lang, name);
     }
 
     @Override
     public String toString() {
         return "I18AuthorName{" +
                 "id=" + id +
-                ", langId=" + langId +
+                ", langId=" + lang +
                 ", name='" + name + '\'' +
                 '}';
     }

@@ -14,6 +14,7 @@ public class PrintCalendar extends TagSupport {
 
     private String format;
     private Calendar calendar;
+    private int addDays;
 
     public void setFormat(String format) {
         this.format = format;
@@ -23,12 +24,19 @@ public class PrintCalendar extends TagSupport {
         this.calendar = calendar;
     }
 
+    public void setAddDays(int addDays) {
+        this.addDays = addDays;
+    }
+
     @Override
     public int doStartTag() throws JspException {
         logger.trace("init: formatStr={}, calendar={}", calendar);
 
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         JspWriter out = pageContext.getOut();
+        if (addDays > 0) {
+            calendar.add(Calendar.DATE, addDays);
+        }
         try {
             out.print(sdf.format(calendar.getTime()));
         } catch(Exception e) {

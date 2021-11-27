@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,9 +34,12 @@ public class BookSuperDao implements BookDao {
         logger.trace("Create request: book={}", book);
 
         Transaction tr = new Transaction(conn);
+
         tr.transactionWrapper( c -> {
             BookDaoImpl bookDao = new BookDaoImpl(c);
             bookDao.create(book); // updates author list also
+
+            book.getBookStat().setId(book.getId());
 
             BookStatDaoImpl bookStatDao = new BookStatDaoImpl(c);
             bookStatDao.create(book.getBookStat());
@@ -50,6 +54,10 @@ public class BookSuperDao implements BookDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             BookDaoImpl bookDao = new BookDaoImpl(c);
+            Book book = bookDao.read(id);
+            if (book == null) {
+                return null;
+            }
 
             List<Book> list = resolveDependencies(c, Collections.singletonList(bookDao.read(id)));
             return list.get(0);
@@ -95,21 +103,21 @@ public class BookSuperDao implements BookDao {
     }
 
     @Override
-    public int findByPatternCount(String what, String searchBy, String sortBy)
+    public int findByPatternCount(String what, String searchBy)
             throws ServiceException, DaoException {
-        logger.trace("request: what={}, searchBy={}, sortBy={}",
-                what, searchBy, sortBy);
+        logger.trace("request: what={}, searchBy={}",
+                what, searchBy);
 
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
-        validColumns.check(sortBy, SearchSortColumn.SORT);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
             BookDaoImpl dao = new BookDaoImpl(c);
-            return dao.findByPatternCount(what, searchBy, sortBy);
+            return dao.findByPatternCount(what, searchBy);
         });
     }
 
+    /*
     @Override
     public List<Book> findBy(String what, String searchBy) throws ServiceException, DaoException {
         logger.trace("request: what={}, searchBy={}",
@@ -123,7 +131,7 @@ public class BookSuperDao implements BookDao {
             return resolveDependencies(c, dao.findBy(what, searchBy));
         });
     }
-
+    */
     @Override
     public List<Book> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
@@ -153,10 +161,16 @@ public class BookSuperDao implements BookDao {
     }
 
     private List<Book> resolveDependencies(Connection c, List<Book> books) throws DaoException {
+        if (books == null) {
+            return new ArrayList<>();
+        }
         AuthorDaoImpl authorDao = new AuthorDaoImpl(c);
         BookStatDaoImpl bookStatDao = new BookStatDaoImpl(c);
 
         for (Book b: books) {
+            if (b == null) {
+                continue;
+            }
             b.setBookStat(bookStatDao.read(b.getId()));
             b.setAuthors(authorDao.findByBookID(b.getId()));
         }

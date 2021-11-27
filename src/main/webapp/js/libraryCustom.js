@@ -29,19 +29,20 @@ function check(el) {
 }
 
 function checkPass() {
-      if (document.getElementById('password').value ==
+      if (document.getElementById('password').value != null && document.getElementById('password').value ==
         document.getElementById('confirmPass').value) {
-        document.getElementById('password').classList.remove("is-invalid");
-        document.getElementById('confirmPass').classList.remove("is-invalid");
-        document.getElementById('password').classList.add("is-valid");
-        document.getElementById('confirmPass').classList.add("is-valid");
-
-        //document.getElementById('message').style.color = 'green';
-        document.getElementById('message').innerHTML = '';
+            document.getElementById('password').classList.remove("is-invalid");
+            document.getElementById('confirmPass').classList.remove("is-invalid");
+            document.getElementById('password').classList.add("is-valid");
+            document.getElementById('confirmPass').classList.add("is-valid");
+            document.getElementById('message').hidden = true;
       } else {
-        document.getElementById('password').classList.add("is-invalid");
-        document.getElementById('confirmPass').classList.add("is-invalid");
-        document.getElementById('message').style.color = 'red';
-        document.getElementById('message').innerHTML = 'Password does not match confirm password';
+            document.getElementById('password').classList.add("is-invalid");
+            document.getElementById('confirmPass').classList.add("is-invalid");
+            document.getElementById('message').hidden = false;
       }
+}
+
+function makeValid(el) {
+    el.classList.add("is-valid");
 }

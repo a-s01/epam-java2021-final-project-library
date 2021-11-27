@@ -71,7 +71,7 @@
         </div>
     </c:if>
     <c:if test="${empty booking}">
-        <div><fmt:message key='message.no.booking'/></div>
+        <div class="container pt-4 fw-bold"><h5><fmt:message key='message.no.booking'/></h5></div>
     </c:if>
 </div>
 

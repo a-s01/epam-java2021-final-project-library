@@ -32,7 +32,7 @@
                                 </td>
                                 <td><c:out value="${book.isbn}"/></td>
                                 <td><c:out value="${book.year}"/></td>
-                                <td class="text-danger">NOT READY YET</td>
+                                <td class="text-danger">NOT READY</td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -41,7 +41,7 @@
         </div>
     </c:if>
     <c:if test="${empty booksInBooking}">
-        <div><fmt:message key='message.no.book.in.subscription'/></div>
+        <div class="container pt-4"><h5><fmt:message key='message.no.book.in.subscription'/></h5></div>
     </c:if>
 </div>
 

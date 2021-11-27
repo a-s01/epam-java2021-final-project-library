@@ -125,9 +125,9 @@ public class BookDaoImpl implements AbstractDao<Book> {
         return query;
     }
 
-    public int findByPatternCount(String pattern, String searchBy, String sortBy)
+    public int findByPatternCount(String pattern, String searchBy)
             throws DaoException {
-        final String query = patternQuery(searchBy, sortBy, true, false);
+        final String query = patternQuery(searchBy, null, true, false);
         return dao.count(pattern, query);
     }
 
@@ -163,14 +163,13 @@ public class BookDaoImpl implements AbstractDao<Book> {
 
     public void createBooksInBooking(long id, List<Book> books) throws DaoException {
         // book_id, author_id
-        final String addQuery = "INSERT INTO book_in_booking VALUES (?, ?, ?)";
+        final String addQuery = "INSERT INTO book_in_booking VALUES (?, ?)";
 
         for (Book b: books) {
             dao.update(b, addQuery, (x, ps) -> {
                 int i = DaoImpl.START;
                 ps.setLong(i++, id);
                 ps.setLong(i++, x.getId());
-                ps.setInt(i++, x.getKeepPeriod());
                 return i;
             });
         }

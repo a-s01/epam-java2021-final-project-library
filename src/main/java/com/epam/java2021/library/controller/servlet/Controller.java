@@ -1,10 +1,8 @@
 package com.epam.java2021.library.controller.servlet;
 
 import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.exception.UserException;
 import com.epam.java2021.library.service.CommandContext;
 import com.epam.java2021.library.service.util.Command;
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static com.epam.java2021.library.constant.ServletAttributes.*;
+import static com.epam.java2021.library.constant.ServletAttributes.PLAIN_TEXT;
+import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
 
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
@@ -68,6 +67,7 @@ public class Controller extends HttpServlet {
     private String proceed(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String commandStr = req.getParameter("command");
         logger.trace("commandStr = {}", commandStr);
+        logger.trace("encoding={}", req.getCharacterEncoding());
         HttpSession session = req.getSession();
 
         session.removeAttribute(SERVICE_ERROR);

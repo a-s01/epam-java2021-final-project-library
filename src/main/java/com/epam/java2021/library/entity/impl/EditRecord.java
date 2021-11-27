@@ -77,4 +77,15 @@ public class EditRecord extends ModifiableEntity {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+    @Override
+    public String toString() {
+        return "EditRecord{" +
+                "id=" + id +
+                ", modified=" + modified +
+                ", editBy=" + editBy +
+                ", description='" + description + '\'' +
+                ", remark='" + remark + '\'' +
+                '}';
+    }
 }

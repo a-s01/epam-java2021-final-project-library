@@ -51,7 +51,7 @@ public class BookingLogic {
     }
 
     private static Booking findBooking(HttpSession session, HttpServletRequest req, boolean create) throws ServiceException, DaoException {
-        logger.debug(START_MSG);
+        logger.debug(LOG__START_MSG);
         logger.trace("sessionID={}, reqURI={}", session.getId(), req.getRequestURI());
         User u = (User) session.getAttribute("user");
 
@@ -73,7 +73,7 @@ public class BookingLogic {
             }
         }
         logger.trace("booking={}", booking);
-        logger.debug(END_MSG);
+        logger.debug(LOG__END_MSG);
         return booking;
     }
 

@@ -105,4 +105,15 @@ public class BookStat extends Entity {
     public int hashCode() {
         return Objects.hash(total, inStock, reserved, timesWasBooked);
     }
+
+    @Override
+    public String toString() {
+        return "BookStat{" +
+                "id=" + id +
+                ", total=" + total +
+                ", inStock=" + inStock +
+                ", reserved=" + reserved +
+                ", timesWasBooked=" + timesWasBooked +
+                '}';
+    }
 }

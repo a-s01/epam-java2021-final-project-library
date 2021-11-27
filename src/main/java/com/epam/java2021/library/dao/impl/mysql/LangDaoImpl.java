@@ -57,7 +57,7 @@ public class LangDaoImpl implements LangDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
-            return dao.findByUniqueString(code, query, this::parse);
+            return dao.read(code, query, this::parse);
         });
     }
 }
