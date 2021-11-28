@@ -18,6 +18,7 @@ public class TaskScheduler {
     }
     public void proceed(TimerTask task, long period) {
         logger.info(START_MSG);
+        logger.debug("task={}, period={}", task, period);
         Timer time = new Timer();
         time.schedule(task, 0, period);
         logger.info(END_MSG);

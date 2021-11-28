@@ -6,5 +6,6 @@ public class Common {
     public static final String SUCCESS = "success";
     public static final String NO_UPDATE = "nothing was updated";
 
-    public static final long FINE_PER_DAY = 10;
+    public static final String TIMER_TASK_INIT_ERROR = "Required attribute {} was not set: " +
+            "this.init(servletContext) was not called";
 }

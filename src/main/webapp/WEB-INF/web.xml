@@ -7,6 +7,8 @@
   <welcome-file-list>
     <welcome-file>/jsp/home.jsp</welcome-file>
   </welcome-file-list>
+
+  <distributable />
   <!-- Log4j configuration -->
   <!-- https://logging.apache.org/log4j/2.x/manual/webapp.html -->
   <listener>
@@ -15,6 +17,37 @@
   <listener>
     <listener-class>com.epam.java2021.library.controller.listener.ContextListener</listener-class>
   </listener>
+  <context-param>
+    <param-name>DEFAULT_LANG</param-name>
+    <param-value>en</param-value>
+  </context-param>
+
+  <!-- tasks, which will be executed periodically -->
+  <context-param>
+    <param-name>TASK</param-name>
+    <param-value>com.epam.java2021.library.service.util.UpdateFineTask com.epam.java2021.library.service.util.BookingExpireTask</param-value>
+  </context-param>
+  <!-- period of execution for specified tasks above -->
+  <context-param>
+    <param-name>com.epam.java2021.library.service.util.UpdateFineTask</param-name>
+    <!-- every hour,  -->
+    <param-value>3600000</param-value>
+  </context-param>
+  <context-param>
+    <param-name>com.epam.java2021.library.service.util.BookingExpireTask</param-name>
+    <!-- every 1 day,  -->
+    <param-value>60000</param-value>
+  </context-param>
+  <context-param>
+    <param-name>com.epam.java2021.library.service.util.BookingExpireTask.period</param-name>
+    <!-- every 1 day,  -->
+    <param-value>1</param-value>
+  </context-param>
+  <context-param>
+    <param-name>com.epam.java2021.library.service.util.UpdateFineTask.finePerDay</param-name>
+    <!-- every 1 day,  -->
+    <param-value>50</param-value>
+  </context-param>
 
   <filter>
     <filter-name>log4jServletFilter</filter-name>
@@ -88,7 +121,7 @@
   <!-- the (preferable) browser's locale will be used if we don't set the default locale -->
   <context-param>
     <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
-    <param-value>ru</param-value>
+    <param-value>en</param-value>
   </context-param>
 
   <!-- supported locales -->
@@ -96,4 +129,13 @@
     <param-name>locales</param-name>
     <param-value>ru en</param-value>
   </context-param>
+
+  <jsp-config>
+    <jsp-property-group>
+      <url-pattern>*.jsp</url-pattern>
+      <page-encoding>UTF-8</page-encoding>
+    </jsp-property-group>
+  </jsp-config>
+
+  <request-character-encoding>UTF-8</request-character-encoding>
 </web-app>
