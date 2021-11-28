@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.io.UnsupportedEncodingException;
 
 public class UserName extends TagSupport {
     private static final Logger logger = LogManager.getLogger(UserName.class);

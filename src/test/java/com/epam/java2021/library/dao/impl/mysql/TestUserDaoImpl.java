@@ -1,130 +1,246 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
-import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.UserDao;
-import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.testutil.DBManager;
+import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.*;
+import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.testutil.DBManager;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.sql.Connection;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class TestUserDaoImpl {
-    private static final Logger logger = LogManager.getLogger("TEST");
     private static final DBManager dbManager = DBManager.getInstance();
-    public static final String TABLE = "user";
+    public static final String USER_TABLE = "user";
     public static final String EMAIL_COLUMN = "email";
     public static final String NAME_COLUMN = "name";
-    public static final long ID = 99;
-    public static final String EMAIL = "test@test.com";
-    private static UserDao userDao;
-    private static User user;
-    private static Connection conn;
-    private static String CREATE_USER;
-    
+    public static final long ID = 1;
+    public static final String COMMON_EMAIL_PATTERN = "gmail.com";
+    private static final int USERS_IN_DB = 4;
+    private static final String BAD_INPUT = "aksjdflkjba jdfWER";
+
+    private static User newUser;
+    private static User existingUser;
+
     @BeforeClass
     public static void initTest() {
         final String pass = "123";
         final String salt = "123";
-        final String coma = ", ";
-        final String escape = "'";
-        final String insertQuery = "INSERT INTO user VALUES (";
-        try {
-            conn = dbManager.getConnection();
-        } catch (SQLException e) {
-            logger.fatal("Cannot obtain database connection: " + e.getMessage());
-        }
-        userDao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getUserDao();
-
+        final String newEmail = "test@test.com";
+        final String existingEmail = "admin@gmail.com";
         User.Builder builder = new User.Builder();
-        builder.setEmail(EMAIL);
+
+        builder.setEmail(newEmail);
         builder.setPassword(pass);
         builder.setSalt(salt);
-        user = builder.build();
+        builder.setPreferredLang(new Lang.Builder().setCode("en").setId(1).build());
+        builder.setModified(Calendar.getInstance());
+        newUser = builder.build();
 
-        CREATE_USER = insertQuery + ID + coma +
-                escape + EMAIL + escape + coma +
-                escape + pass + escape + coma +
-                escape + salt + escape + coma +
-                "DEFAULT, DEFAULT, DEFAULT, NULL, DEFAULT, NULL)";
+        builder.setEmail(existingEmail);
+        builder.setId(ID);
+        existingUser = builder.build();
+    }
+
+    @Before
+    public void init() throws IOException, InterruptedException, ServiceException {
+        dbManager.executeScript();
     }
 
     @Test(expected = DaoException.class)
-    public void testCreateShouldThrowException() throws DaoException, ServiceException {
-        User.Builder builder = new User.Builder();
-        User user = builder.build();
-        userDao.create(user);
+    public void testCreateShouldThrowExceptionPreferredLangIsNull() throws SQLException, ServiceException, DaoException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            User badUser = new User.Builder().build();
+
+            userDao.create(badUser);
+        });
     }
 
-    @After
-    public void clear() throws SQLException {
-        dbManager.delete(conn, TABLE, EMAIL_COLUMN, user.getEmail());
+    @Test(expected = DaoException.class)
+    public void testCreateShouldThrowExceptionModifiedIsNull() throws SQLException, ServiceException, DaoException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            User badUser = new User.Builder().build();
+
+            badUser.setPreferredLang(newUser.getPreferredLang());
+            userDao.create(badUser);
+        });
+    }
+
+    @Test(expected = DaoException.class)
+    public void testCreateShouldThrowExceptionEmailIsNull() throws SQLException, ServiceException, DaoException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            User badUser = new User.Builder().build();
+
+            badUser.setPreferredLang(newUser.getPreferredLang());
+            badUser.setModified(Calendar.getInstance());
+            userDao.create(badUser);
+        });
     }
     
     @Test
     public void testCreateShouldCreateNewUserInDB() throws DaoException, SQLException, ServiceException {
-        userDao.create(user);
-        Assert.assertTrue(dbManager.read(conn, TABLE, EMAIL_COLUMN, user.getEmail()));
+        dbManager.testWrapper(c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            userDao.create(newUser);
+            Assert.assertTrue(dbManager.read(USER_TABLE, EMAIL_COLUMN, newUser.getEmail()));
+        });
     }
 
     @Test
-    public void testCreateShouldSetUserID() throws DaoException, ServiceException {
-        userDao.create(user);
-        Assert.assertNotEquals(-1, user.getId());
+    public void testCreateShouldSetUserID() throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            userDao.create(newUser);
+            Assert.assertNotEquals(-1, newUser.getId());
+        });
     }
 
     @Test
     public void testUpdateUserName() throws DaoException, SQLException, ServiceException {
         final String name = "test";
-        userDao.create(user);
-        user.setName(name);
-        userDao.update(user);
-        Assert.assertEquals(name, dbManager.readField(conn, NAME_COLUMN, TABLE, EMAIL_COLUMN, user.getEmail()));
+
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            //userDao.create(user);
+            existingUser.setName(name);
+            userDao.update(existingUser);
+        });
+        Assert.assertEquals(name,
+                dbManager.readField(NAME_COLUMN, USER_TABLE, EMAIL_COLUMN, existingUser.getEmail()));
     }
 
     @Test
-    public void testReadUser() throws SQLException, DaoException, ServiceException {
-        dbManager.execute(conn, CREATE_USER);
-        User test = userDao.read(ID);
-        Assert.assertEquals(test, user);
+    public void testReadUserShouldReturnExistingUser() throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            //dbManager.execute(conn, CREATE_USER);
+            User test = userDao.read(ID);
+
+            Assert.assertEquals(test, existingUser);
+        });
+    }
+
+    @Test
+    public void testReadUserShouldReturnNothing() throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            //dbManager.execute(conn, CREATE_USER);
+            User test = userDao.read(999);
+
+            Assert.assertNull(test);
+        });
     }
 
     @Test
     public void testDeleteUser() throws DaoException, SQLException, ServiceException {
-        userDao.delete(user.getId());
-        Assert.assertFalse(dbManager.read(conn, TABLE, EMAIL_COLUMN, user.getEmail()));
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            userDao.delete(existingUser.getId());
+            Assert.assertFalse(dbManager.read(USER_TABLE, EMAIL_COLUMN, newUser.getEmail()));
+        });
     }
 
     @Test
-    public void testGetUserByEmail() throws SQLException, DaoException {
-        dbManager.execute(conn, CREATE_USER);
-        User test = userDao.findByEmail(EMAIL);
-        Assert.assertEquals(user, test);
+    public void testFindByEmailShouldReturnExistingUser() throws DaoException, SQLException, ServiceException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            User test = userDao.findByEmail(existingUser.getEmail());
+            Assert.assertEquals(existingUser, test);
+        });
     }
-/*
-    @Test
-    public void testGetUserByEmailPattern() throws SQLException, DaoException {
-        dbManager.execute(conn, CREATE_USER);
-        List<User> testList = userDao.findByEmailPattern(EMAIL.substring(1));
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        Assert.assertEquals(users, testList);
-    } */
-
-    /*
 
     @Test
-    public void testGetRecords() throws DaoException {
-        List<User> users = userDao.getRecords(0, 3);
-        Assert.assertTrue(users.size() == 3);
-    } */
-    @AfterClass
-    public static void cleanUp() throws SQLException {
-        conn.close();
+    public void testFindByPatternShouldReturnOneExistingUser() throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            List<User> testList =
+                    userDao.findByPattern(existingUser.getEmail(), "email", "email", 5, 1);
+            List<User> users = new ArrayList<>();
+
+            users.add(existingUser);
+            Assert.assertEquals(users, testList);
+        });
+    }
+
+    @Test
+    public void testFindByPatternCountShouldReturn4()
+            throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            int count =
+                    userDao.findByPatternCount(COMMON_EMAIL_PATTERN, "email");
+            Assert.assertEquals(USERS_IN_DB, count);
+        });
+    }
+
+    @Test
+    public void testFindByPatternCountShouldReturn0()
+            throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            int count =
+                    userDao.findByPatternCount(BAD_INPUT, EMAIL_COLUMN);
+            Assert.assertEquals(0, count);
+        });
+    }
+
+    @Test
+    public void testFindByPatternShouldReturnOneExistingUserWithNumLimitAndSortByConstraints()
+            throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            List<User> testList =
+                    userDao.findByPattern(COMMON_EMAIL_PATTERN, EMAIL_COLUMN, EMAIL_COLUMN, 1, 1);
+            List<User> users = new ArrayList<>();
+
+            users.add(existingUser);
+            Assert.assertEquals(users, testList);
+        });
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testFindByPatternWithWrongSearchColumn()
+            throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            userDao.findByPattern(COMMON_EMAIL_PATTERN,
+                            BAD_INPUT, EMAIL_COLUMN, 1, 0);
+        });
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testFindByPatternWithWrongSortColumn()
+            throws DaoException, ServiceException, SQLException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+            userDao.findByPattern(COMMON_EMAIL_PATTERN,
+                    EMAIL_COLUMN, BAD_INPUT, 1, 1);
+        });
+    }
+
+    @Test
+    public void testGetAllShouldReturnUsersCount() throws DaoException, SQLException, ServiceException {
+        dbManager.testWrapper( c -> {
+            UserDao userDao = new UserDaoImpl(c);
+
+            List<User> users = userDao.getAll();
+            Assert.assertEquals(USERS_IN_DB,users.size());
+        });
     }
 }

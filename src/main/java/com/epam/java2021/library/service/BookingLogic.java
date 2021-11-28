@@ -1,11 +1,9 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
-import static com.epam.java2021.library.constant.ServletAttributes.*;
-
+import com.epam.java2021.library.dao.AbstractSuperDao;
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.BookingDao;
-import com.epam.java2021.library.dao.SuperDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Book;
@@ -23,6 +21,8 @@ import javax.servlet.http.HttpSession;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 /**
  * USER can:
@@ -264,7 +264,7 @@ public class BookingLogic {
             throw new ServiceException("Cannot remove books from not NEW booking");
         }
 
-        SuperDao<Book> bookDao = daoFactory.getBookDao();
+        AbstractSuperDao<Book> bookDao = daoFactory.getBookDao();
         Book book = bookDao.read(id);
         booking.getBooks().remove(book);
 

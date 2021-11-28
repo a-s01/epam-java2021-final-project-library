@@ -7,9 +7,9 @@ SET @DEFAULT_KEEP_PERIOD = 14;
 
 -- ---------------------------------------------
 -- SCHEMA --
--- DROP SCHEMA IF EXISTS `library-app`;
-CREATE SCHEMA IF NOT EXISTS `library-app` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `library-app`;
+-- DROP SCHEMA IF EXISTS `library-app-testdb`;
+CREATE SCHEMA IF NOT EXISTS `library-app-testdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `library-app-testdb`;
 
 -- ---------------------------------------------
 -- DROP ALL TABLES --
@@ -204,5 +204,38 @@ CREATE TABLE book_in_booking (
 
 -- DEFAULT VALUES --
 -- LANG --
-INSERT INTO lang VALUES (DEFAULT, 'en');
-INSERT INTO lang VALUES (DEFAULT, 'ru');
+INSERT INTO lang VALUES (1, 'en');
+INSERT INTO lang VALUES (2, 'ru');
+
+-- user --
+INSERT INTO user VALUES (1, 'admin@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', 1, DEFAULT);
+INSERT INTO user VALUES (2, 'librarian@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT);
+INSERT INTO user VALUES (3, 'user@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT);
+INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', '���
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT);
+
+-- book --
+INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
+INSERT INTO book_stat VALUES (1, 20, DEFAULT, DEFAULT, DEFAULT);
+-- AUTHORS --
+INSERT INTO author VALUES (DEFAULT, 'Джоан Кэтлин Роулинг', DEFAULT);
+INSERT INTO author_name_i18n VALUES (2, 1, 'Джоан Кэтлин Роулинг');
+INSERT INTO author_name_i18n VALUES (1, 1, 'Joanne Kathleen Rowling');
+INSERT INTO book_author VALUES (1, 1);
+-- test delete: --
+INSERT INTO author VALUES (99, 'TO DELETE', DEFAULT);
+INSERT INTO author_name_i18n VALUES (2, 99, 'Удалить');
+INSERT INTO author_name_i18n VALUES (1, 99, 'TO DELETE');
+
+-- 2 book per author
+INSERT INTO author VALUES (2, 'Марио Пьюзо', DEFAULT);
+INSERT INTO author_name_i18n VALUES (2, 2, 'Марио Пьюзо');
+INSERT INTO book VALUES (10, 'Крестный отец', '978-5-04-098842-6', '2021', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
+INSERT INTO book_stat VALUES (10, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book VALUES (16, 'Дураки умирают', '978-5-699-46418-0', '2010', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
+INSERT INTO book_stat VALUES (16, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book_author VALUES (10, 2);
+INSERT INTO book_author VALUES (16, 2);

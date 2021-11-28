@@ -25,7 +25,7 @@ public class Booking extends ModifiableEntity {
     }
 
     public static class Builder {
-        private long id;
+        private long id = -1;
         private Calendar modified;
         private User user;
         private State state;

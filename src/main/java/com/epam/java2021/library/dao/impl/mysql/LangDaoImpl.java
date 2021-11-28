@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.LangDao;
+import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.exception.DaoException;
@@ -27,7 +28,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c, logger);
             return dao.getRecords(query, this::parse);
         });
     }
@@ -45,7 +46,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c, logger);
             return dao.read(id, query, this::parse);
         });
     }
@@ -56,7 +57,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Lang> dao = new DaoImpl<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c, logger);
             return dao.read(code, query, this::parse);
         });
     }

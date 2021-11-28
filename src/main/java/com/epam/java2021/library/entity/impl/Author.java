@@ -18,7 +18,7 @@ public class Author extends ModifiableEntity {
     }
 
     public static class Builder {
-        private long id;
+        private long id = -1;
         private Calendar modified;
         private String name;
         private List<I18AuthorName> i18Names;

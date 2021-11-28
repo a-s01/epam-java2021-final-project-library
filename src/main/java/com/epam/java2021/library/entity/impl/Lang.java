@@ -12,7 +12,7 @@ public class Lang extends Entity {
     }
 
     public static class Builder {
-        private long id;
+        private long id = -1;
         String code;
 
         public Builder setId(long id) {

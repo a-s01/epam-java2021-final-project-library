@@ -1,21 +1,5 @@
 package com.epam.java2021.library.controller.servlet;
 
-import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.constant.ServletAttributes;
-import com.epam.java2021.library.entity.impl.User;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import java.io.IOException;
-
-import static org.mockito.Mockito.*;
-
 public class TestLogin {
     /*
     private static Login servlet;

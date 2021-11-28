@@ -1,12 +1,14 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.AuthorDao;
+import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
 import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,9 +19,81 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.java2021.library.constant.Common.START_MSG;
+
 public class AuthorDaoImpl implements AuthorDao {
     private static final Logger logger = LogManager.getLogger(AuthorDaoImpl.class);
     private static final SearchSortColumn validColumns = new SearchSortColumn("name");
+    private static class I18AuthorNameDaoImpl {
+        private static final Logger logger = LogManager.getLogger(I18AuthorNameDaoImpl.class);
+        private final BaseDao<I18AuthorName> dao;
+        private final LangDaoImpl langDao;
+
+        public I18AuthorNameDaoImpl(Connection conn) {
+            this.dao = new BaseDao<>(conn, logger);
+            this.langDao = new LangDaoImpl(conn);
+        }
+
+        public void create(long authorId, I18AuthorName name) throws DaoException {
+            logger.debug(START_MSG);
+            logger.trace("authorID={}, i18name={}", authorId, name);
+            final String query = "INSERT INTO author_name_i18n (lang_id, name, author_id) VALUES (?, ?, ?)";
+
+            dao.createBound(authorId, name, query, this::fillStatement);
+        }
+
+        private int fillStatement(I18AuthorName name, PreparedStatement ps) throws SQLException {
+            int i = BaseDao.START;
+            if (name.getLang() != null) {
+                ps.setLong(i++, name.getLang().getId());
+            } else {
+                throw new SQLException("getLang() is null");
+            }
+            ps.setString(i++, name.getName());
+            return i;
+        }
+
+        public List<I18AuthorName> readByAuthorID(long id) throws DaoException {
+            logger.debug(START_MSG);
+            logger.trace("id={}", id);
+            final String query = "SELECT * FROM author_name_i18n WHERE author_id = " + id;
+
+            return dao.getRecords(query, this::parse);
+        }
+
+        private I18AuthorName parse(Connection c, ResultSet rs) throws SQLException, DaoException {
+            I18AuthorName.Builder builder = new I18AuthorName.Builder();
+            builder.setId(rs.getInt("author_id"));
+            long langID = rs.getInt("lang_id");
+
+            builder.setLang(langDao.read(langID));
+            builder.setName(rs.getString("name"));
+            return builder.build();
+        }
+
+        public void updateNamesForAuthor(long authorId, List<I18AuthorName> newList) throws DaoException {
+            logger.debug(START_MSG);
+            logger.trace("authorId={}, i18names={}", authorId, newList);
+            Disjoint<I18AuthorName> disjoint = new Disjoint<>(readByAuthorID(authorId), newList);
+
+            for (I18AuthorName name: disjoint.getToDelete()) {
+                delete(authorId, name);
+            }
+
+            for (I18AuthorName name: disjoint.getToAdd()) {
+                create(authorId, name);
+            }
+        }
+
+        public void delete(long authorId, I18AuthorName name) throws DaoException {
+            logger.debug(START_MSG);
+            logger.trace("authorId={}, i18name={}", authorId, name);
+            final String query = "DELETE FROM author_name_i18n WHERE lang_id = ? AND author_id = ?";
+
+            dao.deleteBound(name.getLang().getId(), authorId, query);
+        }
+    }
+
     private Connection conn;
 
     public AuthorDaoImpl() {}
@@ -33,7 +107,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             dao.create(author, query, this::statementFiller);
 
             I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
@@ -44,9 +118,13 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     private int statementFiller(Author author, PreparedStatement ps) throws SQLException {
-        int i = DaoImpl.START;
+        int i = BaseDao.START;
         ps.setString(i++, author.getName());
-        ps.setTimestamp(i++, new Timestamp(author.getModified().getTimeInMillis()));
+        if (author.getModified() != null) {
+            ps.setTimestamp(i++, new Timestamp(author.getModified().getTimeInMillis()));
+        } else {
+            throw new SQLException("modified field is null");
+        }
         return i;
     }
 
@@ -56,7 +134,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             List<Author> author = resolveDependencies(c, Collections.singletonList(dao.read(id, query, this::parse)));
 
             return author.get(0);
@@ -69,7 +147,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             Author author = dao.read(name, query, this::parse);
             if (author == null) {
                 return null;
@@ -99,12 +177,16 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public void update(Author author) throws DaoException {
-        final String query = "UPDATE author SET name = ? WHERE id = ?";
+        final String query = "UPDATE author SET name = ?, modified = ? WHERE id = ?";
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
-            dao.update(author, query, this::statementFiller);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            dao.update(author, query, (a, ps) -> {
+                        int i = statementFiller(a, ps);
+                        ps.setLong(i++, a.getId());
+                        return i;
+            });
 
             I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
             i18Dao.updateNamesForAuthor(author.getId(), author.getI18Names());
@@ -117,7 +199,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             dao.delete(id, query); // i18n on delete cascade
         });
     }
@@ -133,7 +215,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
 
             return resolveDependencies(c, dao.findById(id, query, this::parse));
         });
@@ -168,7 +250,7 @@ public class AuthorDaoImpl implements AuthorDao {
                 " ORDER BY i18.name LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             List<Author> list = dao.findByPattern(what, num, page, query, this::parse).stream()
                                     .distinct()
                                     .collect(Collectors.toList());
@@ -188,7 +270,7 @@ public class AuthorDaoImpl implements AuthorDao {
                         " ORDER BY i18.name";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Author> dao = new DaoImpl<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
             List<Author> list = dao.findByPattern(what, query, this::parse).stream()
                     .distinct()
                     .collect(Collectors.toList());

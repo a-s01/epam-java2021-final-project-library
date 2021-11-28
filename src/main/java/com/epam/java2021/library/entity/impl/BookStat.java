@@ -21,7 +21,7 @@ public class BookStat extends Entity {
     }
 
     public static class Builder {
-        private long id;
+        private long id = -1;
         private long total;
         private long inStock = -1;
         private long reserved;

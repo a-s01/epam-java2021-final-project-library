@@ -1,7 +1,7 @@
 package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
-import com.epam.java2021.library.dao.SuperDao;
+import com.epam.java2021.library.dao.AbstractSuperDao;
 import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
@@ -18,7 +18,7 @@ public class CommonLogic {
 
     private CommonLogic() {}
 
-    public static <E extends Entity> String find(HttpSession session, HttpServletRequest req, Logger logger, SuperDao<E> dao, String reqAttribute, String desiredPage) throws ServiceException {
+    public static <E extends Entity> String find(HttpSession session, HttpServletRequest req, Logger logger, AbstractSuperDao<E> dao, String reqAttribute, String desiredPage) throws ServiceException {
         SafeRequest safeReq = new SafeRequest(req);
         String query = safeReq.get("query").escape().convert();
         String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();

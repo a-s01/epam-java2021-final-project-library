@@ -32,7 +32,7 @@ public class Book extends ModifiableEntity {
     }
     
     public static class Builder {
-        private long id;
+        private long id = -1;
         private Calendar modified;
         private String title;
         private String isbn;

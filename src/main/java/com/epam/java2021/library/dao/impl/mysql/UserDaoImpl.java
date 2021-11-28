@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.UserDao;
+import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
 import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.User;
@@ -30,7 +31,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE email = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             return dao.read(email, query, this::parse);
         });
     }
@@ -40,7 +41,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE state != 'DELETED'";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             return dao.getRecords(query, this::parse);
         });
     }
@@ -50,13 +51,13 @@ public class UserDaoImpl implements UserDao {
         final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             dao.create(user, query, this::fillStatement);
         });
     }
 
     private int fillStatement(User user, PreparedStatement ps) throws SQLException {
-        int i = DaoImpl.START;
+        int i = BaseDao.START;
         ps.setString(i++, user.getEmail());
         ps.setString(i++, user.getPassword());
         ps.setString(i++, user.getSalt());
@@ -64,8 +65,19 @@ public class UserDaoImpl implements UserDao {
         ps.setInt(i++, user.getState().ordinal());
         ps.setDouble(i++, user.getFine());
         ps.setString(i++, user.getName());
-        ps.setLong(i++, user.getPreferredLang().getId());
-        ps.setTimestamp(i++, new Timestamp(user.getModified().getTimeInMillis()));
+
+        if (user.getPreferredLang() != null) {
+            ps.setLong(i++, user.getPreferredLang().getId());
+        } else {
+            throw new SQLException("Preferred lang is null");
+        }
+
+        if (user.getModified() != null) {
+            ps.setTimestamp(i++, new Timestamp(user.getModified().getTimeInMillis()));
+        } else {
+            throw new SQLException("Modified time is null");
+        }
+
         return i;
     }
 
@@ -74,7 +86,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE id = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             return dao.read(id, query, this::parse);
         });
     }
@@ -111,7 +123,7 @@ public class UserDaoImpl implements UserDao {
                 "fine = ?, name = ?, preferred_lang_id = ?, modified = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             dao.update(user, query,
                     (entity, ps) -> {
                         int nextIndex = fillStatement(entity, ps);
@@ -127,7 +139,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "UPDATE user SET state = 'deleted' WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             dao.delete(id, query);
         });
     }
@@ -142,7 +154,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             return dao.findByPattern(what, num, page, query, this::parse);
         });
     }
@@ -155,7 +167,7 @@ public class UserDaoImpl implements UserDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-           DaoImpl<User> dao = new DaoImpl<>(c, logger);
+           BaseDao<User> dao = new BaseDao<>(c, logger);
            return dao.count(what, query);
         });
     }
@@ -169,7 +181,7 @@ public class UserDaoImpl implements UserDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<User> dao = new DaoImpl<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c, logger);
             return dao.findByPattern(what, query, this::parse);
         });
     }

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GetEntityByID extends TagSupport {

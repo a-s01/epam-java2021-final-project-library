@@ -1,7 +1,7 @@
-package com.epam.java2021.library.dao.impl.mysql;
+package com.epam.java2021.library.dao.impl.mysql.util;
 
-import com.epam.java2021.library.dao.impl.mysql.util.EntityParser;
-import com.epam.java2021.library.dao.impl.mysql.util.StatementFiller;
+import com.epam.java2021.library.dao.impl.mysql.func.EntityParser;
+import com.epam.java2021.library.dao.impl.mysql.func.StatementFiller;
 import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import org.apache.logging.log4j.Logger;
@@ -13,15 +13,15 @@ import java.util.List;
 import static com.epam.java2021.library.constant.Common.NO_UPDATE;
 import static com.epam.java2021.library.constant.Common.SUCCESS;
 
-public class DaoImpl<T extends Entity> {
+public class BaseDao<T extends Entity> {
     public static final int START = 1;
     private final Connection conn;
     private final Logger logger;
 
-    public DaoImpl(Connection conn, Logger logger) {
+    public BaseDao(Connection conn, Logger logger) {
         this.conn = conn;
         this.logger = logger;
-        logger.trace("DaoImpl: conn={}, logger={}", conn, logger);
+        logger.trace("BaseDao: conn={}, logger={}", conn, logger);
     }
 
     private void logAndThrow(SQLException e) throws DaoException {
@@ -140,6 +140,16 @@ public class DaoImpl<T extends Entity> {
         }
     }
 
+    /**
+     * page starts from 1
+     * @param pattern
+     * @param num
+     * @param page
+     * @param query
+     * @param parser
+     * @return
+     * @throws DaoException
+     */
     public List<T> findByPattern(String pattern, int num, int page, String query, EntityParser<T> parser)
             throws DaoException {
         logger.trace("Find by pattern request: pattern={}, query={}, num={}, page={}",
@@ -224,8 +234,6 @@ public class DaoImpl<T extends Entity> {
         }
         return result;
     }
-
-
 
     public List<T> findById(long id, String query, EntityParser<T> parser) throws DaoException {
         logger.trace("findById request: id={}, {}", id, query);

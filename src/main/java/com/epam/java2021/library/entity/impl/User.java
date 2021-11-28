@@ -27,7 +27,7 @@ public class User extends ModifiableEntity {
      * This class also sets defaults for id, role and state. If they are not defined, default values will be applied.
      */
     public static class Builder {
-        private long id;
+        private long id = -1;
         private Calendar modified;
         private String email;
         private String password;

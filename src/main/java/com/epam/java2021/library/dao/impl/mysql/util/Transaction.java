@@ -1,7 +1,8 @@
 package com.epam.java2021.library.dao.impl.mysql.util;
 
+import com.epam.java2021.library.dao.impl.mysql.func.DaoChanger;
+import com.epam.java2021.library.dao.impl.mysql.func.DaoReader;
 import com.epam.java2021.library.exception.DaoException;
-import com.epam.java2021.library.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,14 +10,25 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Transaction {
-    private static final ConnectionPool pool = ConnectionPool.getInstance();
+    private final ConnectionPool pool;
     private static final Logger logger = LogManager.getLogger(Transaction.class);
-    private final boolean close;
+    private boolean close;
     private Connection conn;
 
+    public Transaction(ConnectionPool pool) throws SQLException, DaoException {
+        this.pool = pool;
+        initConnection(null);
+    }
+
     public Transaction(Connection c) throws DaoException {
+        this.pool = ConnectionPool.getInstance();
+        initConnection(c);
+    }
+
+    private void initConnection(Connection c) throws DaoException {
         if (c == null) {
             logger.trace("Init connection from connection pool...");
+
             try {
                 conn = pool.getConnection();
             } catch (SQLException e) {
@@ -31,20 +43,22 @@ public class Transaction {
         }
     }
 
-    public Connection getConnection() {
+    private Connection getConnection() {
         return conn;
     }
 
-    public void initTransaction() throws DaoException {
+    private void initTransaction() throws DaoException {
         logger.trace("auto commit = false");
-        try {
-            conn.setAutoCommit(false);
-        } catch (SQLException e) {
-            logAndThrow(e);
+        if (close) {
+            try {
+                conn.setAutoCommit(false);
+            } catch (SQLException e) {
+                logAndThrow(e);
+            }
         }
     }
 
-    public void close() throws DaoException {
+    private void close() throws DaoException {
         logger.trace("close connection: {}, close={}", conn, close);
         if (close) {
             try {
@@ -63,7 +77,7 @@ public class Transaction {
         throw new DaoException(e.getMessage(), e);
     }
 
-    public void commit() throws DaoException {
+    private void commit() throws DaoException {
         logger.trace("commit connection: {}", conn);
         if (close) {
             logger.trace("close is true, committing...");
@@ -77,7 +91,7 @@ public class Transaction {
         }
     }
 
-    public void rollback() throws DaoException {
+    private void rollback() throws DaoException {
         logger.trace("rollback connection: {}", conn);
         if (close) {
             logger.trace("close is true, initiate rollback...");

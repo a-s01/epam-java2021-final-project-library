@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;

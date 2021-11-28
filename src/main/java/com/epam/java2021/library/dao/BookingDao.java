@@ -6,7 +6,7 @@ import com.epam.java2021.library.exception.ServiceException;
 
 import java.util.List;
 
-public interface BookingDao extends SuperDao<Booking> {
+public interface BookingDao extends AbstractSuperDao<Booking> {
     List<Booking> findDeliveredByUserID(long id) throws DaoException;
     List<Booking> findBy(String what, String searchBy) throws ServiceException, DaoException;
 }

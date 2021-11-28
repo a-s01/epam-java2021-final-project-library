@@ -19,7 +19,7 @@ public class EditRecord extends ModifiableEntity {
     }
 
     public static class Builder {
-        private long id;
+        private long id = -1;
         private Calendar modified;
         private long editBy;
         private String description;

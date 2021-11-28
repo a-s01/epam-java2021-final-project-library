@@ -1,6 +1,7 @@
 package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.BookingDao;
+import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
 import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Book;
@@ -8,6 +9,7 @@ import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,10 +39,10 @@ public class BookingDaoImpl implements BookingDao {
         final String query = "INSERT INTO booking VALUES(DEFAULT, ?, ?, ?, ?)";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             dao.create(booking, query, this::statementFiller);
-            BookDaoImpl bookDao = new BookDaoImpl(c);
-            bookDao.createBooksInBooking(booking.getId(), booking.getBooks());
+
+            createBooksInBooking(new BaseDao<>(c, logger), booking.getId(), booking.getBooks());
         });
         logger.debug("create booking request finished");
     }
@@ -52,10 +54,10 @@ public class BookingDaoImpl implements BookingDao {
         final String query = "SELECT * FROM booking WHERE id = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             Booking booking = dao.read(id, query, this::parse);
 
-            BookSuperDao bookDao = new BookSuperDao(c);
+            BookDaoImpl bookDao = new BookDaoImpl(c);
             booking.setBooks(bookDao.getBooksInBooking(id));
             logger.debug("read booking request finished");
             return booking;
@@ -70,10 +72,12 @@ public class BookingDaoImpl implements BookingDao {
         final String query = "UPDATE booking SET user_id = ?, state = ?, located = ?, modified = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             dao.update(booking, query, (b, ps) -> { int i = statementFiller(b, ps); ps.setLong(i++, b.getId()); return i; });
+
             BookDaoImpl bookDao = new BookDaoImpl(c);
-            bookDao.updateBooksInBooking(booking.getId(), booking.getBooks());
+            List<Book> oldList = bookDao.getBooksInBooking(booking.getId());
+            updateBooksInBooking(c, booking.getId(), oldList, booking.getBooks());
         });
         logger.debug("update booking request finished");
     }
@@ -81,7 +85,7 @@ public class BookingDaoImpl implements BookingDao {
     private int statementFiller(Booking booking, PreparedStatement ps) throws SQLException {
         logger.debug("fill statement");
 
-        int i = DaoImpl.START;
+        int i = BaseDao.START;
         ps.setLong(i++, booking.getUser().getId());
         ps.setString(i++, booking.getState().name());
         ps.setString(i++, booking.getLocated().name());
@@ -102,10 +106,10 @@ public class BookingDaoImpl implements BookingDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             List<Booking> bookings = dao.findById(id, query, this::parse);
 
-            BookSuperDao bookDao = new BookSuperDao(c);
+            BookDaoImpl bookDao = new BookDaoImpl(c);
             for (Booking b: bookings) {
                 List<Book> books = bookDao.getBooksInBooking(b.getId());
                 b.setBooks(books);
@@ -145,10 +149,10 @@ public class BookingDaoImpl implements BookingDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             List<Booking> bookings = dao.findByPattern(what, num, page,query, this::parse);
 
-            BookSuperDao bookDao = new BookSuperDao(c);
+            BookDaoImpl bookDao = new BookDaoImpl(c);
             for (Booking b: bookings) {
                 List<Book> books = bookDao.getBooksInBooking(b.getId());
                 b.setBooks(books);
@@ -165,7 +169,7 @@ public class BookingDaoImpl implements BookingDao {
         final String query = patternQuery(searchBy, null, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             return dao.count(what, query);
         });
     }
@@ -178,10 +182,10 @@ public class BookingDaoImpl implements BookingDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            DaoImpl<Booking> dao = new DaoImpl<>(c, logger);
+            BaseDao<Booking> dao = new BaseDao<>(c, logger);
             List<Booking> bookings = dao.findByPattern(what, query, this::parse);
 
-            BookSuperDao bookDao = new BookSuperDao(c);
+            BookDaoImpl bookDao = new BookDaoImpl(c);
             for (Booking b: bookings) {
                 List<Book> books = bookDao.getBooksInBooking(b.getId());
                 b.setBooks(books);
@@ -210,5 +214,36 @@ public class BookingDaoImpl implements BookingDao {
             query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
         }
         return query;
+    }
+
+    private void updateBooksInBooking(Connection c, long id, List<Book> oldList, List<Book> newList) throws DaoException {
+        Disjoint<Book> disjoint = new Disjoint<>(oldList, newList);
+
+        BaseDao<Book> dao = new BaseDao<>(c, logger);
+        createBooksInBooking(dao, id, disjoint.getToAdd());
+        deleteBooksInBooking(dao, id, disjoint.getToDelete());
+    }
+
+    private void deleteBooksInBooking(BaseDao<Book> dao, long id, List<Book> books) throws DaoException {
+        // book_id, author_id
+        final String delQuery = "DELETE FROM booking WHERE booking_id = ? AND book_id = ?";
+
+        for (Book b: books) {
+            dao.deleteBound(id, b.getId(), delQuery);
+        }
+    }
+
+    private void createBooksInBooking(BaseDao<Book> dao, long id, List<Book> books) throws DaoException {
+        // book_id, author_id
+        final String addQuery = "INSERT INTO book_in_booking VALUES (?, ?)";
+
+        for (Book b: books) {
+            dao.update(b, addQuery, (book, ps) -> {
+                int i = BaseDao.START;
+                ps.setLong(i++, id);
+                ps.setLong(i++, book.getId());
+                return i;
+            });
+        }
     }
 }
