@@ -79,4 +79,22 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <name>printAuthor</name>
+        <tag-class>com.epam.java2021.library.jstltag.PrintAuthor</tag-class>
+        <attribute>
+            <name>author</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>lang</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>fallback</name>
+            <required>false</required>
+        </attribute>
+    </tag>
 </taglib>

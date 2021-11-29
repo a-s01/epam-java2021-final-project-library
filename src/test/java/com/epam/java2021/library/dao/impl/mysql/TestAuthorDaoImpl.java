@@ -106,7 +106,7 @@ public class TestAuthorDaoImpl {
                 Assert.fail("You should set I18Names for this test");
             }
 
-            toUpdate.getI18Names().get(0).setName(newName);
+            toUpdate.setName(new Lang.Builder().setId(1).setCode("en").build(), newName);
             authorDao.update(toUpdate);
 
             Assert.assertTrue(dbManager.read(I18_TABLE, COLUMN, newName));

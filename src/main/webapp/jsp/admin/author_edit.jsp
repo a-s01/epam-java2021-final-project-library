@@ -13,25 +13,33 @@
     <c:set value="/jsp/admin/users.jsp" var="cancelLink"/>
 </c:if>
 
+<c:if test="${param.command eq 'author.add'}">
+    <c:set value="header.create.author" var="dynamicHeader"/>
+</c:if>
+<c:if test="${param.command eq 'author.edit'}">
+    <c:set value="header.edit" var="dynamicHeader"/>
+</c:if>
+
 <div class="container-sm bg-light border col-sm-6 col-sm-offset-3 my-5 pt-2">
     <div class="container-sm col-sm-10 col-sm-offset-1">
         <div class="row">
             <h1>
-                <fmt:message key='header.edit'/>
+                <fmt:message key='${dynamicHeader}'/>
             </h1>
         </div>
         <form action="/controller" method="post">
             <input type="hidden" name="command" value="${param.command}">
-            <c:forEach var="i18name" items="${proceedAuthor.i18Names}">
+            <c:forEach var="lang" items="${langs}">
                 <div class="row mb-1">
-                    <label for="${i18name.lang.code}" class="col-md-3 col-form-label">
-                        <fmt:message key='header.name.in.lang'/> <c:out value="${i18name.lang.code}" />:
+                    <label for="${lang.code}" class="col-md-3 col-form-label">
+                        <fmt:message key='header.name.in.lang'/> <c:out value="${lang.code}" />:
                     </label>
                     <div class="col-md-7">
-                        <input name="${i18name.lang.code}" type="text" id="${i18name.lang.code}"
-                            class="col-md-6 form-control"
-                            required value="<c:out value='${i18name.name}' />"
-                            >
+                        <input name="${lang.code}" type="text" id="${lang.code}"
+                            <c:if test="${param.command eq 'author.edit'}">
+                                value="<l:printAuthor author='${proceedAuthor}' lang='${lang}' fallback='false' />"
+                            </c:if>
+                            class="col-md-6 form-control" required >
                     </div>
                 </div>
             </c:forEach>

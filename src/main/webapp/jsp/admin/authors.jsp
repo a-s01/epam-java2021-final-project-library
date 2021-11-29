@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <c:set var="action" value="author.find" />
 <l:setList var="list" value="name" />
@@ -12,22 +13,19 @@
             <table class="table table-hover">
                 <thead>
                     <th scope="col"><fmt:message key='header.default.author.name'/></th>
-                    <th scope="col"><c:out value='header.translations'/></th>
+                    <c:forEach var="lang" items="${langs}">
+                        <th scope="col"><fmt:message key='header.name.in.lang'/> <c:out value="${lang.code}"/></th>
+                    </c:forEach>
                 </thead>
                 <tbody>
                     <c:forEach var="author" items="${authors}">
                         <tr class="table-light">
                             <td><c:out value="${author.name}"/></td>
-                            <td>
-                                <div class="row">
-                                    <c:forEach var="name" items="${author.i18Names}">
-                                        <div class="col">
-                                            <c:out value='${name.lang.code}'/>
-                                            <c:out value='${name.name}'/>
-                                        </div>
-                                    </c:forEach>
-                                </div>
-                            </td>
+                            <c:forEach var="lang" items="${langs}">
+                                <td>
+                                    <l:printAuthor author="${author}" lang="${lang}" fallback='false'/>
+                                </td>
+                            </c:forEach>
                             <td><a class="btn btn-warning" href="/controller?command=author.edit&id=${author.id}">Edit</a></td>
                             <td>
                                 <form action="/controller" method="post">
@@ -42,7 +40,7 @@
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
-        <a class="btn btn-info" href="/jsp/admin/author_add.jsp?command=author.add"><fmt:message key="header.create.author"/></a>
+        <a class="btn btn-info" href="/jsp/admin/author_edit.jsp?command=author.add"><fmt:message key="header.create.author"/></a>
         <c:if test="${not empty notFound}">
             <div class="container pt-4">
                 <h5><fmt:message key='${notFound}'/></h5>

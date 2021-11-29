@@ -13,7 +13,6 @@ public class Pages {
     public static final String BOOKING = "/jsp/booking.jsp";
     public static final String BOOK_EDIT = "/jsp/admin/book_edit.jsp";
     public static final String AUTHOR_EDIT = "/jsp/admin/author_edit.jsp";
-    public static final String AUTHOR_ADD = "/jsp/admin/author_add.jsp";
 
     public static final String JS = "/js/libraryCustom.js";
     public static final String ROOT = "/";

@@ -111,7 +111,7 @@ public class AuthorDaoImpl implements AuthorDao {
             dao.create(author, query, this::statementFiller);
 
             I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
-            for (I18AuthorName name: author.getI18Names()) {
+            for (I18AuthorName name: author.getI18NamesAsList()) {
                 i18Dao.create(author.getId(), name);
             }
         });
@@ -189,7 +189,7 @@ public class AuthorDaoImpl implements AuthorDao {
             });
 
             I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
-            i18Dao.updateNamesForAuthor(author.getId(), author.getI18Names());
+            i18Dao.updateNamesForAuthor(author.getId(), author.getI18NamesAsList());
         });
     }
 

@@ -75,7 +75,7 @@ public class AuthorLogic {
 
     public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
-        String errorPage = Pages.AUTHOR_ADD + "?command=author.add";
+        String errorPage = Pages.AUTHOR_EDIT + "?command=author.add";
 
         Author author;
         try {

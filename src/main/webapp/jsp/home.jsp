@@ -41,7 +41,7 @@
                             <td><c:out value="${book.title}"/></td>
                             <td>
                                 <c:forEach var="author" items="${book.authors}">
-                                    <c:out value="${author.name}"/>
+                                    <l:printAuthor author="${author}" lang="${lang}"/>
                                 </c:forEach>
                             </td>
                             <td><c:out value="${book.isbn}"/></td>
