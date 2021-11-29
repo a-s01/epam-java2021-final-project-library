@@ -13,7 +13,7 @@ public class ServletAttributes {
     public static final String USER_ERROR = "userError";
     public static final String PASS = "password";
     public static final String EMAIL = "email";
-    public static final String BOOKS_IN_BOOKING = "booksInBooking";
+    public static final String ATTR_BOOKINGS = "bookings";
     public static final String BOOKING_ID = "bookingID";
     public static final String NOT_FOUND = "notFound";
     public static final String APP_ROLES = "appRoles";

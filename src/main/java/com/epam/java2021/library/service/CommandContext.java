@@ -22,7 +22,7 @@ public class CommandContext {
         commands.put("book.delete", new AuthContext(BookLogic::delete, User.Role.ADMIN));
         commands.put("booking.addBook", new AuthContext(BookingLogic::addBook, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.removeBook", new AuthContext(BookingLogic::removeBook, User.Role.USER, User.Role.LIBRARIAN));
-        commands.put("booking.listBooks", new AuthContext(BookingLogic::listBooks, User.Role.USER, User.Role.LIBRARIAN));
+        commands.put("booking.listBooksInSubscription", new AuthContext(BookingLogic::listBookInSubscription, User.Role.USER));
         commands.put("booking.find", new AuthContext(BookingLogic::find, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.basket", new AuthContext(BookingLogic::basket, User.Role.USER));
         commands.put("booking.book", new AuthContext(BookingLogic::book, User.Role.USER, User.Role.LIBRARIAN));

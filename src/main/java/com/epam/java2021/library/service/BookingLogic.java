@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.java2021.library.constant.Common.END_MSG;
+import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 /**
@@ -107,31 +109,23 @@ public class BookingLogic {
     /**
      * 2 cases: listBooks in particular booking (should have bookingID then) or listBooks on subscription
      */
-    public static String listBooks(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        logger.debug("init...");
+    public static String listBookInSubscription(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
 
-        boolean subscription = Boolean.parseBoolean(req.getParameter("subscription"));
-        User u = (User) session.getAttribute("user");
-        logger.trace("subscription={}, user={}", subscription, u);
+        User user = (User) session.getAttribute("user");
+        logger.trace("user={}", user);
 
-        List<Book> books;
-        String page;
-        if (subscription) {
-            books = getBooksInSubscription(req, u);
-            page = Pages.MY_BOOKS;
-        } else {
-            // or we have bookingID
-            books = getBooksForBookingID(req);
-            page = Pages.BOOKING;
-        }
+        logger.debug("looking for user bookings in DB...");
+        BookingDao dao = daoFactory.getBookingDao();
+        List<Booking> bookings = dao.findDeliveredByUserID(user.getId());
 
-        logger.trace("set 'booksInBooking' session attribute to: books={}", books);
-        session.setAttribute(BOOKS_IN_BOOKING, books);
-        logger.debug("finished");
-        return page;
+        session.setAttribute(ATTR_BOOKINGS, bookings);
+        logger.trace("set session attribute {}={}", ATTR_BOOKINGS, bookings);
+        logger.debug(END_MSG);
+        return Pages.MY_BOOKS;
     }
 
-    private static List<Book> getBooksForBookingID(HttpServletRequest req) throws DaoException, ServiceException {
+    /*private static List<Book> getBooksForBookingID(HttpServletRequest req) throws DaoException, ServiceException {
         logger.debug("getBooksForBookingID init..");
 
         String bIDStr = req.getParameter(BOOKING_ID);
@@ -158,18 +152,14 @@ public class BookingLogic {
         return books;
     }
 
-    private static List<Book> getBooksInSubscription(HttpServletRequest req, User u) throws DaoException, ServiceException {
+    private static List<Booking> getBooksInSubscription(HttpServletRequest req, User u) throws DaoException, ServiceException {
         logger.debug("getBooksInSubscription init");
         List<Book> books;
         if (u.getRole().equals(User.Role.USER)) {
             logger.debug("looking for user bookings in DB...");
             BookingDao dao = daoFactory.getBookingDao();
             List<Booking> bookings = dao.findDeliveredByUserID(u.getId());
-            books = bookings.stream()
-                                .map(Booking::getBooks)
-                                .distinct()
-                                .flatMap(List::stream)
-                                .collect(Collectors.toList());
+
             req.setAttribute(PAGE, Pages.MY_BOOKS);
             logger.debug("Set page attribute");
             logger.trace("{}={}", PAGE, Pages.MY_BOOKS);
@@ -179,14 +169,14 @@ public class BookingLogic {
 
         logger.debug("end");
         return books;
-    }
+    }*/
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         // /booking?command=find - (mb later user) or all (for librarian) bookings
         // only for librarian now
         logger.debug("start");
         BookingDao dao = daoFactory.getBookingDao();
-        return CommonLogic.find(session, req, logger, dao, "bookings", Pages.BOOKING);
+        return CommonLogic.find(session, req, logger, dao, ATTR_BOOKINGS, Pages.BOOKING);
     }
 
     public static String basket(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {

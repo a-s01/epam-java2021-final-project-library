@@ -8,7 +8,7 @@
 <fmt:setBundle basename="i18n" />
 
 <div class="container">
-    <c:if test="${not empty booksInBooking}">
+    <c:if test="${not empty bookings}">
         <div class="card">
             <div class="card-header">
             </div>
@@ -22,25 +22,30 @@
                         <th scope="col"><fmt:message key='header.return.up.to'/></th>
                     </thead>
                     <tbody>
-                        <c:forEach var="book" items="${booksInBooking}">
-                            <tr class="table-light">
-                                <td><c:out value="${book.title}"/></td>
-                                <td>
-                                    <c:forEach var="author" items="${book.authors}">
-                                        <c:out value="${author.name}"/>
-                                    </c:forEach>
-                                </td>
-                                <td><c:out value="${book.isbn}"/></td>
-                                <td><c:out value="${book.year}"/></td>
-                                <td class="text-danger">NOT READY</td>
-                            </tr>
+                        <c:forEach var="booking" items="${bookings}">
+                            <c:forEach var="book" items="${booking.books}">
+                                <tr class="table-light">
+                                    <td><c:out value="${book.title}"/></td>
+                                    <td>
+                                        <c:forEach var="author" items="${book.authors}">
+                                            <c:out value="${author.name}"/>
+                                        </c:forEach>
+                                    </td>
+                                    <td><c:out value="${book.isbn}"/></td>
+                                    <td><c:out value="${book.year}"/></td>
+                                    <td class="text-danger fw-bold">
+                                        <l:printCalendar calendar="${booking.modified}"
+                                            addDays="${book.keepPeriod}" format="yyyy-MM-dd HH:mm:ss"/>
+                                    </td>
+                                </tr>
+                            </c:forEach>
                         </c:forEach>
                     </tbody>
                 </table>
             </div>
         </div>
     </c:if>
-    <c:if test="${empty booksInBooking}">
+    <c:if test="${empty bookings}">
         <div class="container pt-4"><h5><fmt:message key='message.no.book.in.subscription'/></h5></div>
     </c:if>
 </div>

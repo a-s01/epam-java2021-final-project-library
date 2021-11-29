@@ -38,7 +38,8 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${state eq 'DELIVERED'}" >
-                                <td class="text-danger fw-bold"><l:printCalendar calendar="${booking.modified}" addDays="${book.keepPeriod}" format="yyyy-MM-dd HH:mm:ss"/></td>
+                                <td class="text-danger fw-bold"><l:printCalendar calendar="${booking.modified}"
+                                    addDays="${book.keepPeriod}" format="yyyy-MM-dd HH:mm:ss"/></td>
                             </c:if>
                         </tr>
                     </c:forEach>
