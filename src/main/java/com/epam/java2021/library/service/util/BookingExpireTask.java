@@ -17,9 +17,18 @@ import static com.epam.java2021.library.constant.Common.*;
 
 public class BookingExpireTask extends AppPeriodicTask {
     public static final Logger logger = LogManager.getLogger(BookingExpireTask.class);
-    public static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
-    private static final String INIT_PARAM_PERIOD = UpdateFineTask.class.getName() + ".period";
-    private int daysBeforeExpired = -1;
+    static final String INIT_PARAM_PERIOD = UpdateFineTask.class.getName() + ".period";
+
+    public final IDaoFactoryImpl daoFactory;
+    private volatile int daysBeforeExpired = -1;
+
+    public BookingExpireTask() {
+        this.daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+    }
+
+    public BookingExpireTask(IDaoFactoryImpl daoFactory) {
+        this.daoFactory = daoFactory;
+    }
 
     @Override
     public void run() {
@@ -34,7 +43,7 @@ public class BookingExpireTask extends AppPeriodicTask {
             for (Booking booking: dao.findBy("BOOKED", "state")) {
                 logger.trace("check booking={}", booking);
                 Calendar now = Calendar.getInstance();
-                long pastDays = ChronoUnit.DAYS.between(now.toInstant(), booking.getModified().toInstant());
+                long pastDays = ChronoUnit.DAYS.between(booking.getModified().toInstant(), now.toInstant());
 
                 if (pastDays >= daysBeforeExpired) {
                     booking.setState(Booking.State.CANCELED);
@@ -59,11 +68,14 @@ public class BookingExpireTask extends AppPeriodicTask {
         }
 
         try {
-            daysBeforeExpired = Integer.parseInt(periodStr);
-            if (daysBeforeExpired <= 0) {
-                throw new ServiceException("it's not positive " + daysBeforeExpired);
+            int daysBeforeExpiredCandidate = Integer.parseInt(periodStr);
+            if (daysBeforeExpiredCandidate < 0) {
+                throw new ServiceException("it's not positive " + daysBeforeExpiredCandidate);
             }
-
+            synchronized (this) {
+                daysBeforeExpired = daysBeforeExpiredCandidate;
+            }
+            logger.info("Days before expired initialized successfully");
         } catch (NumberFormatException e) {
             throw new ServiceException(INIT_PARAM_PERIOD + " should be valid positive integer value: " + e.getMessage());
         }

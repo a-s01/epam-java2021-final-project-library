@@ -214,18 +214,18 @@ INSERT INTO user VALUES (2, 'librarian@gmail.com', '���
 (�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT);
 INSERT INTO user VALUES (3, 'user@gmail.com', '���
 (�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT);
-INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', '���
+INSERT INTO user VALUES (100, 'test@gmail.com', '���
 (�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT);
 
--- book --
+-- existing book --
 INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
-INSERT INTO book_stat VALUES (1, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book_stat VALUES (1, 20, 19, 1, 2);
 -- AUTHORS --
 INSERT INTO author VALUES (DEFAULT, 'Джоан Кэтлин Роулинг', DEFAULT);
 INSERT INTO author_name_i18n VALUES (2, 1, 'Джоан Кэтлин Роулинг');
 INSERT INTO author_name_i18n VALUES (1, 1, 'Joanne Kathleen Rowling');
 INSERT INTO book_author VALUES (1, 1);
--- test delete: --
+-- test to delete: AUTHOR --
 INSERT INTO author VALUES (99, 'TO DELETE', DEFAULT);
 INSERT INTO author_name_i18n VALUES (2, 99, 'Удалить');
 INSERT INTO author_name_i18n VALUES (1, 99, 'TO DELETE');
@@ -234,8 +234,28 @@ INSERT INTO author_name_i18n VALUES (1, 99, 'TO DELETE');
 INSERT INTO author VALUES (2, 'Марио Пьюзо', DEFAULT);
 INSERT INTO author_name_i18n VALUES (2, 2, 'Марио Пьюзо');
 INSERT INTO book VALUES (10, 'Крестный отец', '978-5-04-098842-6', '2021', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
-INSERT INTO book_stat VALUES (10, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book_stat VALUES (10, 20, 19, DEFAULT, 1);
 INSERT INTO book VALUES (16, 'Дураки умирают', '978-5-699-46418-0', '2010', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
 INSERT INTO book_stat VALUES (16, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book VALUES (3, 'Унесенные ветром', '978-5-389-17583-9', '2020', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
+INSERT INTO book_stat VALUES (3, 20, DEFAULT, DEFAULT, DEFAULT);
 INSERT INTO book_author VALUES (10, 2);
 INSERT INTO book_author VALUES (16, 2);
+INSERT INTO author VALUES (3, 'Маргарет Митчелл', DEFAULT);
+INSERT INTO author_name_i18n VALUES (2, 3, 'Маргарет Митчелл');
+INSERT INTO book_author VALUES (3, 3);
+
+-- test to delete: book --
+INSERT INTO book VALUES (2, 'Зеленая миля', '978-5-17-118362-2', '2020', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
+INSERT INTO book_stat VALUES (2, 20, DEFAULT, DEFAULT, DEFAULT);
+
+-- test get books in booking
+INSERT INTO booking VALUES (1, 3, 'booked', DEFAULT, DEFAULT);
+INSERT INTO book_in_booking VALUES (1, 1);
+INSERT INTO book_in_booking VALUES (1, 3);
+
+
+-- test find booking delivered by user
+INSERT INTO booking VALUES (2, 100, 'delivered', DEFAULT, DEFAULT);
+INSERT INTO book_in_booking VALUES (2, 1);
+INSERT INTO book_in_booking VALUES (2, 10);

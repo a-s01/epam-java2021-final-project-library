@@ -21,9 +21,17 @@ import static com.epam.java2021.library.constant.Common.*;
 
 public class UpdateFineTask extends AppPeriodicTask {
     private static final Logger logger = LogManager.getLogger(UpdateFineTask.class);
-    private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
-    private static final String INIT_PARAM_FINE_PER_DAY = UpdateFineTask.class.getName() + ".finePerDay";
-    private double finePerDay = -1;
+    static final String INIT_PARAM_FINE_PER_DAY = UpdateFineTask.class.getName() + ".finePerDay";
+    private final IDaoFactoryImpl daoFactory;
+    private volatile double finePerDay = -1;
+
+    public UpdateFineTask() {
+        daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+    }
+
+    public UpdateFineTask(IDaoFactoryImpl daoFactory) {
+        this.daoFactory = daoFactory;
+    }
 
     @Override
     public void run() {
@@ -66,7 +74,7 @@ public class UpdateFineTask extends AppPeriodicTask {
             logger.trace("check booking={}", booking);
 
             Calendar lastModified = booking.getModified();
-            long pastDays = ChronoUnit.DAYS.between(now.toInstant(), lastModified.toInstant());
+            long pastDays = ChronoUnit.DAYS.between(lastModified.toInstant(), now.toInstant());
             logger.trace("booking {}: {} days past", booking.getId(), pastDays);
 
             for (Book book : booking.getBooks()) {
@@ -103,11 +111,14 @@ public class UpdateFineTask extends AppPeriodicTask {
         }
 
         try {
-            finePerDay = Double.parseDouble(fine);
-            if (finePerDay <= 0) {
-                throw new NumberFormatException("it's not positive " + finePerDay);
+            double finePerDayCandidate = Double.parseDouble(fine);
+            if (finePerDayCandidate < 0) {
+                throw new NumberFormatException("it's not positive " + finePerDayCandidate);
             }
-            logger.info("Fine per day initialized successfully: {}", finePerDay);
+            synchronized (this) {
+                finePerDay = finePerDayCandidate;
+            }
+            logger.info("Fine per day initialized successfully: {}", finePerDayCandidate);
         } catch (NumberFormatException e) {
             throw new ServiceException(INIT_PARAM_FINE_PER_DAY + " should be valid positive double value: " + e.getMessage());
         }

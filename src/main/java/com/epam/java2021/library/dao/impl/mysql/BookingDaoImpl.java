@@ -86,9 +86,16 @@ public class BookingDaoImpl implements BookingDao {
         logger.debug("fill statement");
 
         int i = BaseDao.START;
+        if (booking.getUser() == null) {
+            throw new SQLException("user field cannot be null");
+        }
+
         ps.setLong(i++, booking.getUser().getId());
         ps.setString(i++, booking.getState().name());
         ps.setString(i++, booking.getLocated().name());
+        if (booking.getModified() == null) {
+            throw new SQLException("modified field cannot be null");
+        }
         ps.setTimestamp(i++, new Timestamp(booking.getModified().getTimeInMillis()));
 
         logger.debug("finish filling statement");
@@ -183,7 +190,7 @@ public class BookingDaoImpl implements BookingDao {
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
             BaseDao<Booking> dao = new BaseDao<>(c, logger);
-            List<Booking> bookings = dao.findByPattern(what, query, this::parse);
+            List<Booking> bookings = dao.findByString(what, query, this::parse);
 
             BookDaoImpl bookDao = new BookDaoImpl(c);
             for (Booking b: bookings) {
@@ -198,7 +205,7 @@ public class BookingDaoImpl implements BookingDao {
     private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) throws ServiceException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
-        final String searchCol = searchBy.equals(BOOKING_COL) ? "b" + searchBy : "u." + searchBy;
+        final String searchCol = searchBy.equals(BOOKING_COL) ? "b." + searchBy : "u." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
         final String operator = exactSearch ? " = ?" : " LIKE ?";
 
@@ -226,7 +233,7 @@ public class BookingDaoImpl implements BookingDao {
 
     private void deleteBooksInBooking(BaseDao<Book> dao, long id, List<Book> books) throws DaoException {
         // book_id, author_id
-        final String delQuery = "DELETE FROM booking WHERE booking_id = ? AND book_id = ?";
+        final String delQuery = "DELETE FROM book_in_booking WHERE booking_id = ? AND book_id = ?";
 
         for (Book b: books) {
             dao.deleteBound(id, b.getId(), delQuery);

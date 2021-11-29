@@ -96,8 +96,11 @@ public class BookDaoImpl implements BookDao {
             ps.setInt(i++, book.getYear());
             ps.setString(i++, book.getLangCode());
             ps.setInt(i++, book.getKeepPeriod());
-            ps.setTimestamp(i++, new Timestamp(book.getModified().getTimeInMillis()));
-
+            if (book.getModified() != null) {
+                ps.setTimestamp(i++, new Timestamp(book.getModified().getTimeInMillis()));
+            } else {
+                throw new SQLException("modified field is null");
+            }
             return i;
         }
 
@@ -108,7 +111,7 @@ public class BookDaoImpl implements BookDao {
 
         public List<Book> findBy(String pattern, String searchBy) throws DaoException {
             final String query = patternQuery(searchBy, null, false, true);
-            return dao.findByPattern(pattern, query, this::parse);
+            return dao.findByString(pattern, query, this::parse);
         }
 
         private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) {
@@ -239,6 +242,9 @@ public class BookDaoImpl implements BookDao {
             BookDaoLowLevel bookDao = new BookDaoLowLevel(c);
             bookDao.create(book); // updates author list also
 
+            if (book.getBookStat() == null) {
+                throw new DaoException("book stat cannot be null");
+            }
             book.getBookStat().setId(book.getId());
 
             BookStatDao bookStatDao = new BookStatDao(c);

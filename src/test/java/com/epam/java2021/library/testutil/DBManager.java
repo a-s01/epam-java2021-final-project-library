@@ -124,6 +124,19 @@ public class DBManager {
         }
     }
 
+    public boolean read(String table, String column, long id) throws SQLException {
+        final String sql = "SELECT * FROM %s WHERE %s = ?";
+
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(prepareQuery(sql, table, column))) {
+                ps.setLong(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        }
+    }
+
     public String readField(String retrieveField, String table, String column, String value) throws SQLException {
         final String sql = "SELECT %s FROM %s WHERE %s = ?";
         String result = null;

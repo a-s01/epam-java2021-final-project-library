@@ -2,7 +2,7 @@ package com.epam.java2021.library.service.util;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+//TODO DELETE
 public class AppContext {
     private final Map<String, String> map = new ConcurrentHashMap<>();
     private static final AppContext INSTANCE = new AppContext();
