@@ -11,5 +11,5 @@ public interface AbstractSuperDao<E extends Entity> extends AbstractEntityDao<E>
             throws ServiceException, DaoException;
     int findByPatternCount(String what, String searchBy)
             throws ServiceException, DaoException;
-    //List<E> findBy(String what, String searchBy) throws ServiceException, DaoException; // TODO to delete
+    List<E> findBy(String what, String searchBy) throws ServiceException, DaoException;
 }

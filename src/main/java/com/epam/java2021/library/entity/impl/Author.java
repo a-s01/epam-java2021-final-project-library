@@ -2,6 +2,7 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,9 +125,10 @@ public class Author extends ModifiableEntity {
 
     @Override
     public String toString() {
+
         return "Author{" +
                 "id=" + id +
-                ", modified=" + modified +
+                ", modified=" + ModifiableEntity.format(modified) +
                 ", name='" + name + '\'' +
                 ", i18Names=" + i18Names +
                 '}';

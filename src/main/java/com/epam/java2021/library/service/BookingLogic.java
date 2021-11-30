@@ -228,7 +228,7 @@ public class BookingLogic {
         } else {
             logger.debug("Book already exists in booking");
         }
-        req.setAttribute(PLAIN_TEXT, String.valueOf(booking.getBooks().size()));
+        req.setAttribute(ATTR_OUTPUT, String.valueOf(booking.getBooks().size()));
         logger.debug("end");
         return null;
     }

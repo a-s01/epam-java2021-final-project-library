@@ -2,9 +2,11 @@ package com.epam.java2021.library.service;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.constant.ServletAttributes;
+import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.exception.DaoException;
@@ -16,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -36,7 +39,7 @@ public class BookLogic {
         return CommonLogic.find(session, req, logger, dao, ATTR_BOOKS, Pages.HOME);
     }
 
-    private static Book getValidParams(HttpServletRequest req) throws ServiceException {
+    private static Book getValidParams(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         SafeRequest safeReq = new SafeRequest(req);
 
@@ -46,17 +49,34 @@ public class BookLogic {
         int keepPeriod = safeReq.get("keepPeriod").notEmpty().convert(Integer::parseInt); // TODO add default value to JSP
         long total = safeReq.get("total").notEmpty().convert(Long::parseLong);
         String langCode = safeReq.get("langCode").notEmpty().convert();
+        String[] authorIDsAsStr = req.getParameterValues(ATTR_AUTHOR_IDS);
+
+        if (authorIDsAsStr == null) {
+            throw new ServiceException("error.author.ids.null");
+        }
+
+        List<Author> authors = new ArrayList<>(authorIDsAsStr.length);
+        AuthorDao authorDao = daoFactory.getAuthorDao();
+        for (int i = 0; i < authorIDsAsStr.length; i++) {
+            try {
+                long id = Long.parseLong(authorIDsAsStr[i]);
+                authors.add(authorDao.read(id));
+            } catch (NumberFormatException e) {
+                throw new ServiceException("error.wrong.number.format");
+            }
+        }
 
         if (!isValidISOLanguage(langCode)) {
-            throw new ServiceException(ERR_WRONG_LANG_CODE);
+            throw new ServiceException("error.wrong.language.code");
         }
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         if (year < 1500 || year > currentYear) {
-            throw new ServiceException("Your year is in future, not accepted");
+            throw new ServiceException("error.invalid.year");
         }
 
         logger.trace("title={}, year={}, isbn={}, total={}, keepPeriod={}", title, year, isbn, total, keepPeriod);
+        logger.trace("authors={}", authors);
         Book.Builder builder = new Book.Builder();
         builder.setTitle(title);
         builder.setYear(year);
@@ -64,6 +84,7 @@ public class BookLogic {
         builder.setKeepPeriod(keepPeriod);
         builder.setBookStat(new BookStat.Builder().setTotal(total).build());
         builder.setLangCode(langCode);
+        builder.setAuthors(authors);
 
         logger.debug(END_MSG);
         return builder.build();
@@ -102,6 +123,7 @@ public class BookLogic {
 
     public static String edit(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
+        String errorPage = Pages.BOOK_EDIT + "?command=book.edit";
 
         SafeRequest safeReq = new SafeRequest(req);
         try {
@@ -111,6 +133,8 @@ public class BookLogic {
             BookDao dao = daoFactory.getBookDao();
             Book book = dao.read(bookID);
             session.setAttribute(ATTR_PROCEED_BOOK, book);
+
+            logger.debug(END_MSG);
             return Pages.BOOK_EDIT;
         } catch (ServiceException e) {
             // it doesn't have id, move on
@@ -122,7 +146,7 @@ public class BookLogic {
             params = getValidParams(req);
         } catch (ServiceException e) {
             session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
-            return Pages.BOOK_EDIT;
+            return errorPage;
         }
         
         SafeSession safeSession = new SafeSession(session);
@@ -135,6 +159,7 @@ public class BookLogic {
         proceed.setKeepPeriod(params.getKeepPeriod());
         proceed.setModified(Calendar.getInstance());
         proceed.setLangCode(params.getLangCode());
+        proceed.setAuthors(params.getAuthors());
 
         BookStat old = proceed.getBookStat();
         long totalInStockDiff = old.getTotal() - old.getInStock();
@@ -142,7 +167,7 @@ public class BookLogic {
         long newInStock = params.getBookStat().getTotal() - totalInStockDiff;
         if (newInStock < 0) {
             session.setAttribute(ServletAttributes.USER_ERROR, "In stock reminder should be more than 0");
-            return Pages.BOOK_EDIT;
+            return errorPage;
         }
         old.setInStock(newInStock);
         

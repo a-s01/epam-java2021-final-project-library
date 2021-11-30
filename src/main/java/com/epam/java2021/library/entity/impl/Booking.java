@@ -134,7 +134,7 @@ public class Booking extends ModifiableEntity {
     @Override
     public String toString() {
         return "Booking{" +
-                "created=" + modified +
+                "created=" + ModifiableEntity.format(modified) +
                 ", id=" + id +
                 ", user=" + user +
                 ", state=" + state +

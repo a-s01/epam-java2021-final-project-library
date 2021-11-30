@@ -82,7 +82,7 @@ public class EditRecord extends ModifiableEntity {
     public String toString() {
         return "EditRecord{" +
                 "id=" + id +
-                ", modified=" + modified +
+                ", modified=" + ModifiableEntity.format(modified) +
                 ", editBy=" + editBy +
                 ", description='" + description + '\'' +
                 ", remark='" + remark + '\'' +

@@ -1,5 +1,6 @@
 package com.epam.java2021.library.entity;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class ModifiableEntity extends Entity {
@@ -16,5 +17,8 @@ public class ModifiableEntity extends Entity {
 
     public void setModified(Calendar modified) {
         this.modified = modified;
+    }
+    public static String format(Calendar modified) {
+        return modified == null ? "null" : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(modified.getTime());
     }
 }

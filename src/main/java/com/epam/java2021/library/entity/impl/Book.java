@@ -177,7 +177,7 @@ public class Book extends ModifiableEntity {
     public String toString() {
         return "Book{" +
                 "id=" + id +
-                ", modified=" + modified +
+                ", modified=" + ModifiableEntity.format(modified) +
                 ", title='" + title + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", year=" + year +

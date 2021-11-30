@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BookDaoImpl implements BookDao {
     private static final Logger logger = LogManager.getLogger(BookDaoImpl.class);
@@ -115,22 +116,24 @@ public class BookDaoImpl implements BookDao {
         }
 
         private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) {
-
             final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
             final String what = count ? "COUNT(*)" : "*";
             final String operator = exactSearch ? " = ?" : " LIKE ?";
 
-            String query = "SELECT " + what + "\n" +
-                    "  FROM book AS b\n" +
-                    "   JOIN book_author AS ba\n" +
-                    "      ON b.id=ba.book_id\n" +
-                    "      JOIN author AS a\n" +
-                    "        ON a.id = ba.author_id\n" +
-                    "     WHERE " + searchCol + operator;
+            String query =  "SELECT " + what + " FROM book " +
+                    "WHERE id IN ( " +
+                    "SELECT b.id FROM book AS b " +
+                    "  JOIN book_author as ba " +
+                    "ON ba.book_id = b.id " +
+                    "  JOIN author AS a " +
+                    "ON a.id = ba.author_id " +
+                    " WHERE " + searchCol + operator;
 
             if (sortBy != null) {
                 final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
-                query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
+                query = query + " ORDER BY " + orderCol + ") LIMIT ? OFFSET ?";
+            } else {
+                query = query + ")";
             }
 
             return query;
@@ -194,8 +197,7 @@ public class BookDaoImpl implements BookDao {
         public BookStat read(long id) throws DaoException {
             final String query = "SELECT * FROM book_stat WHERE book_id = ?";
 
-            BookStat bookStat = dao.read(id, query, this::parse);
-            return bookStat;
+            return dao.read(id, query, this::parse);
         }
 
         private BookStat parse(Connection c, ResultSet rs) throws SQLException {
@@ -323,7 +325,7 @@ public class BookDaoImpl implements BookDao {
         });
     }
 
-    /*
+
     @Override
     public List<Book> findBy(String what, String searchBy) throws ServiceException, DaoException {
         logger.trace("request: what={}, searchBy={}",
@@ -337,7 +339,7 @@ public class BookDaoImpl implements BookDao {
             return resolveDependencies(c, dao.findBy(what, searchBy));
         });
     }
-    */
+
     @Override
     public List<Book> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {

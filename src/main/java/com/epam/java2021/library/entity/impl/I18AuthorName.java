@@ -73,7 +73,6 @@ public class I18AuthorName extends Entity {
     @Override
     public String toString() {
         return "I18AuthorName{" +
-                "id=" + id +
                 ", langId=" + lang +
                 ", name='" + name + '\'' +
                 '}';

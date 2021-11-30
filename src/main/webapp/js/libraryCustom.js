@@ -18,6 +18,55 @@ function addBook(id) {
         });
 }
 
+function findAuthor() {
+    var query = $("#authorQuery").val();
+    $('#searchResults').empty();
+    $.ajax({
+                url     : '/controller',
+                method  : 'GET',
+                data    : {query: query, command: 'author.findAll', searchBy: 'name'},
+                dataType: "xml",
+                success : function(xml) {
+                            var error = $(xml).find('error').text();
+                            if (error) {
+                                var li = document.createElement('li');
+                                $(li).html(`<a class="dropdown-item" onclick='this.classList.remove("show");'>${error}</a></li>`);
+                                $('#searchResults').append(li);
+                                $('#searchResults').addClass("show");
+                            } else {
+                                $(xml).find('author').each(
+                                    function() {
+                                        var authorID = $(this).find('id').text();
+                                        var authorName = $(this).find('name').text();
+                                        var li = document.createElement('li');
+                                        $(li).html(`<a class="dropdown-item" onclick="chooseAuthor(${authorID},'${authorName}');">${authorName}</a></li>`);
+                                        $('#searchResults').append(li);
+                                        $('#searchResults').addClass("show");
+                                    }
+                                );
+                            }
+                        },
+                error   : function(jqXHR, exception) {
+                            console.log('Error occured!!!');
+                          },
+    });
+}
+
+function chooseAuthor(authorID, authorName) {
+    if (document.getElementById("selectedAuthors" + authorID) == null) {
+        var newSelected = document.createElement("div");
+        newSelected.classList.add("form-check");
+        newSelected.innerHTML = '<input type="checkbox" name="authorIDs" class="form-check-input" id="selectedAuthors'+ authorID + '"' +
+                                    "value='" + authorID + "' checked/>" +
+                                        '<label class="form-check-label" for="selectedAuthors'+ authorID + '">' +
+                                          authorName +
+                                        '</label>';
+
+        document.getElementById('selectedAuthors').appendChild(newSelected);
+        document.getElementById('searchResults').classList.remove("show");
+    }
+}
+
 function check(el) {
         if (el.reportValidity()) {
             el.classList.remove("is-invalid");

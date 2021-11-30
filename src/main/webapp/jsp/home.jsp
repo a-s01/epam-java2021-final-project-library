@@ -106,5 +106,4 @@
         </c:if>
     </div>
 </div>
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <jsp:include page="/html/footer.html"/>

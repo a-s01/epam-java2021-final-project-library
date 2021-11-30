@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
+import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class CommonLogic {
@@ -22,6 +23,7 @@ public class CommonLogic {
         SafeRequest safeReq = new SafeRequest(req);
         String query = safeReq.get("query").escape().convert();
         String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
+
         String sortBy = safeReq.get("sortBy").notEmpty().escape().convert().toLowerCase();
         int num = safeReq.get("num").notNull().convert(Integer::parseInt);
 
@@ -70,4 +72,6 @@ public class CommonLogic {
         logger.debug("end");
         return page;
     }
+
+
 }

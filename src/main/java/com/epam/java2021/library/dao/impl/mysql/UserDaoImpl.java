@@ -172,7 +172,7 @@ public class UserDaoImpl implements UserDao {
         });
     }
 
-    /*
+
     @Override
     public List<User> findBy(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
@@ -185,6 +185,4 @@ public class UserDaoImpl implements UserDao {
             return dao.findByPattern(what, query, this::parse);
         });
     }
-
-     */
 }

@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static com.epam.java2021.library.constant.ServletAttributes.PLAIN_TEXT;
-import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
@@ -33,7 +32,7 @@ public class Controller extends HttpServlet {
         String page = proceed(req, resp);
         if (page == null) {
             logger.debug("No page was returned, looking if it's ajax request");
-            String plainText = (String) req.getAttribute(PLAIN_TEXT);
+            /*String plainText = (String) req.getAttribute(PLAIN_TEXT);
 
             if (plainText != null) {
                 logger.debug("It's ajax, output result");
@@ -41,6 +40,22 @@ public class Controller extends HttpServlet {
                 resp.setContentType("text/plain");
                 resp.setCharacterEncoding("UTF-8");
                 resp.getWriter().write(plainText);
+                return;
+            }*/
+
+            String output = (String) req.getAttribute(ATTR_OUTPUT);
+            if (output != null) {
+                logger.debug("It's ajax, output result");
+                /*String format = (String) req.getAttribute(ATTR_FORMAT);
+                if (format == null) {*/
+                    logger.trace("format is null, set to text/plain");
+                    resp.setContentType("text/plain");
+                /*} else {
+                    logger.trace("format={}", format);
+                    resp.setContentType(format);
+                }*/
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write(output);
                 return;
             }
             page = redirectToError("no page was returned by command", req.getSession());

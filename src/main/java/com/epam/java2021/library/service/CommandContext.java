@@ -40,6 +40,7 @@ public class CommandContext {
         commands.put("author.edit", new AuthContext(AuthorLogic::edit, User.Role.ADMIN));
         commands.put("author.delete", new AuthContext(AuthorLogic::delete, User.Role.ADMIN));
         commands.put("author.find", new AuthContext(AuthorLogic::find, User.Role.ADMIN));
+        commands.put("author.findAll", new AuthContext(AuthorLogic::findAll, User.Role.ADMIN));
 
         commands.put(Pages.ERROR, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.MY_BOOKS, new AuthContext(null, User.Role.USER));

@@ -201,7 +201,7 @@ public class User extends ModifiableEntity {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", modified=" + modified +
+                ", modified=" + ModifiableEntity.format(modified) +
                 ", email='" + email + '\'' +
                 ", password=<hidden>" +
                 ", salt=<hidden>" +

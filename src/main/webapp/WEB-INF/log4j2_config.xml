@@ -24,12 +24,12 @@
     <Logger name="TEST" level="trace">
       <AppenderRef ref="STDOUT"/>
     </Logger>
-    <!-- <Logger name="com.epam.java2021.library.jstltag" level="trace">
+    <Logger name="com.epam.java2021.library.jstltag" level="error">
       <AppenderRef ref="STDOUT"/>
-    </Logger> -->
-    <!-- <Logger name="com.epam.java2021.library.dao.impl.mysql" level="error">
+    </Logger>
+    <Logger name="com.epam.java2021.library.controller.filter" level="error">
       <AppenderRef ref="STDOUT"/>
-    </Logger> -->
+    </Logger>
     <Root level="trace">
       <AppenderRef ref="STDOUT"/>
       <AppenderRef ref="File" />

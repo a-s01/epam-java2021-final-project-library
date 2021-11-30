@@ -4,6 +4,7 @@ import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.entity.impl.Lang;
@@ -156,7 +157,28 @@ public class AuthorLogic {
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
+
         return CommonLogic.find(session, req, logger, daoFactory.getAuthorDao(), ATTR_AUTHORS, Pages.AUTHORS);
+    }
+
+    public static String findAll(HttpSession session, HttpServletRequest req) throws ServiceException {
+        logger.debug(START_MSG);
+
+        SafeRequest safeReq = new SafeRequest(req);
+        String query = safeReq.get("query").escape().convert();
+        String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
+
+        logger.trace("query={}, searchBy={}", query, searchBy);
+        List<Author> list = null;
+        try {
+            list = daoFactory.getAuthorDao().findByPattern(query);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
+
+        req.setAttribute(ATTR_AUTHORS, list);
+        logger.debug(END_MSG);
+        return Pages.XML_AUTHOR;
     }
 
     private static String nextPageLogic(SafeSession safeSession) throws ServiceException {
@@ -166,5 +188,13 @@ public class AuthorLogic {
             page = Pages.AUTHORS;
         }
         return page;
+    }
+
+    public static String add2book(HttpSession session, HttpServletRequest req) {
+        return Pages.BOOK_AUTHOR_EDIT;
+    }
+
+    public static String delFromBook(HttpSession session, HttpServletRequest req) {
+        return Pages.BOOK_AUTHOR_EDIT;
     }
 }

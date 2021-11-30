@@ -43,5 +43,8 @@ public class ServletAttributes {
     public static final String JSP_FORM_ATTR_ID = "id";
 
 
-    public static final String ERR_WRONG_LANG_CODE = "error.wrong.language.code";
+    public static final String ATTR_OUTPUT = "output";
+    public static final String ATTR_FORMAT = "format";
+
+    public static final String ATTR_AUTHOR_IDS = "authorIDs";
 }

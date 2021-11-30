@@ -107,7 +107,40 @@
                         required>
                 </div>
             </div>
-            <!-- TODO add authors -->
+            <div class="row mb-2">
+                <label for="authors" class="col-md-3 col-form-label"><fmt:message key='header.authors'/>: </label>
+                <div class="col-md-7">
+                    <div class="input-group mb-3">
+                            <input id="authorQuery" name="query" type="text" class="form-control"
+                                placeholder="<fmt:message key='placeholder.search.author'/>"
+                                aria-label="Search authors" aria-describedby="searchButton">
+                            <button onclick="findAuthor();" class="btn btn-outline-secondary" type="button" id="searchButton">
+                                <fmt:message key='header.search'/>
+                            </button>
+                    </div>
+                    <div>
+                        <ul id="searchResults" class="bg-white dropdown-menu">
+                        </ul>
+                    </div>
+                    <div id="selectedAuthors">
+                        <c:if test="${param.command eq 'book.edit'}">
+                            <c:forEach var="author" items="${proceedBook.authors}">
+                                <div class="form-check">
+                                    <c:set var="thisID" value="selectedAuthors${author.id}" />
+                                    <input type="checkbox" name="authorIDs" class="form-check-input"
+                                        id="${thisID}"
+                                        value="<c:out value='${author.id}' />"
+                                        checked
+                                    />
+                                    <label class="form-check-label" for="${thisID}">
+                                         <c:out value='${author.name}' />
+                                    </label>
+                                </div>
+                            </c:forEach>
+                        </c:if>
+                    </div>
+                </div>
+            </div>
             <div class="row mb-2 my-2">
                 <div class="col-sm container overflow-hidden">
                     <p class="text-danger">
@@ -125,4 +158,3 @@
 
 <jsp:include page="/html/footer.html"/>
 <c:set var="userError" scope="session" value="" />
-<c:set var="proceedBook" scope="session" value="" />

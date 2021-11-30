@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
@@ -238,23 +237,32 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     @Override
-    public List<Author> findByPattern(String what, String searchBy, String sortBy, int num, int page) throws ServiceException, DaoException {
+    public List<Author> findByPattern(String what, String searchBy, String sortBy, int num, int page)
+            throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
         validColumns.check(sortBy, SearchSortColumn.SORT);
 
-        final String query =
+        /*final String query =
                 "SELECT * FROM author AS a" +
                 "  JOIN author_name_i18n AS i18" +
                 "    ON i18.author_id = a.id" +
                 " WHERE i18.name LIKE ? " +
-                " ORDER BY i18.name LIMIT ? OFFSET ?";
+                " ORDER BY i18.name LIMIT ? OFFSET ?";*/
+        String query = patternQuery(false, false, true);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             BaseDao<Author> dao = new BaseDao<>(c, logger);
-            List<Author> list = dao.findByPattern(what, num, page, query, this::parse).stream()
-                                    .distinct()
-                                    .collect(Collectors.toList());
-            return resolveDependencies(c, list);
+            return resolveDependencies(c, dao.findByPattern(what, num, page, query, this::parse));
+        });
+    }
+
+
+    public List<Author> findByPattern(String what) throws DaoException {
+        String query = patternQuery(false, false, false);
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            return resolveDependencies(c, dao.findByPattern(what, query, this::parse));
         });
     }
 
@@ -262,19 +270,53 @@ public class AuthorDaoImpl implements AuthorDao {
     public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
-        final String query =
+        /*final String query =
+                "SELECT * FROM author AS a" +
+                        "  JOIN author_name_i18n AS i18" +
+                        "    ON i18.author_id = a.id" +
+                        " WHERE i18.name LIKE ? ";*/
+        final String query = patternQuery(true, false, false);
+        Transaction tr = new Transaction(conn);
+        return tr.noTransactionWrapper(c -> {
+            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            return dao.count(what, query);
+        });
+    }
+
+    @Override
+    public List<Author> findBy(String what, String searchBy) throws ServiceException, DaoException {
+        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+
+        /*final String query =
                 "SELECT * FROM author AS a" +
                         "  JOIN author_name_i18n AS i18" +
                         "    ON i18.author_id = a.id" +
                         " WHERE i18.name LIKE ? " +
-                        " ORDER BY i18.name";
+                        " ORDER BY i18.name"; */
+        final String query = patternQuery(false, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             BaseDao<Author> dao = new BaseDao<>(c, logger);
-            List<Author> list = dao.findByPattern(what, query, this::parse).stream()
-                    .distinct()
-                    .collect(Collectors.toList());
-            return list.size();
+            List<Author> authors = dao.findByString(what, query, this::parse);
+            return resolveDependencies(c, authors);
         });
+    }
+
+    private String patternQuery(boolean count, boolean exactSearch, boolean limit) {
+        final String what = count ? "COUNT(*)" : "*";
+        final String operator = exactSearch ? " = ?" : " LIKE ?";
+        String query = "SELECT " + what + " FROM author "
+                     + " WHERE id IN ("
+                                        + "SELECT a.id FROM author AS a"
+                                        + "  JOIN author_name_i18n AS i18"
+                                        + "    ON i18.author_id = a.id"
+                                        + " WHERE i18.name " + operator
+                                        + " ORDER BY i18.name"
+                     + ")";
+        if (limit) {
+            query += " LIMIT ? OFFSET ?";
+        }
+
+        return query;
     }
 }
