@@ -14,6 +14,7 @@
                     <th scope="col"><fmt:message key='header.role'/></th>
                     <th scope="col"><fmt:message key='header.state'/></th>
                     <th scope="col"><fmt:message key='header.name'/></th>
+                    <th scope="col"><fmt:message key='header.fine'/></th>
                     <th scope="col"><fmt:message key='header.edit'/></th>
                     <th scope="col"><fmt:message key='header.delete'/></th>
                 </thead>
@@ -25,6 +26,7 @@
                                 <td><c:out value="${user.role}"/></td>
                                 <td><c:out value="${user.state}"/></td>
                                 <td><c:out value="${user.name}"/></td>
+                                <td><c:out value="${user.fine}"/></td>
                                 <td><a class="btn btn-warning" href="/controller?command=user.edit&id=${user.id}">Edit</a></td>
                                 <td>
                                     <form action="/controller" method="post">
