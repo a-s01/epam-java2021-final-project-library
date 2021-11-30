@@ -30,13 +30,13 @@
   <!-- period of execution for specified tasks above -->
   <context-param>
     <param-name>com.epam.java2021.library.service.util.UpdateFineTask</param-name>
-    <!-- every hour,  -->
+    <!-- every hour, -->
     <param-value>3600000</param-value>
   </context-param>
   <context-param>
     <param-name>com.epam.java2021.library.service.util.BookingExpireTask</param-name>
-    <!-- every 1 day,  -->
-    <param-value>60000</param-value>
+    <!-- every hour,  -->
+    <param-value>3600000</param-value>
   </context-param>
   <context-param>
     <param-name>com.epam.java2021.library.service.util.BookingExpireTask.period</param-name>

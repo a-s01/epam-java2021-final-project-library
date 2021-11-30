@@ -17,7 +17,7 @@ import static com.epam.java2021.library.constant.Common.*;
 
 public class BookingExpireTask extends AppPeriodicTask {
     public static final Logger logger = LogManager.getLogger(BookingExpireTask.class);
-    static final String INIT_PARAM_PERIOD = UpdateFineTask.class.getName() + ".period";
+    static final String INIT_PARAM_PERIOD = BookingExpireTask.class.getName() + ".period";
 
     public final IDaoFactoryImpl daoFactory;
     private volatile int daysBeforeExpired = -1;

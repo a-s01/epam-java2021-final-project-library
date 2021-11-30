@@ -29,11 +29,15 @@ public class ContextListener implements ServletContextListener {
     private static final String INIT_PARAMETER_DEFAULT_LANG = "DEFAULT_LANG";
     private static final String DELIM = " ";
 
-
+    /**
+     * This should stop all scheduled task to shut down gracefully
+     * @param event
+     */
     @Override
     public void contextDestroyed(ServletContextEvent event) {
         logger.debug("Servlet context destruction init...");
-        // do nothing
+        TaskScheduler scheduler = TaskScheduler.getInstance();
+        scheduler.cancelAll();
         logger.debug("Servlet context destruction finished");
     }
 
