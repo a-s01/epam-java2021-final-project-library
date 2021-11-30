@@ -1,7 +1,6 @@
 <c:if test="${not empty pagesNum and pagesNum > 0}" >
 
 <div class="container pt-4">
-    <l:redirectIfEmpty value="${searchLink}" errorMsg="SearchLink isn't set" />
     <ul class="pagination justify-content-end">
         <li class="page-item  <c:if test='${param.page eq 1}'>disabled</c:if>">
             <a class="page-link"

@@ -2,12 +2,14 @@
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
+
 
 <c:set var="action" value="author.find" />
 <l:setList var="list" value="name" />
 
 <div class="container">
-    <%@ include file="/WEB-INF/jspf/search.jspf" %>
+    <t:searchBar searchParameters="${list}" action="${action}" />
     <div class="container pt-4">
         <c:if test="${not empty authors}">
             <table class="table table-hover">

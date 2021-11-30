@@ -20,11 +20,11 @@
     <body class="d-flex flex-column min-vh-100">
         <nav class="navbar navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand h1">Library</span>
+                <a class="navbar-brand h1 pl-4"><fmt:message key='header.brand' /></a>
                 <ul class="nav">
                     <c:if test="${not empty user and user.role eq 'USER' and user.fine > 0}">
                         <li class="nav-item">
-                            <div class="text-danger"><c:out value="${user.fine}"/></div>
+                            <a class="nav-link text-danger fw-bold"><fmt:message key='header.user.fine' />: <c:out value="${user.fine}"/></a>
                         </li>
                     </c:if>
                     <li class="nav-item">
@@ -56,7 +56,6 @@
                             </c:forEach>
                         </ul>
                     </li>
-                </li>
                     <c:if test="${empty user}">
                         <li class="nav-item">
                             <a class="nav-link active" href="/jsp/login.jsp"><fmt:message key="link.sign.in"/> | <fmt:message key="link.sign.up"/></a>

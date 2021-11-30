@@ -1,11 +1,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
+
 <c:set var="action" value="user.find" />
 <l:setList var="list" value="email name role state" />
 
 <div class="container">
-    <%@ include file="/WEB-INF/jspf/search.jspf" %>
+    <t:searchBar searchParameters="${list}" action="${action}" />
     <div class="container pt-4">
         <c:if test="${not empty users}">
             <table class="table table-hover">

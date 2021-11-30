@@ -7,7 +7,7 @@
 <l:setList var="list" value="email name state" />
 
 <div class="container">
-    <%@ include file="/WEB-INF/jspf/search.jspf" %>
+    <t:searchBar searchParameters="${list}" action="${action}" />
     <c:if test="${not empty bookings}">
         <div class="container">
             <div class="accordion pt-4" id="bookingAccordion">

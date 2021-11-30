@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 <%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -11,7 +12,7 @@
 <l:setList var="list" value="title author isbn year" />
 
 <div class="container">
-    <%@ include file="/WEB-INF/jspf/search.jspf" %>
+    <t:searchBar searchParameters="${list}" action="${action}" />
     <div class="alert alert-success col-sm-6" style="display: none;" role="alert" id="addedBookAlert">
       <fmt:message key='message.book.added'/>
     </div>
