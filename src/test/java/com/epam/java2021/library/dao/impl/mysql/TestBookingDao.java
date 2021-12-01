@@ -2,6 +2,7 @@ package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.entity.impl.Book;
+import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
@@ -53,7 +54,15 @@ public class TestBookingDao {
             List<Book> books = new ArrayList<>();
             Booking booking = createBooking();
 
-            books.add(new Book.Builder().setId(ID).build());
+            books.add(new Book.Builder()
+                    .setId(ID)
+                    .setTitle("test")
+                    .setYear(2005)
+                    .setIsbn("29302835")
+                    .setLangCode("en")
+                    .setModified(Calendar.getInstance())
+                    .setBookStat(new BookStat.Builder().setTotal(5).build())
+                    .build());
             booking.setBooks(books);
 
             dao.create(booking);
@@ -84,7 +93,11 @@ public class TestBookingDao {
 
     private Booking createBooking() {
         return new Booking.Builder()
-                .setUser(new User.Builder().setId(100).build())
+                .setUser(new User.Builder()
+                        .setId(100)
+                        .setModified(Calendar.getInstance())
+                        .setFineLastChecked(Calendar.getInstance())
+                        .build())
                 .setBooks(new ArrayList<>())
                 .setModified(Calendar.getInstance())
                 .build();
@@ -109,6 +122,8 @@ public class TestBookingDao {
                             .setLangCode("ru")
                             .setIsbn("978-5-699-46418-0")
                             .setYear(2010)
+                            .setModified(Calendar.getInstance())
+                            .setBookStat(new BookStat.Builder().setTotal(5).build())
                             .build()
             );
 

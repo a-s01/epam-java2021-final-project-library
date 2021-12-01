@@ -31,6 +31,7 @@ public class TestUpdateFineTask {
         daoFactory = mock(IDaoFactoryImpl.class);
         user = mock(User.class);
         booking = mock(Booking.class);
+
         Book book = mock(Book.class);
         BookingDao bookingDao = mock(BookingDao.class);
         UserDao userDao = mock(UserDao.class);
@@ -38,12 +39,19 @@ public class TestUpdateFineTask {
         List<Booking> bookings = new ArrayList<>();
         List<Book> books = new ArrayList<>();
 
+        Calendar twoDaysBefore = Calendar.getInstance();
+        twoDaysBefore.add(Calendar.DATE, -2);
+        when(booking.getModified()).thenReturn(twoDaysBefore);
+
         books.add(book);
         bookings.add(booking);
         users.add(user);
 
         when(user.getId()).thenReturn(id);
         when(user.getFine()).thenReturn(0.0);
+        when(user.getFineLastChecked()).thenReturn(twoDaysBefore);
+        when(user.getModified()).thenReturn(twoDaysBefore);
+
         when(book.getKeepPeriod()).thenReturn(1);
         when(booking.getBooks()).thenReturn(books);
         when(userDao.getAll()).thenReturn(users);
@@ -67,23 +75,32 @@ public class TestUpdateFineTask {
         when(context.getInitParameter(INIT_PARAM_FINE_PER_DAY)).thenReturn("1");
         task.init(context);
 
-        Calendar twoDaysBefore = Calendar.getInstance();
-        twoDaysBefore.add(Calendar.DATE, -2);
-        when(booking.getModified()).thenReturn(twoDaysBefore);
-
         task.run();
 
         verify(user).setFine(1.0);
     }
 
     @Test
-    public void testNotSetUpUserFine() throws ServiceException {
+    public void testNotSetUpUserFineOnNewBooking() throws ServiceException {
         UpdateFineTask task = new UpdateFineTask(daoFactory);
         ServletContext context = mock(ServletContext.class);
         when(context.getInitParameter(INIT_PARAM_FINE_PER_DAY)).thenReturn("1");
         task.init(context);
 
         when(booking.getModified()).thenReturn(Calendar.getInstance());
+        task.run();
+
+        verify(user, times(0)).setFine(1.0);
+    }
+
+    @Test
+    public void testNotSetUpUserFineMoreThanOneTimeADay() throws ServiceException {
+        UpdateFineTask task = new UpdateFineTask(daoFactory);
+        ServletContext context = mock(ServletContext.class);
+        when(context.getInitParameter(INIT_PARAM_FINE_PER_DAY)).thenReturn("1");
+        when(user.getFineLastChecked()).thenReturn(Calendar.getInstance());
+
+        task.init(context);
         task.run();
 
         verify(user, times(0)).setFine(1.0);

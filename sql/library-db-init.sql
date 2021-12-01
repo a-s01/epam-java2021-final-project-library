@@ -66,7 +66,8 @@ CREATE TABLE user (
 							REFERENCES lang (id)
 							ON DELETE RESTRICT
 							ON UPDATE CASCADE,
-    modified			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    modified			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	fine_last_checked	DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP
 )
 AUTO_INCREMENT = 100; -- reserved space for system user
 
@@ -138,7 +139,7 @@ CREATE TABLE book_stat (
 	total				INT UNSIGNED			NOT NULL,	-- how many books library has in total, including available and not available for booking
 						INDEX (total),
                         CONSTRAINT
-							CHECK (total > 0),
+							CHECK (total >= 0),
 	in_stock			INT UNSIGNED			NOT NULL	DEFAULT (total), 	-- how many book are in the library
 						CONSTRAINT
 							CHECK (in_stock <= total),

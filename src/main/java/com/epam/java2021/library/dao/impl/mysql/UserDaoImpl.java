@@ -31,7 +31,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE email = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             return dao.read(email, query, this::parse);
         });
     }
@@ -41,17 +41,17 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE state != 'DELETED'";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             return dao.getRecords(query, this::parse);
         });
     }
 
     @Override
     public void create(User user) throws DaoException {
-        final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        final String query = "INSERT INTO user VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             dao.create(user, query, this::fillStatement);
         });
     }
@@ -66,17 +66,22 @@ public class UserDaoImpl implements UserDao {
         ps.setDouble(i++, user.getFine());
         ps.setString(i++, user.getName());
 
-        if (user.getPreferredLang() != null) {
-            ps.setLong(i++, user.getPreferredLang().getId());
-        } else {
+        if (user.getPreferredLang() == null) {
             throw new SQLException("Preferred lang is null");
         }
+        ps.setLong(i++, user.getPreferredLang().getId());
 
-        if (user.getModified() != null) {
-            ps.setTimestamp(i++, new Timestamp(user.getModified().getTimeInMillis()));
-        } else {
+
+        if (user.getModified() == null) {
             throw new SQLException("Modified time is null");
         }
+        ps.setTimestamp(i++, new Timestamp(user.getModified().getTimeInMillis()));
+
+
+        if (user.getFineLastChecked() == null) {
+            throw new SQLException("fineLastChecked time is null");
+        }
+        ps.setTimestamp(i++, new Timestamp(user.getFineLastChecked().getTimeInMillis()));
 
         return i;
     }
@@ -86,7 +91,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE id = ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             return dao.read(id, query, this::parse);
         });
     }
@@ -103,11 +108,8 @@ public class UserDaoImpl implements UserDao {
         String dbState = rs.getString("state");
         builder.setState(User.State.valueOf(dbState));
         builder.setFine(rs.getDouble("fine"));
-
-        Timestamp sqlTimestamp = rs.getTimestamp("modified");
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(sqlTimestamp);
-        builder.setModified(cal);
+        builder.setFineLastChecked(getCalendar(rs, "fine_last_checked"));
+        builder.setModified(getCalendar(rs, "modified"));
 
         // get dependencies
         long langID = rs.getInt("preferred_lang_id");
@@ -117,13 +119,20 @@ public class UserDaoImpl implements UserDao {
         return builder.build();
     }
 
+    private Calendar getCalendar(ResultSet rs, String column) throws SQLException {
+        Timestamp sqlTimestamp = rs.getTimestamp(column);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sqlTimestamp);
+        return cal;
+    }
+
     @Override
     public void update(User user) throws DaoException {
         final String query = "UPDATE user SET email = ?, password = ?, salt = ?, role = ?, state = ?, " +
-                "fine = ?, name = ?, preferred_lang_id = ?, modified = ? WHERE id = ?";
+                "fine = ?, name = ?, preferred_lang_id = ?, modified = ?, fine_last_checked = ? WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             dao.update(user, query,
                     (entity, ps) -> {
                         int nextIndex = fillStatement(entity, ps);
@@ -139,7 +148,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "UPDATE user SET state = 'deleted' WHERE id = ?";
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             dao.delete(id, query);
         });
     }
@@ -154,7 +163,7 @@ public class UserDaoImpl implements UserDao {
         final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             return dao.findByPattern(what, num, page, query, this::parse);
         });
     }
@@ -167,7 +176,7 @@ public class UserDaoImpl implements UserDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-           BaseDao<User> dao = new BaseDao<>(c, logger);
+           BaseDao<User> dao = new BaseDao<>(c);
            return dao.count(what, query);
         });
     }
@@ -181,7 +190,7 @@ public class UserDaoImpl implements UserDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<User> dao = new BaseDao<>(c, logger);
+            BaseDao<User> dao = new BaseDao<>(c);
             return dao.findByPattern(what, query, this::parse);
         });
     }

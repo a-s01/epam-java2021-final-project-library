@@ -43,6 +43,7 @@ public class TestUserDaoImpl {
         builder.setSalt(salt);
         builder.setPreferredLang(new Lang.Builder().setCode("en").setId(1).build());
         builder.setModified(Calendar.getInstance());
+        builder.setFineLastChecked(Calendar.getInstance());
         newUser = builder.build();
 
         builder.setEmail(existingEmail);

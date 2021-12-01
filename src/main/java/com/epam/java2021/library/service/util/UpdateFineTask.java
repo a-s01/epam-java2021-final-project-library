@@ -70,20 +70,23 @@ public class UpdateFineTask extends AppPeriodicTask {
             return;
         }
 
+        Calendar fineLastChecked = user.getFineLastChecked();
         for (Booking booking: bookings) {
             logger.trace("check booking={}", booking);
 
-            Calendar lastModified = booking.getModified();
+            Calendar lastModified =
+                    booking.getModified().after(fineLastChecked) ? booking.getModified() : fineLastChecked;
             long pastDays = ChronoUnit.DAYS.between(lastModified.toInstant(), now.toInstant());
-            logger.trace("booking {}: {} days past", booking.getId(), pastDays);
+            logger.trace("booking {}: {} unchecked days past", booking.getId(), pastDays);
 
             for (Book book : booking.getBooks()) {
                 logger.trace("check book={}", book);
                 long keepPeriod = booking.getLocated() == Booking.Place.USER ? book.getKeepPeriod() : 1;
-                long diff = pastDays - keepPeriod;
+                long fineDays = pastDays - keepPeriod;
 
-                if (diff > 0) {
-                    double fine = diff * finePerDay;
+                if (fineDays > 0) {
+                    logger.trace("fineDays={}", fineDays);
+                    double fine = fineDays * finePerDay;
                     user.setFine(user.getFine() + fine);
                     logger.trace("keep period exceed, user fine increased on {}", fine);
                 }
@@ -91,12 +94,12 @@ public class UpdateFineTask extends AppPeriodicTask {
         }
 
         if (user.getFine() != oldFine) {
+            user.setModified(now);
+            user.setFineLastChecked(now);
             try {
                 userDao.update(user);
             } catch (DaoException e) {
                 logger.error(e.getMessage());
-            } catch (ServiceException e) {
-                logger.error("Error in your request: {}", e.getMessage());
             }
         }
     }

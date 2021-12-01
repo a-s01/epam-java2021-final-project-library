@@ -7,7 +7,8 @@
 <fmt:setLocale value="${lang.code}" />
 <fmt:setBundle basename="i18n" />
 
-<div class="container">
+<div class="container pt-4">
+    <h2><fmt:message key='header.books.in.subscription'/></h2>
     <c:if test="${not empty bookings}">
         <div class="card">
             <div class="card-header">

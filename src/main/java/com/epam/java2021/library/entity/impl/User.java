@@ -15,6 +15,7 @@ public class User extends ModifiableEntity {
     private double fine;
     private String name;
     private Lang preferredLang;
+    private Calendar fineLastChecked;
 
     public enum Role {
         UNKNOWN, USER, LIBRARIAN, ADMIN
@@ -37,6 +38,7 @@ public class User extends ModifiableEntity {
         private double fine;
         private String name;
         private Lang preferredLang;
+        private Calendar fineLastChecked;
 
         public Builder setId(long id) {
             this.id = id;
@@ -90,8 +92,14 @@ public class User extends ModifiableEntity {
             return this;
         }
 
-        public void setPreferredLang(Lang preferredLang) {
+        public Builder setPreferredLang(Lang preferredLang) {
             this.preferredLang = preferredLang;
+            return this;
+        }
+
+        public Builder setFineLastChecked(Calendar fineLastChecked) {
+            this.fineLastChecked = fineLastChecked;
+            return this;
         }
 
         public User build() {
@@ -103,12 +111,13 @@ public class User extends ModifiableEntity {
             if (state == null) {
                 state = State.VALID;
             }
-            return new User(id, modified, email, password, salt, role, state, fine, name, preferredLang);
+            return new User(id, modified, email, password, salt, role, state, fine, name, preferredLang, fineLastChecked);
         }
     }
 
     public User(long id, Calendar modified, String email,
-                String password, String salt, Role role, State state, double fine, String name, Lang preferredLang) {
+                String password, String salt, Role role, State state, double fine,
+                String name, Lang preferredLang, Calendar fineLastChecked) {
         super(id, modified);
         this.email = email;
         this.password = password;
@@ -118,6 +127,7 @@ public class User extends ModifiableEntity {
         this.fine = fine;
         this.name = name;
         this.preferredLang = preferredLang;
+        this.fineLastChecked = fineLastChecked;
     }
 
     public String getEmail() {
@@ -184,6 +194,14 @@ public class User extends ModifiableEntity {
         this.preferredLang = preferredLang;
     }
 
+    public Calendar getFineLastChecked() {
+        return fineLastChecked;
+    }
+
+    public void setFineLastChecked(Calendar fineLastChecked) {
+        this.fineLastChecked = fineLastChecked;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -210,6 +228,7 @@ public class User extends ModifiableEntity {
                 ", fine=" + fine +
                 ", name='" + name + '\'' +
                 ", preferredLang=" + preferredLang +
+                ", fineLastChecked=" + ModifiableEntity.format(fineLastChecked) +
                 '}';
     }
 }

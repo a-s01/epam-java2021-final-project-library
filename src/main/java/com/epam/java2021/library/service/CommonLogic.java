@@ -6,20 +6,26 @@ import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.util.SafeRequest;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class CommonLogic {
-
+    private static final Logger logger = LogManager.getLogger(CommonLogic.class);
     private CommonLogic() {}
 
-    public static <E extends Entity> String find(HttpSession session, HttpServletRequest req, Logger logger, AbstractSuperDao<E> dao, String reqAttribute, String desiredPage) throws ServiceException {
+    public static <E extends Entity> String find(HttpSession session,
+                                                 HttpServletRequest req,
+                                                 AbstractSuperDao<E> dao,
+                                                 String reqAttribute,
+                                                 String searchLinkAttribute,
+                                                 String desiredPage) throws ServiceException {
+
         SafeRequest safeReq = new SafeRequest(req);
         String query = safeReq.get("query").escape().convert();
         String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
@@ -67,11 +73,9 @@ public class CommonLogic {
         }
 
         req.setAttribute(reqAttribute, list);
-        session.setAttribute(ATTR_SEARCH_LINK, req.getRequestURI()
+        session.setAttribute(searchLinkAttribute + ATTR_SEARCH_LINK, req.getRequestURI()
                 + '?' + req.getQueryString().replace("&page=" + pageNum, ""));
         logger.debug("end");
         return page;
     }
-
-
 }

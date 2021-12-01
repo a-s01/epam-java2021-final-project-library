@@ -21,7 +21,10 @@ public class PrintCalendar extends TagSupport {
     }
 
     public void setCalendar(Calendar calendar) {
-        this.calendar = calendar;
+        if (calendar != null) {
+            this.calendar = Calendar.getInstance();
+            this.calendar.setTime(calendar.getTime());
+        }
     }
 
     public void setAddDays(int addDays) {
@@ -34,14 +37,16 @@ public class PrintCalendar extends TagSupport {
 
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         JspWriter out = pageContext.getOut();
-        if (addDays > 0) {
-            calendar.add(Calendar.DATE, addDays);
-        }
-        try {
-            out.print(sdf.format(calendar.getTime()));
-        } catch(Exception e) {
-            logger.error(e.getMessage());
+        if (calendar != null) {
+            if (addDays > 0) {
+                calendar.add(Calendar.DATE, addDays);
+            }
+            try {
+                out.print(sdf.format(calendar.getTime()));
+            } catch (Exception e) {
+                logger.error(e.getMessage());
 
+            }
         }
 
         return SKIP_BODY;

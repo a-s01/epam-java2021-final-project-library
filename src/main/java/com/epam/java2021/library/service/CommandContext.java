@@ -24,7 +24,6 @@ public class CommandContext {
         commands.put("booking.removeBook", new AuthContext(BookingLogic::removeBook, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.listBooksInSubscription", new AuthContext(BookingLogic::listBookInSubscription, User.Role.USER));
         commands.put("booking.find", new AuthContext(BookingLogic::find, User.Role.USER, User.Role.LIBRARIAN));
-        commands.put("booking.basket", new AuthContext(BookingLogic::basket, User.Role.USER));
         commands.put("booking.book", new AuthContext(BookingLogic::book, User.Role.USER, User.Role.LIBRARIAN));
         commands.put("booking.deliver", new AuthContext(BookingLogic::deliver, User.Role.LIBRARIAN));
         commands.put("booking.cancel", new AuthContext(BookingLogic::cancel, User.Role.USER, User.Role.LIBRARIAN));
@@ -36,6 +35,7 @@ public class CommandContext {
         commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.ADMIN));
         commands.put("user.delete", new AuthContext(UserLogic::delete, User.Role.ADMIN));
         commands.put("user.setLang", new AuthContext(UserLogic::setLang, User.Role.UNKNOWN));
+        commands.put("user.basket", new AuthContext(BookingLogic::basket, User.Role.USER));
         commands.put("author.add", new AuthContext(AuthorLogic::add, User.Role.ADMIN));
         commands.put("author.edit", new AuthContext(AuthorLogic::edit, User.Role.ADMIN));
         commands.put("author.delete", new AuthContext(AuthorLogic::delete, User.Role.ADMIN));
@@ -97,7 +97,7 @@ public class CommandContext {
 
     private static void checkCommandString(String s) throws ServiceException {
         if (s == null || commands.get(s) == null) {
-            throw new ServiceException("Illegal command request");
+            throw new ServiceException("error.illegal.command");
         }
     }
 }

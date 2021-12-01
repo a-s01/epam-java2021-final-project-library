@@ -66,7 +66,8 @@ CREATE TABLE user (
 							REFERENCES lang (id)
 							ON DELETE RESTRICT
 							ON UPDATE CASCADE,
-    modified			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    modified			DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fine_last_checked	DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP
 )
 AUTO_INCREMENT = 100; -- reserved space for system user
 
@@ -138,7 +139,7 @@ CREATE TABLE book_stat (
 	total				INT UNSIGNED			NOT NULL,	-- how many books library has in total, including available and not available for booking
 						INDEX (total),
                         CONSTRAINT
-							CHECK (total > 0),
+							CHECK (total >= 0),
 	in_stock			INT UNSIGNED			NOT NULL	DEFAULT (total), 	-- how many book are in the library
 						CONSTRAINT
 							CHECK (in_stock <= total),
@@ -209,13 +210,13 @@ INSERT INTO lang VALUES (2, 'ru');
 
 -- user --
 INSERT INTO user VALUES (1, 'admin@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', 1, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (2, 'librarian@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (3, 'user@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (100, 'test@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT, DEFAULT);
 
 -- existing book --
 INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);

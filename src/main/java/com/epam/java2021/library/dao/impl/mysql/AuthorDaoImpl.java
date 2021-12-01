@@ -29,7 +29,7 @@ public class AuthorDaoImpl implements AuthorDao {
         private final LangDaoImpl langDao;
 
         public I18AuthorNameDaoImpl(Connection conn) {
-            this.dao = new BaseDao<>(conn, logger);
+            this.dao = new BaseDao<>(conn);
             this.langDao = new LangDaoImpl(conn);
         }
 
@@ -106,7 +106,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             dao.create(author, query, this::statementFiller);
 
             I18AuthorNameDaoImpl i18Dao = new I18AuthorNameDaoImpl(c);
@@ -128,12 +128,12 @@ public class AuthorDaoImpl implements AuthorDao {
     }
 
     @Override
-    public Author read(long id) throws DaoException, ServiceException {
+    public Author read(long id) throws DaoException {
         final String query = "SELECT * FROM author WHERE id = ?";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             List<Author> author = resolveDependencies(c, Collections.singletonList(dao.read(id, query, this::parse)));
 
             return author.get(0);
@@ -146,7 +146,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             Author author = dao.read(name, query, this::parse);
             if (author == null) {
                 return null;
@@ -180,7 +180,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper( c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             dao.update(author, query, (a, ps) -> {
                         int i = statementFiller(a, ps);
                         ps.setLong(i++, a.getId());
@@ -198,7 +198,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         tr.transactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             dao.delete(id, query); // i18n on delete cascade
         });
     }
@@ -214,7 +214,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
 
             return resolveDependencies(c, dao.findById(id, query, this::parse));
         });
@@ -251,7 +251,7 @@ public class AuthorDaoImpl implements AuthorDao {
         String query = patternQuery(false, false, true);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             return resolveDependencies(c, dao.findByPattern(what, num, page, query, this::parse));
         });
     }
@@ -261,7 +261,7 @@ public class AuthorDaoImpl implements AuthorDao {
         String query = patternQuery(false, false, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             return resolveDependencies(c, dao.findByPattern(what, query, this::parse));
         });
     }
@@ -278,7 +278,7 @@ public class AuthorDaoImpl implements AuthorDao {
         final String query = patternQuery(true, false, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             return dao.count(what, query);
         });
     }
@@ -296,7 +296,7 @@ public class AuthorDaoImpl implements AuthorDao {
         final String query = patternQuery(false, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Author> dao = new BaseDao<>(c, logger);
+            BaseDao<Author> dao = new BaseDao<>(c);
             List<Author> authors = dao.findByString(what, query, this::parse);
             return resolveDependencies(c, authors);
         });

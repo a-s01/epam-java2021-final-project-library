@@ -10,6 +10,7 @@
 
 <c:set var="action" value="book.find" />
 <l:setList var="list" value="title author isbn year" />
+<c:set var="searchLink" value="${bookSearchLink}" />
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />
@@ -25,6 +26,7 @@
                     <th scope="col"><fmt:message key='header.isbn'/></th>
                     <th scope="col"><fmt:message key='header.year'/></th>
                     <c:if test="${not empty user and user.role eq 'USER'}">
+                        <th scope="col"><fmt:message key='header.in.stock'/></th>
                         <th scope="col"><fmt:message key='header.action'/></th>
                     </c:if>
                     <c:if test="${not empty user and user.role eq 'ADMIN'}">
@@ -48,19 +50,22 @@
                             <td><c:out value="${book.isbn}"/></td>
                             <td><c:out value="${book.year}"/></td>
                             <c:if test="${not empty user and user.role eq 'USER'}">
+                                <c:set var="availableAmount" value="${book.bookStat.inStock - book.bookStat.reserved}"/>
+                                <td><c:out value="${availableAmount}"/></td>
                                 <td>
+                                    <c:set var="bookActionState" value="false" />
                                     <c:if test="${not empty booking and booking.books.contains(book)}">
-                                        <c:set var="bookActionState" value="disabled" />
+                                        <c:set var="bookActionState" value="true" />
                                     </c:if>
-                                    <c:if test="${not empty booking and not booking.books.contains(book)}">
-
+                                    <c:if test="${availableAmount <= 0}">
+                                        <c:set var="bookActionState" value="true" />
                                     </c:if>
                                     <button onclick="addBook(${book.id})" class="btn btn-primary" id="<c:out value='${book.id}' />"
-                                        <c:if test="${not empty booking and booking.books.contains(book)}">
+                                        <c:if test="${bookActionState}">
                                             disabled
                                         </c:if>
                                     >
-                                        Book
+                                        <fmt:message key="header.book" />
                                     </button>
                                 </td>
                             </c:if>
@@ -72,13 +77,13 @@
                                 <td scope="col"><c:out value="${book.bookStat.timesWasBooked}" /></td>
                                 <td>
                                     <div class="container">
-                                        <div class="row justify-content-end">
-                                            <div class="col">
+                                        <div class="row justify-content-start">
+                                            <div class="col-auto">
                                                 <a class="btn btn-warning" href="/controller?command=book.edit&id=${book.id}">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                             </div>
-                                            <div class="col">
+                                            <div class="col-auto">
                                                 <form action="/controller" method="post">
                                                     <input type="hidden" name="command" value="book.delete">
                                                     <input type="hidden" name="id" value="${book.id}">

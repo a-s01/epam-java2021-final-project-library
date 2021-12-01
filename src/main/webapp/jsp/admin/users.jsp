@@ -5,18 +5,19 @@
 
 <c:set var="action" value="user.find" />
 <l:setList var="list" value="email name role state" />
+<c:set var="searchLink" value="${userSearchLink}" />
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />
     <div class="container pt-4">
         <c:if test="${not empty users}">
             <table class="table table-hover">
-                <thead>
+                <thead class="bg-secondary bg-gradient text-white">
                     <th scope="col"><fmt:message key='header.email'/></th>
                     <th scope="col"><fmt:message key='header.role'/></th>
                     <th scope="col"><fmt:message key='header.state'/></th>
                     <th scope="col"><fmt:message key='header.name'/></th>
-                    <th scope="col"><fmt:message key='header.fine'/></th>
+                    <th scope="col"><fmt:message key='header.user.fine'/></th>
                     <th scope="col"><fmt:message key='header.edit'/></th>
                     <th scope="col"><fmt:message key='header.delete'/></th>
                 </thead>

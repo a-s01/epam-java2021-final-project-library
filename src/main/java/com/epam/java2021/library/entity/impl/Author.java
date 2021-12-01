@@ -2,8 +2,10 @@ package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Author extends ModifiableEntity {

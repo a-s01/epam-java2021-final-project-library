@@ -4,7 +4,6 @@ import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
 import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
-import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.entity.impl.Lang;
@@ -39,7 +38,7 @@ public class AuthorLogic {
         logger.trace("primaryLang={}", primaryLang);
         List<Lang> supported = (List<Lang>) req.getServletContext().getAttribute(SUPPORTED_LANGUAGES);
         if (supported == null) {
-            throw new ServiceException("Cannot obtain supported by app languages");
+            throw new ServiceException("error.supported.langs.not.found");
         }
 
         Author.Builder builder = new Author.Builder();
@@ -119,7 +118,7 @@ public class AuthorLogic {
         } catch (ServiceException e) {
             logger.debug("id is not in the request, proceed with author editing");
         } catch (DaoException e) {
-            throw new ServiceException("Cannot get author by id" + e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
 
         Author params = null;
@@ -158,7 +157,7 @@ public class AuthorLogic {
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
 
-        return CommonLogic.find(session, req, logger, daoFactory.getAuthorDao(), ATTR_AUTHORS, Pages.AUTHORS);
+        return CommonLogic.find(session, req, daoFactory.getAuthorDao(), ATTR_AUTHORS, "author", Pages.AUTHORS);
     }
 
     public static String findAll(HttpSession session, HttpServletRequest req) throws ServiceException {
@@ -169,7 +168,7 @@ public class AuthorLogic {
         String searchBy = safeReq.get("searchBy").notEmpty().escape().convert().toLowerCase();
 
         logger.trace("query={}, searchBy={}", query, searchBy);
-        List<Author> list = null;
+        List<Author> list;
         try {
             list = daoFactory.getAuthorDao().findByPattern(query);
         } catch (DaoException e) {
@@ -188,13 +187,5 @@ public class AuthorLogic {
             page = Pages.AUTHORS;
         }
         return page;
-    }
-
-    public static String add2book(HttpSession session, HttpServletRequest req) {
-        return Pages.BOOK_AUTHOR_EDIT;
-    }
-
-    public static String delFromBook(HttpSession session, HttpServletRequest req) {
-        return Pages.BOOK_AUTHOR_EDIT;
     }
 }

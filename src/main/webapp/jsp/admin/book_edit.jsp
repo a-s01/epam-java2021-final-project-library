@@ -58,17 +58,12 @@
             <div class="row mb-2">
                 <label for="year" class="col-md-3 col-form-label"><fmt:message key='header.year'/>: </label>
                 <div class="col-md-7">
-                    <input name="year" type="range" id="year" min=1900 max="${thisYear}"
-                        class="form-range"
+                    <input name="year" type="number" id="year" min=1900 max="${thisYear}"
+                        class="form-control"
                         <c:if test="${param.command eq 'book.edit'}">
                             value="<c:out value='${proceedBook.year}' />"
                         </c:if>
-                        oninput="this.nextElementSibling.value = this.value" required>
-                    <output>
-                        <c:if test="${param.command eq 'book.edit'}">
-                            <c:out value='${proceedBook.year}' />
-                        </c:if>
-                    </output>
+                        required>
                 </div>
             </div>
             <div class="row mb-2">
@@ -84,17 +79,12 @@
             <div class="row mb-2">
                 <label for="keepPeriod" class="col-md-3 col-form-label"><fmt:message key='header.keep.period'/>: </label>
                 <div class="col-md-7">
-                    <input name="keepPeriod" type="range" min="1" max="60" step="1" id="keepPeriod"
-                        class="form-range"
+                    <input name="keepPeriod" type="number" min="1" max="60" step="1" id="keepPeriod"
+                        class="form-control"
                         <c:if test="${param.command eq 'book.edit'}">
                             value="<c:out value='${proceedBook.keepPeriod}' />"
                         </c:if>
-                        oninput="this.nextElementSibling.value = this.value" required>
-                    <output>
-                        <c:if test="${param.command eq 'book.edit'}">
-                            <c:out value='${proceedBook.keepPeriod}' />
-                        </c:if>
-                    </output>
+                        required>
                 </div>
             </div>
             <div class="row mb-2">
@@ -113,7 +103,9 @@
                     <div class="input-group mb-3">
                             <input id="authorQuery" name="query" type="text" class="form-control"
                                 placeholder="<fmt:message key='placeholder.search.author'/>"
-                                aria-label="Search authors" aria-describedby="searchButton">
+                                aria-label="Search authors" aria-describedby="searchButton"
+                                onclick="document.getElementById('searchResults').classList.remove('show');"
+                            >
                             <button onclick="findAuthor();" class="btn btn-outline-secondary" type="button" id="searchButton">
                                 <fmt:message key='header.search'/>
                             </button>

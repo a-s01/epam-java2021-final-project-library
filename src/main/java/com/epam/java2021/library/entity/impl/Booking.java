@@ -1,6 +1,7 @@
 package com.epam.java2021.library.entity.impl;
 
 import com.epam.java2021.library.entity.ModifiableEntity;
+import com.epam.java2021.library.exception.ServiceException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -116,6 +117,25 @@ public class Booking extends ModifiableEntity {
 
     public void setBooks(List<Book> books) {
         this.books = books;
+    }
+
+    public void addBook(Book book) throws ServiceException {
+        BookStat bookStat = book.getBookStat();
+
+        if ((bookStat.getInStock() - bookStat.getReserved()) <= 0) {
+            throw new ServiceException("error.no.free.books.to.reserve");
+        }
+
+        bookStat.setReserved(bookStat.getReserved() + 1);
+        bookStat.setTimesWasBooked(bookStat.getTimesWasBooked() + 1);
+        books.add(book);
+    }
+
+    public void removeBook(Book book) {
+        BookStat bookStat = book.getBookStat();
+
+        bookStat.setReserved(bookStat.getReserved() - 1);
+        books.remove(book);
     }
 
     @Override

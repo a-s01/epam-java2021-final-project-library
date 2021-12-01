@@ -4,13 +4,13 @@ USE `library-app`;
 
 -- user --
 INSERT INTO user VALUES (1, 'admin@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'admin', DEFAULT, DEFAULT, 'admin', 1, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (2, 'librarian@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'librarian', DEFAULT, DEFAULT, 'librarian', 1, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (3, 'user@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', 'user', DEFAULT, DEFAULT, 'користувач', 2, DEFAULT, DEFAULT);
 INSERT INTO user VALUES (DEFAULT, 'test@gmail.com', '���
-(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT);
+(�"�M��έ�����=�_��Z~�vk��ߪ�aX��c���_��%;[��+�/�', 'ҽ˲�<K���~�7P&đv[', DEFAULT, DEFAULT, DEFAULT, 'user test', 1, DEFAULT, DEFAULT);
 
 -- BOOK & BOOK_STAT --
 INSERT INTO book VALUES (1, 'Гарри Поттер. Полное собрание (комплект из 7 книг) (сборник)', '978-5-389-10668-0', '2016', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
@@ -18,7 +18,7 @@ INSERT INTO book_stat VALUES (1, 20, DEFAULT, DEFAULT, DEFAULT);
 INSERT INTO book VALUES (2, 'Зеленая миля', '978-5-17-118362-2', '2020', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
 INSERT INTO book_stat VALUES (2, 20, DEFAULT, DEFAULT, DEFAULT);
 INSERT INTO book VALUES (3, 'Унесенные ветром', '978-5-389-17583-9', '2020', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
-INSERT INTO book_stat VALUES (3, 20, DEFAULT, DEFAULT, DEFAULT);
+INSERT INTO book_stat VALUES (3, 0, DEFAULT, DEFAULT, DEFAULT);
 INSERT INTO book VALUES (4, 'Полное собрание произведений о Шерлоке Холмсе в одном томе (сборник)', '978-5-93556-958-7', '2015', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);
 INSERT INTO book_stat VALUES (4, 20, DEFAULT, DEFAULT, DEFAULT);
 INSERT INTO book VALUES (5, 'Прислуга', '978-5-86471-732-5', '2016', 'ru', @DEFAULT_KEEP_PERIOD, DEFAULT);

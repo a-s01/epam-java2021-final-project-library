@@ -87,6 +87,7 @@ public class UserLogic {
         }
 
         user.setModified(Calendar.getInstance());
+        user.setFineLastChecked(Calendar.getInstance());
 
         UserDao dao = daoFactory.getUserDao();
         try {
@@ -173,16 +174,13 @@ public class UserLogic {
         String name = safeReq.get("name").escape().convert();
         String comment = safeReq.get("comment").escape().convert();
 
-        logger.debug("1");
         SafeSession safeSession = new SafeSession(session);
         long editBy = -1;
         Lang preferredLang;
         User currentUser = safeSession.get(USER).convert(User.class::cast);
-        logger.debug("2");
 
         if (currentUser != null) {
             editBy = currentUser.getId();
-            logger.debug("3");
 
             preferredLang = (Lang) req.getServletContext().getAttribute(DEFAULT_LANG);
             if (preferredLang == null) {
@@ -199,9 +197,9 @@ public class UserLogic {
         uBuilder.setEmail(email);
         if (!role.equals("")) {
             try {
-                uBuilder.setRole(role);
+                uBuilder.setRole(role.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new ServiceException("No such user role: " + role);
+                throw new ServiceException("error.wrong.user.role");
             }
         }
         uBuilder.setName(name);
@@ -318,7 +316,7 @@ public class UserLogic {
 
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        return CommonLogic.find(session, req, logger, daoFactory.getUserDao(), ATTR_USERS, Pages.USERS);
+        return CommonLogic.find(session, req, daoFactory.getUserDao(), ATTR_USERS, "user", Pages.USERS);
     }
 
     public static String setLang(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {

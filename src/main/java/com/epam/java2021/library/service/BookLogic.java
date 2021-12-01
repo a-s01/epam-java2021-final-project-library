@@ -36,7 +36,7 @@ public class BookLogic {
     public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
         logger.debug("start");
         BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(session, req, logger, dao, ATTR_BOOKS, Pages.HOME);
+        return CommonLogic.find(session, req, dao, ATTR_BOOKS, "book", Pages.HOME);
     }
 
     private static Book getValidParams(HttpServletRequest req) throws ServiceException, DaoException {

@@ -28,7 +28,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Lang> dao = new BaseDao<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c);
             return dao.getRecords(query, this::parse);
         });
     }
@@ -46,7 +46,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Lang> dao = new BaseDao<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c);
             return dao.read(id, query, this::parse);
         });
     }
@@ -57,7 +57,7 @@ public class LangDaoImpl implements LangDao {
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
-            BaseDao<Lang> dao = new BaseDao<>(c, logger);
+            BaseDao<Lang> dao = new BaseDao<>(c);
             return dao.read(code, query, this::parse);
         });
     }

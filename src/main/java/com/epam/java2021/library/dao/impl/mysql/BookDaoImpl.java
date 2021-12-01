@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.epam.java2021.library.constant.Common.END_MSG;
+import static com.epam.java2021.library.constant.Common.START_MSG;
 
 public class BookDaoImpl implements BookDao {
     private static final Logger logger = LogManager.getLogger(BookDaoImpl.class);
@@ -31,11 +33,12 @@ public class BookDaoImpl implements BookDao {
         private final BaseDao<Book> dao;
 
         public BookDaoLowLevel(Connection conn) {
-            dao = new BaseDao<>(conn, logger);
+            dao = new BaseDao<>(conn);
         }
 
         @Override
         public void create(Book book) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "INSERT INTO book VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
 
             dao.create(book, query, this::fillStatement);
@@ -46,6 +49,7 @@ public class BookDaoImpl implements BookDao {
 
         @Override
         public Book read(long id) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "SELECT * FROM book WHERE id = ?";
 
             return dao.read(id, query, this::parse);
@@ -53,6 +57,7 @@ public class BookDaoImpl implements BookDao {
 
         @Override
         public void update(Book book) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "UPDATE book SET title = ?, isbn = ?, year = ?, " +
                     "lang_code = ?, keep_period = ?, modified = ? WHERE id = ?";
 
@@ -67,6 +72,7 @@ public class BookDaoImpl implements BookDao {
 
         @Override
         public void delete(long id) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "DELETE FROM book WHERE id = ?";
 
             dao.delete(id, query);
@@ -105,17 +111,22 @@ public class BookDaoImpl implements BookDao {
             return i;
         }
 
-        public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page) throws DaoException {
+        public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page)
+                throws DaoException {
+            logger.debug(START_MSG);
             final String query = patternQuery(searchBy, sortBy, false, false);
             return dao.findByPattern(pattern, num, page, query, this::parse);
         }
 
         public List<Book> findBy(String pattern, String searchBy) throws DaoException {
+            logger.debug(START_MSG);
             final String query = patternQuery(searchBy, null, false, true);
             return dao.findByString(pattern, query, this::parse);
         }
 
         private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) {
+            logger.debug(START_MSG);
+
             final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
             final String what = count ? "COUNT(*)" : "*";
             final String operator = exactSearch ? " = ?" : " LIKE ?";
@@ -136,16 +147,20 @@ public class BookDaoImpl implements BookDao {
                 query = query + ")";
             }
 
+            logger.debug(END_MSG);
             return query;
         }
 
         public int findByPatternCount(String pattern, String searchBy)
                 throws DaoException {
+            logger.debug(START_MSG);
+
             final String query = patternQuery(searchBy, null, true, false);
             return dao.count(pattern, query);
         }
 
         public List<Book> getBooksInBooking(long id) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "SELECT * FROM book_in_booking WHERE booking_id = ?";
 
             List<Book> bookGerms = dao.findById(id, query, (c, rs) -> {
@@ -159,19 +174,26 @@ public class BookDaoImpl implements BookDao {
                 Book book = read(g.getId());
                 books.add(book);
             }
+            logger.debug(END_MSG);
+            logger.trace("books={}", books);
             return books;
         }
 
         public void deleteBound(Book book, Author author) throws DaoException {
+            logger.debug(START_MSG);
             final String boundQuery = "DELETE FROM book_author WHERE book_id = ? and author_id = ?";
 
             dao.updateBound(book.getId(), author.getId(), boundQuery);
+            logger.debug(END_MSG);
         }
 
         public void createBound(Book book, Author author) throws DaoException {
+            logger.debug(START_MSG);
+
             final String boundQuery = "INSERT INTO book_author VALUES (?, ?)";
 
             dao.updateBound(book.getId(), author.getId(), boundQuery);
+            logger.debug(END_MSG);
         }
     }
     private static class BookStatDao {
@@ -179,10 +201,11 @@ public class BookDaoImpl implements BookDao {
         private final BaseDao<BookStat> dao;
 
         public BookStatDao(Connection conn) {
-            dao = new BaseDao<>(conn, logger);
+            dao = new BaseDao<>(conn);
         }
 
         public void create(BookStat bookStat) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "INSERT INTO book_stat (total, book_id) VALUES (?, ?)";
 
             dao.createBound(bookStat.getId(), bookStat, query, this::createFiller);
@@ -195,6 +218,7 @@ public class BookDaoImpl implements BookDao {
         }
 
         public BookStat read(long id) throws DaoException {
+            logger.debug(START_MSG);
             final String query = "SELECT * FROM book_stat WHERE book_id = ?";
 
             return dao.read(id, query, this::parse);
@@ -211,9 +235,17 @@ public class BookDaoImpl implements BookDao {
         }
 
         public void update(BookStat entity) throws DaoException {
-            final String query = "UPDATE book_stat SET total = ?, in_stock = ?, reserved = ?, times_was_booked = ?";
+            logger.debug(START_MSG);
 
-            dao.update(entity, query, this::updateFiller);
+            final String query = "UPDATE book_stat SET total = ?, in_stock = ?, reserved = ?, times_was_booked = ? " +
+                    "WHERE book_id = ?";
+
+            dao.update(entity, query, (bookStat, ps) -> {
+                        int i = updateFiller(bookStat, ps);
+                        ps.setLong(i++, bookStat.getId());
+                        return i;
+                    }
+            );
         }
 
         private int updateFiller(BookStat bookStat, PreparedStatement ps) throws SQLException {
@@ -236,6 +268,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public void create(Book book) throws DaoException {
+        logger.debug(START_MSG);
         logger.trace("Create request: book={}", book);
 
         Transaction tr = new Transaction(conn);
@@ -257,6 +290,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public Book read(long id) throws DaoException {
+        logger.debug(START_MSG);
         logger.trace("Read request: id={}", id);
 
         Transaction tr = new Transaction(conn);
@@ -274,6 +308,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public void update(Book book) throws DaoException {
+        logger.debug(START_MSG);
         logger.trace("Update request: book={}", book);
 
         Transaction tr = new Transaction(conn);
@@ -299,6 +334,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public void delete(long id) throws DaoException {
+        logger.debug(START_MSG);
         logger.trace("Delete request: id={}", id);
 
         Transaction tr = new Transaction(conn);
@@ -313,6 +349,7 @@ public class BookDaoImpl implements BookDao {
     @Override
     public int findByPatternCount(String what, String searchBy)
             throws ServiceException, DaoException {
+        logger.debug(START_MSG);
         logger.trace("request: what={}, searchBy={}",
                 what, searchBy);
 
@@ -328,6 +365,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public List<Book> findBy(String what, String searchBy) throws ServiceException, DaoException {
+        logger.debug(START_MSG);
         logger.trace("request: what={}, searchBy={}",
                 what, searchBy);
 
@@ -343,6 +381,7 @@ public class BookDaoImpl implements BookDao {
     @Override
     public List<Book> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
+        logger.debug(START_MSG);
         logger.trace("request: what={}, searchBy={}, sortBy={}, num={}, page={}",
                 what, searchBy, sortBy, num, page);
 
@@ -358,6 +397,7 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public List<Book> getBooksInBooking(long id) throws DaoException {
+        logger.debug(START_MSG);
         logger.debug("Get books in booking request: id={}", id);
 
         Transaction tr = new Transaction(conn);
@@ -369,6 +409,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     private List<Book> resolveDependencies(Connection c, List<Book> books) throws DaoException {
+        logger.debug(START_MSG);
         if (books == null) {
             return new ArrayList<>();
         }
@@ -376,12 +417,11 @@ public class BookDaoImpl implements BookDao {
         BookStatDao bookStatDao = new BookStatDao(c);
 
         for (Book b: books) {
-            if (b == null) {
-                continue;
-            }
             b.setBookStat(bookStatDao.read(b.getId()));
             b.setAuthors(authorDao.findByBookID(b.getId()));
         }
+        logger.trace("complete books={}", books);
+        logger.debug(END_MSG);
         return books;
     }
 }
