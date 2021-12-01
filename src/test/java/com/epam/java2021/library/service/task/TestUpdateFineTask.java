@@ -1,13 +1,14 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.task;
 
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.UserDao;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.task.UpdateFineTask;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,19 +17,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.epam.java2021.library.service.util.UpdateFineTask.INIT_PARAM_FINE_PER_DAY;
+import static com.epam.java2021.library.service.task.UpdateFineTask.INIT_PARAM_FINE_PER_DAY;
 import static org.mockito.Mockito.*;
 
 
 public class TestUpdateFineTask {
-    private IDaoFactoryImpl daoFactory;
+    private DaoFactoryImpl daoFactory;
     private Booking booking;
     private User user;
 
     @Before
     public void mockDaoFactory() throws DaoException {
         long id = 1;
-        daoFactory = mock(IDaoFactoryImpl.class);
+        daoFactory = mock(DaoFactoryImpl.class);
         user = mock(User.class);
         booking = mock(Booking.class);
 

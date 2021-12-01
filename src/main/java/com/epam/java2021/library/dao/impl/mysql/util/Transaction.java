@@ -10,12 +10,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Transaction {
-    private final ConnectionPool pool;
     private static final Logger logger = LogManager.getLogger(Transaction.class);
+
+    private final ConnectionPool pool;
     private boolean close;
     private Connection conn;
 
-    public Transaction(ConnectionPool pool) throws SQLException, DaoException {
+    public Transaction(ConnectionPool pool) throws DaoException {
         this.pool = pool;
         initConnection(null);
     }

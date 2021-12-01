@@ -3,7 +3,7 @@ package com.epam.java2021.library.controller.filter;
 import com.epam.java2021.library.constant.Common;
 import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.SafeContext;
+import com.epam.java2021.library.service.validator.SafeContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

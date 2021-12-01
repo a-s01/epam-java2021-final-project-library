@@ -6,7 +6,7 @@ import org.junit.Test;
 public class DaoFactoryCreatorTest {
     @Test
     public void testGetDefaultFactory() {
-        IDaoFactory factory = DaoFactoryCreator.getDefaultFactory();
+        AbstractDaoFactory factory = DaoFactoryCreator.getDefaultFactory();
         Assert.assertNotNull(factory);
     }
 }

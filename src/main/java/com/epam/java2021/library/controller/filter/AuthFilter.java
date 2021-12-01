@@ -4,7 +4,7 @@ import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.constant.ServletAttributes;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.CommandContext;
+import com.epam.java2021.library.service.command.CommandContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

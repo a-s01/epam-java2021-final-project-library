@@ -1,8 +1,8 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.task;
 
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
@@ -15,18 +15,18 @@ import java.util.Calendar;
 
 import static com.epam.java2021.library.constant.Common.*;
 
-public class BookingExpireTask extends AppPeriodicTask {
+public class BookingExpireTask extends AbstractPeriodicTask {
     public static final Logger logger = LogManager.getLogger(BookingExpireTask.class);
     static final String INIT_PARAM_PERIOD = BookingExpireTask.class.getName() + ".period";
 
-    public final IDaoFactoryImpl daoFactory;
+    public final DaoFactoryImpl daoFactory;
     private volatile int daysBeforeExpired = -1;
 
     public BookingExpireTask() {
-        this.daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+        this.daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     }
 
-    public BookingExpireTask(IDaoFactoryImpl daoFactory) {
+    public BookingExpireTask(DaoFactoryImpl daoFactory) {
         this.daoFactory = daoFactory;
     }
 

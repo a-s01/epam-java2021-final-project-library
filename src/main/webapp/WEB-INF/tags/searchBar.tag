@@ -15,19 +15,21 @@
         <input type="hidden" name="command" value="${action}">
         <input type="hidden" name="page" value=1>
         <div class="row align-items-center">
-            <input class="form-control-lg col-7" type="search" name="query"
+            <input class="form-control-lg col-6" type="search" name="query"
                 placeholder="<fmt:message key='search.placeholder.msg'/>"
                 value="<c:out value='${param.query}' />"
             >
-            <div class="form-floating col" <c:if test="${searchParameters.size() eq 1}">hidden</c:if> >
-                <select class="form-select" name="searchBy" id="searchBy" aria-label="searchBy">
+            <div class="form-floating col-auto" <c:if test="${searchParameters.size() eq 1}">hidden</c:if> >
+                <select class="form-select" name="searchBy" id="searchBy" aria-label="searchBy"
+                    data-header="<fmt:message key='header.search.by'/>"
+                >
                     <c:forEach var="attr" items="${searchParameters}">
                         <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>
                     </c:forEach>
                 </select>
                 <label for="searchBy"><fmt:message key="header.search.by"/></label>
             </div>
-            <div class="form-floating col" <c:if test="${searchParameters.size() eq 1}">hidden</c:if>>
+            <div class="form-floating col-auto" <c:if test="${searchParameters.size() eq 1}">hidden</c:if>>
                 <select class="form-select" name="sortBy" id="sortBy" aria-label="Sort by">
                     <c:forEach var="attr" items="${searchParameters}">
                         <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>

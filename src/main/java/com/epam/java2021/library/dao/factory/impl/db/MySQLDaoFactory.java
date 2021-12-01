@@ -1,10 +1,10 @@
 package com.epam.java2021.library.dao.factory.impl.db;
 
 import com.epam.java2021.library.dao.*;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.dao.impl.mysql.*;
 
-public class MySQLDaoFactory implements IDaoFactoryImpl {
+public class MySQLDaoFactory implements DaoFactoryImpl {
 
     @Override
     public UserDao getUserDao() {

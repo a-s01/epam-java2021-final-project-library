@@ -1,18 +1,18 @@
-package com.epam.java2021.library.service;
+package com.epam.java2021.library.service.command;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.AbstractSuperDao;
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.SafeRequest;
+import com.epam.java2021.library.service.validator.SafeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +43,7 @@ import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class BookingLogic {
     private static final Logger logger = LogManager.getLogger(BookingLogic.class);
-    private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+    private static final DaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     public static final String BOOKING_TRACE = "booking={}";
 
     private BookingLogic() {}
@@ -82,7 +82,7 @@ public class BookingLogic {
     /**
      * This will definitely return booking in case of create=true;
      */
-    private static Booking findBookingForUser(HttpSession session, User u, boolean create) {
+    private static Booking findBookingForUser(HttpSession session, User u, boolean create) throws ServiceException {
         logger.debug("findBooking request for USER role init...");
 
         Booking booking = (Booking) session.getAttribute(BOOKING);
@@ -95,6 +95,9 @@ public class BookingLogic {
         logger.debug("booking was not found");
         if (create) {
             logger.debug("create new one requested");
+            if (u.getFine() > 0) {
+                throw new ServiceException("error.illegal.user.state");
+            }
             Booking.Builder builder = new Booking.Builder();
             builder.setUser(u);
             booking = builder.build();

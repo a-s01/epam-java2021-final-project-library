@@ -3,8 +3,8 @@ package com.epam.java2021.library.controller.servlet;
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.CommandContext;
-import com.epam.java2021.library.service.util.Command;
+import com.epam.java2021.library.service.command.CommandContext;
+import com.epam.java2021.library.service.command.Command;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,9 +1,9 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.task;
 
 import com.epam.java2021.library.dao.BookingDao;
 import com.epam.java2021.library.dao.UserDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
@@ -19,17 +19,17 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.*;
 
-public class UpdateFineTask extends AppPeriodicTask {
+public class UpdateFineTask extends AbstractPeriodicTask {
     private static final Logger logger = LogManager.getLogger(UpdateFineTask.class);
     static final String INIT_PARAM_FINE_PER_DAY = UpdateFineTask.class.getName() + ".finePerDay";
-    private final IDaoFactoryImpl daoFactory;
+    private final DaoFactoryImpl daoFactory;
     private volatile double finePerDay = -1;
 
     public UpdateFineTask() {
-        daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+        daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     }
 
-    public UpdateFineTask(IDaoFactoryImpl daoFactory) {
+    public UpdateFineTask(DaoFactoryImpl daoFactory) {
         this.daoFactory = daoFactory;
     }
 

@@ -8,7 +8,7 @@ import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.Disjoint;
+import com.epam.java2021.library.dao.impl.mysql.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

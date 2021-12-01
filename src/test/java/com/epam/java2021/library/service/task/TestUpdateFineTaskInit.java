@@ -1,7 +1,8 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.task;
 
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.task.UpdateFineTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -10,13 +11,13 @@ import org.junit.runners.Parameterized.Parameters;
 import javax.servlet.ServletContext;
 import java.util.Arrays;
 
-import static com.epam.java2021.library.service.util.UpdateFineTask.INIT_PARAM_FINE_PER_DAY;
+import static com.epam.java2021.library.service.task.UpdateFineTask.INIT_PARAM_FINE_PER_DAY;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class TestUpdateFineTaskInit {
-    private static IDaoFactoryImpl daoFactory;
+    private static DaoFactoryImpl daoFactory;
 
     @Parameters(name = "{index}: {0}")
     public static Iterable<? extends String> data() {

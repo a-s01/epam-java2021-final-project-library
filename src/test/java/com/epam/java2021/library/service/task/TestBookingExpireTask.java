@@ -1,10 +1,11 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.task;
 
 import com.epam.java2021.library.dao.BookingDao;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.task.BookingExpireTask;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,13 +17,13 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 public class TestBookingExpireTask {
-    private IDaoFactoryImpl daoFactory;
+    private DaoFactoryImpl daoFactory;
     private ServletContext context;
     private Booking booking;
 
     @Before
     public void mockObjects() throws ServiceException, DaoException {
-        daoFactory = mock(IDaoFactoryImpl.class);
+        daoFactory = mock(DaoFactoryImpl.class);
         BookingDao dao = mock(BookingDao.class);
         List<Booking> bookings = new ArrayList<>();
         booking = mock(Booking.class);

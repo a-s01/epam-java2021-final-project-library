@@ -1,4 +1,4 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.validator;
 
 @FunctionalInterface
 public interface TypeConverter<K, V> {

@@ -1,16 +1,16 @@
-package com.epam.java2021.library.service;
+package com.epam.java2021.library.service.command;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.factory.DaoFactoryCreator;
-import com.epam.java2021.library.dao.factory.IDaoFactoryImpl;
+import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.SafeRequest;
-import com.epam.java2021.library.service.util.SafeSession;
+import com.epam.java2021.library.service.validator.SafeRequest;
+import com.epam.java2021.library.service.validator.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +26,7 @@ import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 public class AuthorLogic {
     private static final Logger logger = LogManager.getLogger(AuthorLogic.class);
-    private static final IDaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().getDefaultImpl();
+    private static final DaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
 
     private AuthorLogic() {}
 

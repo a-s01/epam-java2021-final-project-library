@@ -1,11 +1,11 @@
-package com.epam.java2021.library.service;
+package com.epam.java2021.library.service.command;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.dao.AbstractSuperDao;
 import com.epam.java2021.library.entity.Entity;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.SafeRequest;
+import com.epam.java2021.library.service.validator.SafeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

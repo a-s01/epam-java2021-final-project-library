@@ -1,4 +1,4 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.service.command;
 
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;

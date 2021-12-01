@@ -1,4 +1,4 @@
-package com.epam.java2021.library.service.util;
+package com.epam.java2021.library.dao.impl.mysql.util;
 
 import java.util.ArrayList;
 import java.util.List;

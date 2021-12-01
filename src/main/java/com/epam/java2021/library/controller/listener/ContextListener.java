@@ -6,8 +6,8 @@ import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.TaskScheduler;
-import com.epam.java2021.library.service.util.AppPeriodicTask;
+import com.epam.java2021.library.service.task.AbstractPeriodicTask;
+import com.epam.java2021.library.service.task.TaskScheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,7 +31,6 @@ public class ContextListener implements ServletContextListener {
 
     /**
      * This should stop all scheduled task to shut down gracefully
-     * @param event
      */
     @Override
     public void contextDestroyed(ServletContextEvent event) {
@@ -72,7 +71,7 @@ public class ContextListener implements ServletContextListener {
         logger.debug(START_MSG);
 
         String defaultLang = servletContext.getInitParameter(INIT_PARAMETER_DEFAULT_LANG);
-        LangDao dao = DaoFactoryCreator.getDefaultFactory().getDefaultImpl().getLangDao();
+        LangDao dao = DaoFactoryCreator.getDefaultFactory().newInstance().getLangDao();
         try {
             List<Lang> list = dao.getAll();
 
@@ -123,9 +122,9 @@ public class ContextListener implements ServletContextListener {
         try {
             long period = Long.parseLong(taskExecutionPeriod);
 
-            Class<AppPeriodicTask> taskClass = (Class<AppPeriodicTask>) Class.forName(task);
-            Constructor<AppPeriodicTask> taskClassConstructor = taskClass.getConstructor();
-            AppPeriodicTask taskInstance = taskClassConstructor.newInstance();
+            Class<AbstractPeriodicTask> taskClass = (Class<AbstractPeriodicTask>) Class.forName(task);
+            Constructor<AbstractPeriodicTask> taskClassConstructor = taskClass.getConstructor();
+            AbstractPeriodicTask taskInstance = taskClassConstructor.newInstance();
             taskInstance.init(servletContext);
 
             scheduler.proceed(taskInstance, period);

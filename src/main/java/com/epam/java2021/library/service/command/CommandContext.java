@@ -1,9 +1,8 @@
-package com.epam.java2021.library.service;
+package com.epam.java2021.library.service.command;
 
 import com.epam.java2021.library.constant.Pages;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.util.Command;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
