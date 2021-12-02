@@ -19,8 +19,7 @@ public class CommonLogic {
     private static final Logger logger = LogManager.getLogger(CommonLogic.class);
     private CommonLogic() {}
 
-    public static <E extends Entity> String find(HttpSession session,
-                                                 HttpServletRequest req,
+    public static <E extends Entity> String find(HttpServletRequest req,
                                                  AbstractSuperDao<E> dao,
                                                  String reqAttribute,
                                                  String searchLinkAttribute,
@@ -50,6 +49,7 @@ public class CommonLogic {
         List<E> list = null;
         String page;
         int totalCount = -1;
+        HttpSession session = req.getSession();
         try {
             if (pageNum == 1) {
                 session.removeAttribute(PAGES_NUM);

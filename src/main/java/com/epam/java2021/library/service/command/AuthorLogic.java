@@ -7,6 +7,7 @@ import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.entity.impl.Lang;
+import com.epam.java2021.library.exception.AjaxException;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.validator.SafeRequest;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -73,7 +75,7 @@ public class AuthorLogic {
         return author;
     }
 
-    public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String add(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         String errorPage = Pages.AUTHOR_EDIT + "?command=author.add";
 
@@ -81,7 +83,7 @@ public class AuthorLogic {
         try {
             author = getValidParams(req);
         } catch (ServiceException e) {
-            return errorPageLogic(session, e.getMessage(), errorPage);
+            return errorPageLogic(req, e.getMessage(), errorPage);
         }
 
         AuthorDao dao = daoFactory.getAuthorDao();
@@ -90,23 +92,24 @@ public class AuthorLogic {
         if (existed == null) {
             dao.create(author);
         } else {
-            return errorPageLogic(session, "error.author.exists", errorPage);
+            return errorPageLogic(req, "error.author.exists", errorPage);
         }
 
         logger.debug(END_MSG);
-        return nextPageLogic(new SafeSession(session));
+        return nextPageLogic(req);
     }
 
-    private static String errorPageLogic(HttpSession session, String msg, String page) {
+    private static String errorPageLogic(HttpServletRequest req, String msg, String page) {
         logger.debug(msg);
-        session.setAttribute(USER_ERROR, msg);
+        req.getSession().setAttribute(USER_ERROR, msg);
         return page;
     }
 
-    public static String edit(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String edit(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         String userErrorPage = Pages.AUTHOR_EDIT + "?command=author.edit";
 
+        HttpSession session = req.getSession();
         SafeRequest safeRequest = new SafeRequest(req);
         try {
             long id = safeRequest.get(JSP_FORM_ATTR_ID).notNull().convert(Long::parseLong);
@@ -125,7 +128,7 @@ public class AuthorLogic {
         try {
             params = getValidParams(req);
         } catch (ServiceException e) {
-            errorPageLogic(session, e.getMessage(), userErrorPage);
+            errorPageLogic(req, e.getMessage(), userErrorPage);
         }
 
         SafeSession safeSession = new SafeSession(session);
@@ -138,10 +141,10 @@ public class AuthorLogic {
         dao.update(proceed);
 
         logger.debug(END_MSG);
-        return nextPageLogic(safeSession);
+        return nextPageLogic(req);
     }
 
-    public static String delete(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String delete(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
         SafeRequest safeRequest = new SafeRequest(req);
@@ -151,16 +154,16 @@ public class AuthorLogic {
         dao.delete(id);
 
         logger.debug(END_MSG);
-        return nextPageLogic(new SafeSession(session));
+        return nextPageLogic(req);
     }
 
-    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String find(HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
 
-        return CommonLogic.find(session, req, daoFactory.getAuthorDao(), ATTR_AUTHORS, "author", Pages.AUTHORS);
+        return CommonLogic.find(req, daoFactory.getAuthorDao(), ATTR_AUTHORS, "author", Pages.AUTHORS);
     }
 
-    public static String findAll(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String findAll(HttpServletRequest req) throws ServiceException, AjaxException {
         logger.debug(START_MSG);
 
         SafeRequest safeReq = new SafeRequest(req);
@@ -172,15 +175,20 @@ public class AuthorLogic {
         try {
             list = daoFactory.getAuthorDao().findByPattern(query);
         } catch (DaoException e) {
-            throw new ServiceException(e.getMessage());
+            throw new AjaxException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+        if (list.isEmpty()) {
+            throw new AjaxException(HttpServletResponse.SC_NOT_FOUND, "error.not.found");
         }
 
         req.setAttribute(ATTR_AUTHORS, list);
         logger.debug(END_MSG);
-        return Pages.XML_AUTHOR;
+        throw new AjaxException(Pages.XML_AUTHOR);
     }
 
-    private static String nextPageLogic(SafeSession safeSession) throws ServiceException {
+    private static String nextPageLogic(HttpServletRequest req) throws ServiceException {
+        SafeSession safeSession = new SafeSession(req.getSession());
         String page = safeSession.get(ATTR_SEARCH_LINK).convert(String.class::cast);
         if (page == null) {
             logger.trace("no previous search link in session");

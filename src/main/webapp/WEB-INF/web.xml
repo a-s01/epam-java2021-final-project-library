@@ -25,8 +25,7 @@
   <!-- tasks, which will be executed periodically -->
   <context-param>
     <param-name>TASK</param-name>
-    <param-value>com.epam.java2021.library.service.task.UpdateFineTask
-      com.epam.java2021.library.service.task.BookingExpireTask</param-value>
+    <param-value>com.epam.java2021.library.service.task.UpdateFineTask com.epam.java2021.library.service.task.BookingExpireTask</param-value>
   </context-param>
   <!-- period of execution for specified tasks above -->
   <context-param>

@@ -62,13 +62,14 @@ public class UserLogic {
         return null;
     }
 
-    public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String add(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         String errorPage = Pages.REGISTER + "?command=user.add";
 
         User user;
+        HttpSession session = req.getSession();
         try {
-            user = getValidParams(session, req);
+            user = getValidParams(req);
             if (user.getPassword().equals("")) {
                 throw new UserException("error.password.is.empty");
             }
@@ -120,12 +121,13 @@ public class UserLogic {
         return page;
     }
 
-    public static String login(HttpSession session, HttpServletRequest req) {
+    public static String login(HttpServletRequest req) {
         logger.debug(START_MSG);
         String email = req.getParameter("email");
         String pass = req.getParameter("password");
         logger.trace("Auth request for email '{}'", email);
         User user = null;
+        HttpSession session = req.getSession();
 
         logger.trace("Session id: {}", session.getId());
 
@@ -154,7 +156,7 @@ public class UserLogic {
         return page;
     }
 
-    private static User getValidParams(HttpSession session, HttpServletRequest req) throws UserException, ServiceException {
+    private static User getValidParams(HttpServletRequest req) throws UserException, ServiceException {
         logger.debug(START_MSG);
         String email;
         String pass;
@@ -162,10 +164,11 @@ public class UserLogic {
         
         SafeRequest safeReq = new SafeRequest(req);
 
+
         try {
             email = safeReq.get(EMAIL).notEmpty().asEmail().convert();
         } catch (ServiceException e) {
-            session.setAttribute(USER_ERROR, e.getMessage());
+            req.getSession().setAttribute(USER_ERROR, e.getMessage());
             throw new UserException(e.getMessage());
         }
         pass = safeReq.get(PASS).convert();
@@ -174,7 +177,7 @@ public class UserLogic {
         String name = safeReq.get("name").escape().convert();
         String comment = safeReq.get("comment").escape().convert();
 
-        SafeSession safeSession = new SafeSession(session);
+        SafeSession safeSession = new SafeSession(req.getSession());
         long editBy = -1;
         Lang preferredLang;
         User currentUser = safeSession.get(USER).convert(User.class::cast);
@@ -212,9 +215,10 @@ public class UserLogic {
     }
 
 
-    public static String edit(HttpSession session, HttpServletRequest req) throws DaoException, ServiceException {
+    public static String edit(HttpServletRequest req) throws DaoException, ServiceException {
         logger.debug(START_MSG);
 
+        HttpSession session = req.getSession();
         SafeRequest safeRequest = new SafeRequest(req);
         try {
             long userID = safeRequest.get("id").notEmpty().convert(Long::parseLong);
@@ -232,7 +236,7 @@ public class UserLogic {
 
         User params;
         try {
-            params = getValidParams(session, req);
+            params = getValidParams(req);
         } catch (UserException e) {
             return Pages.REGISTER;
         }
@@ -250,7 +254,6 @@ public class UserLogic {
         proceedUser.setRole(params.getRole());
         proceedUser.setName(params.getName());
         proceedUser.setModified(Calendar.getInstance());
-        // TODO add history
 
         UserDao dao = daoFactory.getUserDao();
         dao.update(proceedUser);
@@ -268,11 +271,9 @@ public class UserLogic {
         return page;
     }
 
-    public static String logout(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String logout(HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        logger.trace("Session: id={}", session.getId());
-
-        //Booking booking // TODO before invalidate load user booking to db and save it in cookie
+        HttpSession session = req.getSession();
 
         SafeSession safeSession = new SafeSession(session);
         Lang lang = safeSession.get(LANG).convert(Lang.class::cast);
@@ -289,7 +290,7 @@ public class UserLogic {
         return Pages.LOGIN;
     }
 
-    public static String delete(HttpSession session, HttpServletRequest request) throws ServiceException, DaoException {
+    public static String delete(HttpServletRequest request) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
         SafeRequest safeReq = new SafeRequest(request);
@@ -298,7 +299,7 @@ public class UserLogic {
         UserDao dao = daoFactory.getUserDao();
         dao.delete(id);
 
-        SafeSession safeSession = new SafeSession(session);
+        SafeSession safeSession = new SafeSession(request.getSession());
         List<User> users = safeSession.get(ATTR_USERS).convert(List.class::cast);
         if (users != null) {
             for (User u: users) {
@@ -314,12 +315,12 @@ public class UserLogic {
     }
 
 
-    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String find(HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        return CommonLogic.find(session, req, daoFactory.getUserDao(), ATTR_USERS, "user", Pages.USERS);
+        return CommonLogic.find(req, daoFactory.getUserDao(), ATTR_USERS, "user", Pages.USERS);
     }
 
-    public static String setLang(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String setLang(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         SafeRequest safeReq = new SafeRequest(req);
 
@@ -336,6 +337,7 @@ public class UserLogic {
             }
         }
 
+        HttpSession session = req.getSession();
         if (lang != null) {
             session.setAttribute(LANG, lang);
             logger.trace("language applied to session: {}", lang);

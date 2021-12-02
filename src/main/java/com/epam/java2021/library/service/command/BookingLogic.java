@@ -10,6 +10,7 @@ import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.entity.impl.Booking;
 import com.epam.java2021.library.entity.impl.User;
+import com.epam.java2021.library.exception.AjaxException;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.validator.SafeRequest;
@@ -17,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,12 +50,14 @@ public class BookingLogic {
 
     private BookingLogic() {}
 
-    private static Booking findBooking(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        return findBooking(session, req, false);
+    private static Booking findBooking(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
+        return findBooking(req, false);
     }
 
-    private static Booking findBooking(HttpSession session, HttpServletRequest req, boolean create) throws ServiceException, DaoException {
+    private static Booking findBooking(HttpServletRequest req, boolean create) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
+        HttpSession session = req.getSession();
+
         logger.trace("sessionID={}, reqURI={}", session.getId(), req.getRequestURI());
         User u = (User) session.getAttribute("user");
 
@@ -82,7 +86,7 @@ public class BookingLogic {
     /**
      * This will definitely return booking in case of create=true;
      */
-    private static Booking findBookingForUser(HttpSession session, User u, boolean create) throws ServiceException {
+    private static Booking findBookingForUser(HttpSession session, User u, boolean create) throws AjaxException {
         logger.debug("findBooking request for USER role init...");
 
         Booking booking = (Booking) session.getAttribute(BOOKING);
@@ -96,7 +100,7 @@ public class BookingLogic {
         if (create) {
             logger.debug("create new one requested");
             if (u.getFine() > 0) {
-                throw new ServiceException("error.illegal.user.state");
+                throw new AjaxException(HttpServletResponse.SC_FORBIDDEN, "error.illegal.user.state");
             }
             Booking.Builder builder = new Booking.Builder();
             builder.setUser(u);
@@ -111,8 +115,9 @@ public class BookingLogic {
     /**
      * 2 cases: listBooks in particular booking (should have bookingID then) or listBooks on subscription
      */
-    public static String listBookInSubscription(HttpSession session, HttpServletRequest req) throws DaoException {
+    public static String listBookInSubscription(HttpServletRequest req) throws DaoException {
         logger.debug(START_MSG);
+        HttpSession session = req.getSession();
 
         User user = (User) session.getAttribute("user");
         logger.trace("user={}", user);
@@ -127,17 +132,18 @@ public class BookingLogic {
         return Pages.MY_BOOKS;
     }
 
-    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String find(HttpServletRequest req) throws ServiceException {
         // /booking?command=find - (mb later user) or all (for librarian) bookings
         // only for librarian now
         logger.debug(START_MSG);
         BookingDao dao = daoFactory.getBookingDao();
-        return CommonLogic.find(session, req, dao, ATTR_BOOKINGS, BOOKING, Pages.BOOKING);
+        return CommonLogic.find(req, dao, ATTR_BOOKINGS, BOOKING, Pages.BOOKING);
     }
 
-    public static String basket(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
-        //  /booking?command=search&type=basket - the latest user booking
+    public static String basket(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
+        HttpSession session = req.getSession();
+
         User u = (User) session.getAttribute("user");
         if (!u.getRole().equals(User.Role.USER)) {
             throw new ServiceException("error.resource.forbidden");
@@ -161,26 +167,27 @@ public class BookingLogic {
         return Pages.BASKET;
     }
 
-    public static String addBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String addBook(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
+
         //Booking booking, long id
-        Booking booking = findBooking(session, req, true); // booking != null guarantied
+        Booking booking = findBooking(req, true); // booking != null guarantied
         if (req.getParameter("id") == null) {
-            throw new ServiceException("error.no.id.in.request");
+            throw new AjaxException(HttpServletResponse.SC_BAD_REQUEST, "error.no.id.in.request");
         }
 
         long id = Long.parseLong(req.getParameter("id"));
 
         logger.trace("addBook request: booking={}, id={}", booking, id);
         if (booking.getState() != Booking.State.NEW) {
-            throw new ServiceException("error.add.book.to.not.new.booking");
+            throw new AjaxException(HttpServletResponse.SC_BAD_REQUEST, "error.add.book.to.not.new.booking");
         }
 
         BookDao bookDao = daoFactory.getBookDao();
         Book book = bookDao.read(id);
         if (book == null) {
-            throw new ServiceException("error.not.found");
+            throw new AjaxException(HttpServletResponse.SC_NOT_FOUND, "error.not.found");
         }
         logger.trace("book={}", book);
 
@@ -192,14 +199,14 @@ public class BookingLogic {
         }
         req.setAttribute(ATTR_OUTPUT, String.valueOf(booking.getBooks().size()));
         logger.debug(END_MSG);
-        return null;
+        throw new AjaxException(Pages.XML_SIMPLE_OUTPUT);
     }
 
-    public static String removeBook(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String removeBook(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
         // Booking booking, long id
-        Booking booking = findBooking(session, req);
+        Booking booking = findBooking(req);
         if (req.getParameter("id") == null) {
             throw new ServiceException("error.no.id.in.request");
         }
@@ -224,10 +231,11 @@ public class BookingLogic {
         return Pages.BASKET;
     }
 
-    public static String cancel(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String cancel(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
+        HttpSession session = req.getSession();
         // Booking booking
-        Booking booking = findBooking(session, req);
+        Booking booking = findBooking(req);
         User user = (User) session.getAttribute(USER);
         
         if (user == null) {
@@ -267,10 +275,10 @@ public class BookingLogic {
         return page;
     }
 
-    public static String book(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String book(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
         // Booking booking
-        Booking booking = findBooking(session, req);
+        Booking booking = findBooking(req);
 
         logger.trace("book request: booking={}", booking);
 
@@ -292,11 +300,11 @@ public class BookingLogic {
         return Pages.BASKET;
     }
 
-    public static String deliver(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String deliver(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
         // Booking booking, boolean subscription
-        Booking booking = findBooking(session, req);
+        Booking booking = findBooking(req);
 
         SafeRequest safeRequest = new SafeRequest(req);
         boolean subscription = safeRequest.get("subscription").convert(Boolean::parseBoolean);
@@ -331,11 +339,11 @@ public class BookingLogic {
         return Pages.BOOKING;
     }
 
-    public static String done(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String done(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
         // Booking booking
-        Booking booking = findBooking(session, req);
+        Booking booking = findBooking(req);
 
         logger.trace("done request: booking={}", booking);
 

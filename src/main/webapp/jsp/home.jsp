@@ -17,6 +17,8 @@
     <div class="alert alert-success col-sm-6" style="display: none;" role="alert" id="addedBookAlert">
       <fmt:message key='message.book.added'/>
     </div>
+    <div class="alert alert-danger col-sm-6" style="display: none;" role="alert" id="addedBookError">
+    </div>
     <div class="container pt-4">
         <c:if test="${not empty books}">
             <table class="table table-hover">

@@ -33,10 +33,10 @@ public class BookLogic {
 
     private BookLogic() {}
 
-    public static String find(HttpSession session, HttpServletRequest req) throws ServiceException {
+    public static String find(HttpServletRequest req) throws ServiceException {
         logger.debug("start");
         BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(session, req, dao, ATTR_BOOKS, "book", Pages.HOME);
+        return CommonLogic.find(req, dao, ATTR_BOOKS, "book", Pages.HOME);
     }
 
     private static Book getValidParams(HttpServletRequest req) throws ServiceException, DaoException {
@@ -57,9 +57,9 @@ public class BookLogic {
 
         List<Author> authors = new ArrayList<>(authorIDsAsStr.length);
         AuthorDao authorDao = daoFactory.getAuthorDao();
-        for (int i = 0; i < authorIDsAsStr.length; i++) {
+        for (String s : authorIDsAsStr) {
             try {
-                long id = Long.parseLong(authorIDsAsStr[i]);
+                long id = Long.parseLong(s);
                 authors.add(authorDao.read(id));
             } catch (NumberFormatException e) {
                 throw new ServiceException("error.wrong.number.format");
@@ -102,18 +102,17 @@ public class BookLogic {
         return false;
     }
 
-    public static String add(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String add(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
         Book book;
         try {
             book = getValidParams(req);
         } catch (ServiceException e) {
-            session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
+            req.getSession().setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
             return Pages.BOOK_EDIT + "?command=book.add";
         }
         book.setModified(Calendar.getInstance());
-        // TODO authors
         BookDao dao = daoFactory.getBookDao();
         dao.create(book);
 
@@ -121,10 +120,11 @@ public class BookLogic {
         return Pages.HOME;
     }
 
-    public static String edit(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String edit(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
         String errorPage = Pages.BOOK_EDIT + "?command=book.edit";
 
+        HttpSession session = req.getSession();
         SafeRequest safeReq = new SafeRequest(req);
         try {
             long bookID = safeReq.get("id").notEmpty().convert(Long::parseLong);
@@ -187,19 +187,19 @@ public class BookLogic {
         return page;
     }
 
-    public static String delete(HttpSession session, HttpServletRequest req) throws ServiceException, DaoException {
+    public static String delete(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
         SafeRequest safeReq = new SafeRequest(req);
         long id = safeReq.get("id").notNull().convert(Long::parseLong);
 
-        SafeSession safeSession = new SafeSession(session);
+        SafeSession safeSession = new SafeSession(req.getSession());
         List<Book> books = safeSession.get(ATTR_BOOKS).convert(List.class::cast);
         if (books != null) {
             for (Book b: books) {
                 if (b.getId() == id) {
                     books.remove(b);
-                    session.setAttribute(ATTR_BOOKS, books);
+                    req.getSession().setAttribute(ATTR_BOOKS, books);
                     logger.debug("books in session updated");
                     break;
                 }

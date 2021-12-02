@@ -47,4 +47,5 @@ public class ServletAttributes {
     public static final String ATTR_FORMAT = "format";
 
     public static final String ATTR_AUTHOR_IDS = "authorIDs";
+    public static final String AJAX_ERROR_PAGE = Pages.XML_SIMPLE_OUTPUT;
 }

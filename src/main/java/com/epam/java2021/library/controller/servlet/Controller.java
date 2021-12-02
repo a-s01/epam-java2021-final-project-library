@@ -1,10 +1,11 @@
 package com.epam.java2021.library.controller.servlet;
 
 import com.epam.java2021.library.constant.Pages;
+import com.epam.java2021.library.exception.AjaxException;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.service.command.CommandContext;
 import com.epam.java2021.library.service.command.Command;
+import com.epam.java2021.library.service.command.CommandContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static com.epam.java2021.library.constant.ServletAttributes.ATTR_OUTPUT;
-import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
+import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
@@ -25,42 +25,23 @@ public class Controller extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(Controller.class);
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         logger.debug("start");
         logger.trace("uri={}, query={}", req.getRequestURI(), req.getQueryString());
 
-
-        String page = proceed(req, resp);
-        if (page == null) {
-            logger.debug("No page was returned, looking if it's ajax request");
-            /*String plainText = (String) req.getAttribute(PLAIN_TEXT);
-
-            if (plainText != null) {
-                logger.debug("It's ajax, output result");
-                logger.trace("plainText={}", plainText);
-                resp.setContentType("text/plain");
-                resp.setCharacterEncoding("UTF-8");
-                resp.getWriter().write(plainText);
-                return;
-            }*/
-
-            String output = (String) req.getAttribute(ATTR_OUTPUT);
-            if (output != null) {
-                logger.debug("It's ajax, output result");
-                /*String format = (String) req.getAttribute(ATTR_FORMAT);
-                if (format == null) {*/
-                    logger.trace("format is null, set to text/plain");
-                    resp.setContentType("text/plain");
-                /*} else {
-                    logger.trace("format={}", format);
-                    resp.setContentType(format);
-                }*/
-                resp.setCharacterEncoding("UTF-8");
-                resp.getWriter().write(output);
+        String page;
+        try {
+            page = proceed(req);
+        } catch (AjaxException e) {
+            if (e.getNextPage() != null) {
+                logger.debug("forward to page={}", e.getNextPage());
+                req.getRequestDispatcher(e.getNextPage()).forward(req, resp);
                 return;
             }
-            page = redirectToError("no page was returned by command", req.getSession());
+            responseAjaxError(req, resp, e);
+            return;
         }
+
         logger.debug("redirect to page={}", page);
         resp.sendRedirect(page);
     }
@@ -70,27 +51,35 @@ public class Controller extends HttpServlet {
         logger.debug("start");
         logger.trace("uri={},query={}", req.getRequestURI(), req.getQueryString());
 
-        String page = proceed(req, resp);
-
-        if (page == null) {
-            page = redirectToError("no page was returned by command", req.getSession());
+        String page;
+        try {
+            page = proceed(req);
+        } catch (AjaxException e) {
+            if (e.getNextPage() == null) {
+                responseAjaxError(req, resp, e);
+                return;
+            }
+            page = e.getNextPage();
         }
 
         logger.debug("forward to page={}", page);
         req.getRequestDispatcher(page).forward(req, resp);
     }
 
-    private String proceed(HttpServletRequest req, HttpServletResponse resp) {
+    private String proceed(HttpServletRequest req) throws AjaxException {
         String commandStr = req.getParameter("command");
-        logger.trace("commandStr = {}", commandStr);
-        logger.trace("encoding={}", req.getCharacterEncoding());
-        HttpSession session = req.getSession();
+        logger.trace("commandStr={}, encoding={}", commandStr, req.getCharacterEncoding());
 
+        HttpSession session = req.getSession();
         session.removeAttribute(SERVICE_ERROR);
 
         try {
             Command command = CommandContext.getCommand(commandStr);
-            return command.execute(session, req);
+            String page = command.execute(req);
+            if (page == null) {
+                throw new ServiceException("error.no.page.was.returned");
+            }
+            return page;
         } catch (DaoException | ServiceException e) {
             return redirectToError(e.getMessage(), session);
         }
@@ -100,5 +89,15 @@ public class Controller extends HttpServlet {
         logger.error(msg);
         session.setAttribute(SERVICE_ERROR, msg);
         return Pages.ERROR;
+    }
+
+    private void responseAjaxError(HttpServletRequest req, HttpServletResponse resp, AjaxException e)
+            throws IOException, ServletException {
+        logger.error(e.getMessage());
+        logger.trace("{}={}", SERVICE_ERROR, e.getMessage());
+
+        resp.setStatus(e.getErrorCode());
+        req.setAttribute(SERVICE_ERROR, e.getMessage());
+        req.getRequestDispatcher(Pages.XML_SIMPLE_OUTPUT).forward(req, resp);
     }
 }

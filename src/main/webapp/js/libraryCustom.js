@@ -4,18 +4,29 @@ function addBook(id) {
             url     : '/controller',
             method  : 'POST',
             data    : {id : id, command : 'booking.addBook'},
-            success : function(resultText) {
+            dataType: "xml",
+            success : function(xml) {
+                        var output = $(xml).find('output').text();
+                        var bookedBooksNumID = "bookedBooksNum";
                         $('#' + id).prop("disabled", true);
-                        if ( !$( "#bookedBooksNum" ).length ) {
-                            $("#bookedBooksNumParent").html('My booking<span class="position-absolute top-0 start-99 translate-middle badge rounded-pill bg-success" id="bookedBooksNum"></span>');
+                        if (!$("#" + bookedBooksNumID).length) {
+                            $("#bookedBooksNumParent")
+                                .html(`My booking<span class="position-absolute top-0 start-99 translate-middle badge rounded-pill bg-success" id="${bookedBooksNumID}"></span>`);
                         }
-                        $( "#bookedBooksNum" ).text(resultText);
-                        $('#addedBookAlert').show("slow", "swing", function(){ $('#addedBookAlert').delay(700).hide("slow") } );
+                        $("#" + bookedBooksNumID).text(output);
+                        showAndHide('#addedBookAlert');
                       },
-            error   : function(jqXHR, exception) {
-                        console.log('Error occured!!!');
+            error   : function(xhr, status, error) {
+                        var error = $(xhr.responseXML).find('error').text();
+                        var errorID = "#addedBookError";
+                        $(errorID).text(error);
+                        showAndHide(errorID);
                       },
         });
+}
+
+function showAndHide(id) {
+    $(id).show("slow", "swing", function(){ $(id).delay(700).hide("slow") } );
 }
 
 function findAuthor() {
@@ -27,13 +38,6 @@ function findAuthor() {
                 data    : {query: query, command: 'author.findAll', searchBy: 'name'},
                 dataType: "xml",
                 success : function(xml) {
-                            var error = $(xml).find('error').text();
-                            if (error) {
-                                var li = document.createElement('li');
-                                $(li).html(`<a class="dropdown-item" onclick='this.classList.remove("show");'>${error}</a></li>`);
-                                $('#searchResults').append(li);
-                                $('#searchResults').addClass("show");
-                            } else {
                                 $(xml).find('author').each(
                                     function() {
                                         var authorID = $(this).find('id').text();
@@ -44,10 +48,13 @@ function findAuthor() {
                                         $('#searchResults').addClass("show");
                                     }
                                 );
-                            }
                         },
-                error   : function(jqXHR, exception) {
-                            console.log('Error occured!!!');
+                error   : function(xhr, exception) {
+                            var error = $(xhr.responseXML).find('error').text();
+                            var li = document.createElement('li');
+                            $(li).html(`<a class="dropdown-item" onclick='this.classList.remove("show");'>${error}</a></li>`);
+                            $('#searchResults').append(li);
+                            $('#searchResults').addClass("show");
                           },
     });
 }
