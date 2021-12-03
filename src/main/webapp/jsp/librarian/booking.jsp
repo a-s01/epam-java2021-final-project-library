@@ -19,4 +19,4 @@
         </div>
     </c:if>
 </div>
-<jsp:include page="/html/footer.html"/>
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>

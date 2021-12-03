@@ -120,7 +120,6 @@ CREATE TABLE book (
 	PRIMARY KEY (id),
     id					INT UNSIGNED			NOT NULL	AUTO_INCREMENT,
     title				VARCHAR(256)			NOT NULL,
-						UNIQUE INDEX (title),
     isbn				VARCHAR(17)				NOT NULL, 	-- 13 digits + 4 '-'
 						UNIQUE INDEX (isbn),
     year				YEAR					NOT NULL,

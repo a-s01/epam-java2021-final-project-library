@@ -1,24 +1,31 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
+
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
-<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <l:redirectIfEmpty value="${param.command}" errorMsg="No command passed" />
 
-<c:if test="${not empty user and user.role eq 'ADMIN'}">
-    <c:if test="${not empty searchLink}" >
-        <c:set value="${searchLink}" var="cancelLink"/>
-    </c:if>
-    <c:if test="${empty searchLink}">
-        <c:set value="/jsp/admin/users.jsp" var="cancelLink"/>
-    </c:if>
-    <c:if test="${param.command eq 'book.add'}">
-        <c:set value="header.create.book" var="currentHeader"/>
-    </c:if>
-    <c:if test="${param.command eq 'book.edit'}">
-        <c:set value="header.edit" var="currentHeader"/>
-    </c:if>
+<c:choose>
+    <c:when test="${not empty bookSearchLink}" >
+        <c:set value="${bookSearchLink}" var="cancelLink"/>
+    </c:when>
+    <c:otherwise>
+        <c:set value="/jsp/home.jsp" var="cancelLink"/>
+    </c:otherwise>
+</c:choose>
+<c:choose>
+    <c:when test="${not empty savedUserInput}">
+        <c:set value="${savedUserInput}" var="book" />
+    </c:when>
+    <c:otherwise>
+        <c:set value="${proceedBook}" var="book" />
+    </c:otherwise>
+</c:choose>
+<c:if test="${param.command eq 'book.add'}">
+    <c:set value="header.create.book" var="currentHeader"/>
+</c:if>
+<c:if test="${param.command eq 'book.edit'}">
+    <c:set value="header.edit" var="currentHeader"/>
 </c:if>
 
 <jsp:useBean id="now" class="java.util.Date" />
@@ -38,8 +45,8 @@
                 <div class="col-md-7">
                     <input name="title" type="text" id="title"
                         class="col-md-6 form-control" required
-                        <c:if test="${param.command eq 'book.edit'}">
-                            value="<c:out value='${proceedBook.title}' />"
+                        <c:if test="${not empty book}">
+                            value="<c:out value='${book.title}' />"
                         </c:if>
                         >
                 </div>
@@ -49,8 +56,8 @@
                 <div class="col-md-7">
                     <input name="isbn" type="text" id="isbn"
                         class="col-md-6 form-control" required
-                        <c:if test="${param.command eq 'book.edit'}">
-                            value="<c:out value='${proceedBook.isbn}' />"
+                        <c:if test="${not empty book}">
+                            value="<c:out value='${book.isbn}' />"
                         </c:if>
                         >
                 </div>
@@ -60,8 +67,8 @@
                 <div class="col-md-7">
                     <input name="year" type="number" id="year" min=1900 max="${thisYear}"
                         class="form-control"
-                        <c:if test="${param.command eq 'book.edit'}">
-                            value="<c:out value='${proceedBook.year}' />"
+                        <c:if test="${not empty book}">
+                            value="<c:out value='${book.year}' />"
                         </c:if>
                         required>
                 </div>
@@ -70,8 +77,8 @@
                 <label for="langCode" class="col-md-3 col-form-label"><fmt:message key='link.language'/>: </label>
                 <div class="col-md-7">
                     <input name="langCode" type="text" id="langCode" class="form-control"
-                    <c:if test="${param.command eq 'book.edit'}">
-                        value="<c:out value='${proceedBook.langCode}' />"
+                    <c:if test="${not empty book}">
+                        value="<c:out value='${book.langCode}' />"
                     </c:if>
                     required>
                 </div>
@@ -79,10 +86,10 @@
             <div class="row mb-2">
                 <label for="keepPeriod" class="col-md-3 col-form-label"><fmt:message key='header.keep.period'/>: </label>
                 <div class="col-md-7">
-                    <input name="keepPeriod" type="number" min="1" max="60" step="1" id="keepPeriod"
+                    <input name="keepPeriod" type="number" min="1" max="365" id="keepPeriod"
                         class="form-control"
-                        <c:if test="${param.command eq 'book.edit'}">
-                            value="<c:out value='${proceedBook.keepPeriod}' />"
+                        <c:if test="${not empty book}">
+                            value="<c:out value='${book.keepPeriod}' />"
                         </c:if>
                         required>
                 </div>
@@ -90,9 +97,9 @@
             <div class="row mb-2">
                 <label for="total" class="col-md-3 col-form-label"><fmt:message key='header.amount'/>: </label>
                 <div class="col-md-7">
-                    <input name="total" type="number" id="total" class="form-control"
-                        <c:if test="${param.command eq 'book.edit'}">
-                            value="<c:out value='${proceedBook.bookStat.total}' />"
+                    <input name="total" type="number" id="total" min=0 class="form-control"
+                        <c:if test="${not empty book}">
+                            value="<c:out value='${book.bookStat.total}' />"
                         </c:if>
                         required>
                 </div>
@@ -115,8 +122,8 @@
                         </ul>
                     </div>
                     <div id="selectedAuthors">
-                        <c:if test="${param.command eq 'book.edit'}">
-                            <c:forEach var="author" items="${proceedBook.authors}">
+                        <c:if test="${not empty book}">
+                            <c:forEach var="author" items="${book.authors}">
                                 <div class="form-check">
                                     <c:set var="thisID" value="selectedAuthors${author.id}" />
                                     <input type="checkbox" name="authorIDs" class="form-check-input"
@@ -135,11 +142,7 @@
             </div>
             <div class="row mb-2 my-2">
                 <div class="col-sm container overflow-hidden">
-                    <p class="text-danger">
-                        <c:if test="${not empty userError}" >
-                            <fmt:message key='${userError}'/>
-                        </c:if>
-                    </p>
+                    <t:error msg="${userError}" msgParams="${userErrorParams}" />
                     <button type="submit" class="btn btn-primary"><fmt:message key='header.apply'/></button>
                     <a class="btn btn-danger" href="${cancelLink}"><fmt:message key='header.cancel'/></a>
                 </div>
@@ -148,5 +151,7 @@
     </div>
 </div>
 
-<jsp:include page="/html/footer.html"/>
 <c:set var="userError" scope="session" value="" />
+<c:set var="savedUserInput" scope="session" value="${null}" />
+
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>

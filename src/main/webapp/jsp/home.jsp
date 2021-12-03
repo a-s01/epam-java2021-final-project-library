@@ -11,6 +11,7 @@
 <c:set var="action" value="book.find" />
 <l:setList var="list" value="title author isbn year" />
 <c:set var="searchLink" value="${bookSearchLink}" />
+<c:set var="proceedBook" scope="session" value="${null}" />
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />
@@ -114,4 +115,4 @@
         </c:if>
     </div>
 </div>
-<jsp:include page="/html/footer.html"/>
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>

@@ -6,4 +6,4 @@
         <div>Exception: ${pageContext.exception}</div>
         <div>Message from exception: ${pageContext.exception.message}</div>
     </div>
-<jsp:include page="/html/footer.html"/>
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>

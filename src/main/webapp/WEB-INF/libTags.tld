@@ -97,4 +97,8 @@
             <required>false</required>
         </attribute>
     </tag>
+    <tag>
+        <name>debug</name>
+        <tag-class>com.epam.java2021.library.jstltag.Debug</tag-class>
+    </tag>
 </taglib>

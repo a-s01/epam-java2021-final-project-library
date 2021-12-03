@@ -5,6 +5,7 @@
 <fmt:setLocale value="${lang.code}" />
 <fmt:setBundle basename="i18n" />
 
+
 <!DOCTYPE html>
 <html lang="${lang.code}">
 <html>

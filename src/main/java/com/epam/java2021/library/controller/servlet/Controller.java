@@ -70,9 +70,6 @@ public class Controller extends HttpServlet {
         String commandStr = req.getParameter("command");
         logger.trace("commandStr={}, encoding={}", commandStr, req.getCharacterEncoding());
 
-        HttpSession session = req.getSession();
-        session.removeAttribute(SERVICE_ERROR);
-
         try {
             Command command = CommandContext.getCommand(commandStr);
             String page = command.execute(req);
@@ -81,13 +78,13 @@ public class Controller extends HttpServlet {
             }
             return page;
         } catch (DaoException | ServiceException e) {
-            return redirectToError(e.getMessage(), session);
+            return redirectToError(e.getMessage(), req);
         }
     }
 
-    private String redirectToError(String msg, HttpSession session) {
+    private String redirectToError(String msg, HttpServletRequest req) {
         logger.error(msg);
-        session.setAttribute(SERVICE_ERROR, msg);
+        req.getSession().setAttribute(SERVICE_ERROR, msg);
         return Pages.ERROR;
     }
 

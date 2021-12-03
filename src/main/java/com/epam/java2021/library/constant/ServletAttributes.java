@@ -36,7 +36,7 @@ public class ServletAttributes {
     public static final String ATTR_PROCEED_USER = "proceedUser";
     public static final String ATTR_PROCEED_AUTHOR = "proceedAuthor";
     public static final String ATTR_PROCEED_BOOKING = "proceedBooking";
-
+    public static final String ATTR_SAVED_USER_INPUT = "savedUserInput";
 
     public static final String JSP_AUTHOR_FORM_NAME = "name";
     public static final String JSP_AUTHOR_FORM_PRIMARY_LANG = "primaryLang";

@@ -3,4 +3,4 @@
     <h1><fmt:message key='message.sorry'/></h1>
     <h5><fmt:message key='error.msg.404'/></h5>
 </div>
-<jsp:include page="/html/footer.html"/>
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>

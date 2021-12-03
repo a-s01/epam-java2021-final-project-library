@@ -68,5 +68,5 @@
     </div>
 </div>
 
-<jsp:include page="/html/footer.html"/>
+<jsp:include page="/WEB-INF/jspf/footer.jsp"/>
 <c:set var="userError" scope="session" value="" />
