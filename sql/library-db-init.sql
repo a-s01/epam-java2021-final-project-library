@@ -109,8 +109,7 @@ CREATE TABLE author_name_i18n (
                     REFERENCES author (id)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE,
-	name		VARCHAR(50)		NOT NULL,
-				UNIQUE INDEX (name)
+	name		VARCHAR(50)		NOT NULL
 );
 
 -- TABLE book --

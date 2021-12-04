@@ -2,13 +2,13 @@ package com.epam.java2021.library.dao.impl.mysql;
 
 import com.epam.java2021.library.dao.AuthorDao;
 import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
+import com.epam.java2021.library.dao.impl.mysql.util.Disjoint;
 import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Author;
 import com.epam.java2021.library.entity.impl.I18AuthorName;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.dao.impl.mysql.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -142,7 +142,10 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author read(String name) throws DaoException {
-        final String query = "SELECT * FROM author WHERE name = ?";
+        final String query = "SELECT * FROM author AS a"
+                            + " JOIN author_name_i18n AS i18"
+                            + "   ON i18.author_id = a.id "
+                            + "WHERE i18.name = ?";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
@@ -230,7 +233,17 @@ public class AuthorDaoImpl implements AuthorDao {
             if (a == null) {
                 continue;
             }
-            a.setI18Names(i18Dao.readByAuthorID(a.getId()));
+
+            List<I18AuthorName> i18names = i18Dao.readByAuthorID(a.getId());
+            a.setI18Names(i18names);
+
+            String authorPrimaryName = a.getName();
+            for (I18AuthorName name: i18names) {
+                if (name.getName().equals(authorPrimaryName)) {
+                    a.setPrimaryLang(name.getLang());
+                    break;
+                }
+            }
         }
 
         return authors;
@@ -242,12 +255,6 @@ public class AuthorDaoImpl implements AuthorDao {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
         validColumns.check(sortBy, SearchSortColumn.SORT);
 
-        /*final String query =
-                "SELECT * FROM author AS a" +
-                "  JOIN author_name_i18n AS i18" +
-                "    ON i18.author_id = a.id" +
-                " WHERE i18.name LIKE ? " +
-                " ORDER BY i18.name LIMIT ? OFFSET ?";*/
         String query = patternQuery(false, false, true);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
@@ -270,11 +277,6 @@ public class AuthorDaoImpl implements AuthorDao {
     public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
-        /*final String query =
-                "SELECT * FROM author AS a" +
-                        "  JOIN author_name_i18n AS i18" +
-                        "    ON i18.author_id = a.id" +
-                        " WHERE i18.name LIKE ? ";*/
         final String query = patternQuery(true, false, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
@@ -287,12 +289,6 @@ public class AuthorDaoImpl implements AuthorDao {
     public List<Author> findBy(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.check(searchBy, SearchSortColumn.SEARCH);
 
-        /*final String query =
-                "SELECT * FROM author AS a" +
-                        "  JOIN author_name_i18n AS i18" +
-                        "    ON i18.author_id = a.id" +
-                        " WHERE i18.name LIKE ? " +
-                        " ORDER BY i18.name"; */
         final String query = patternQuery(false, true, false);
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {

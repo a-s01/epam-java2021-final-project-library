@@ -15,15 +15,41 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
-public class CommonLogic {
-    private static final Logger logger = LogManager.getLogger(CommonLogic.class);
-    private CommonLogic() {}
+/**
+ * Class-util, has only static methods by design.
+ * All methods must be related to at least two type of entities (like User and Book, for example)
+ * Methods will be only called from according &lt;&lt;Entity&gt;&gt;Logics class.
+ * That's why no signature limitation is provided and class is package-private
+ */
+class CommonLogicFunctions {
+    private static final Logger logger = LogManager.getLogger(CommonLogicFunctions.class);
 
-    public static <E extends Entity> String find(HttpServletRequest req,
-                                                 AbstractSuperDao<E> dao,
-                                                 String reqAttribute,
-                                                 String searchLinkAttribute,
-                                                 String desiredPage) throws ServiceException {
+    /**
+     * Made private intentionally, no instance is needed by design
+     */
+    private CommonLogicFunctions() {
+    }
+
+    /**
+     * Find Entities, according DAO of which implements {@link com.epam.java2021.library.dao.AbstractSuperDao}
+     * interface.
+     * Implements pagination, so in request current page number and number of entities to be shown are required
+     *
+     * @param req                 user request
+     * @param dao                 entity's dao, must implement {@link com.epam.java2021.library.dao.AbstractSuperDao}
+     * @param reqAttribute        result of search will be saved in request attribute with this name
+     * @param searchLinkAttribute in concatenation with common attributes ATTR_SEARCH_LINK form attribute of current
+     *                            search link to be saved in session. Used in pagination jsp
+     * @param desiredPage         page on which result will be shown
+     * @param <E>                 Entity class
+     * @return page on which result of request will be shown
+     * @throws ServiceException in case needed request attributes are missed
+     */
+    public static <E extends Entity> String findWithPagination(HttpServletRequest req,
+                                                               AbstractSuperDao<E> dao,
+                                                               String reqAttribute,
+                                                               String searchLinkAttribute,
+                                                               String desiredPage) throws ServiceException {
 
         SafeRequest safeReq = new SafeRequest(req);
         String query = safeReq.get("query").escape().convert();

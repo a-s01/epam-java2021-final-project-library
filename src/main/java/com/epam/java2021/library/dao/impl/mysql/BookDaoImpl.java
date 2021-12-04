@@ -3,6 +3,7 @@ package com.epam.java2021.library.dao.impl.mysql;
 import com.epam.java2021.library.dao.AbstractEntityDao;
 import com.epam.java2021.library.dao.BookDao;
 import com.epam.java2021.library.dao.impl.mysql.util.BaseDao;
+import com.epam.java2021.library.dao.impl.mysql.util.Disjoint;
 import com.epam.java2021.library.dao.impl.mysql.util.SearchSortColumn;
 import com.epam.java2021.library.dao.impl.mysql.util.Transaction;
 import com.epam.java2021.library.entity.impl.Author;
@@ -10,7 +11,6 @@ import com.epam.java2021.library.entity.impl.Book;
 import com.epam.java2021.library.entity.impl.BookStat;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
-import com.epam.java2021.library.dao.impl.mysql.util.Disjoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

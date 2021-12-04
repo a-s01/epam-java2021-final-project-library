@@ -12,6 +12,7 @@ public class ServletAttributes {
     // jsp also
     public static final String SERVICE_ERROR = "serviceError";
     public static final String USER_ERROR = "userError";
+    public static final String USER_ERROR_PARAMS = "userErrorParams";
     public static final String PASS = "password";
     public static final String EMAIL = "email";
     public static final String ATTR_BOOKINGS = "bookings";
@@ -37,9 +38,10 @@ public class ServletAttributes {
     public static final String ATTR_PROCEED_AUTHOR = "proceedAuthor";
     public static final String ATTR_PROCEED_BOOKING = "proceedBooking";
     public static final String ATTR_SAVED_USER_INPUT = "savedUserInput";
+    public static final String ATTR_PRIMARY_AUTHOR_LANG = "primaryAuthorLang";
 
     public static final String JSP_AUTHOR_FORM_NAME = "name";
-    public static final String JSP_AUTHOR_FORM_PRIMARY_LANG = "primaryLang";
+    public static final String ATTR_PRIMARY_LANG = "primaryLang";
     public static final String JSP_FORM_ATTR_ID = "id";
 
 

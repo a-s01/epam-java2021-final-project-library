@@ -13,6 +13,7 @@ public class Author extends ModifiableEntity {
 
     private String name;
     private Map<Lang, String> i18Names;
+    private Lang primaryLang;
 
     private Author(long id, Calendar created, String name, Map<Lang, String> i18Names) {
         super(id, created);
@@ -24,7 +25,7 @@ public class Author extends ModifiableEntity {
         private long id = -1;
         private Calendar modified;
         private String name;
-        private Map<Lang, String> i18Names;
+        private Map<Lang, String> i18Names = new HashMap<>();
 
         public Builder setName(String name) {
             this.name = name;
@@ -39,6 +40,10 @@ public class Author extends ModifiableEntity {
         public Builder setModified(Calendar modified) {
             this.modified = modified;
             return this;
+        }
+
+        public void addI18Name(Lang lang, String name) {
+            i18Names.put(lang, name);
         }
 
         public void setI18Names(List<I18AuthorName> i18Names) {
@@ -104,12 +109,16 @@ public class Author extends ModifiableEntity {
         return i18Names;
     }
 
-    public void setI18Names(Map<Lang, String> i18Names) {
-        this.i18Names = i18Names;
-    }
-
     public void setI18Names(List<I18AuthorName> i18Names) {
         this.i18Names = convertToMap(i18Names);
+    }
+
+    public void setPrimaryLang(Lang lang) {
+        this.primaryLang = lang;
+    }
+
+    public Lang getPrimaryLang() {
+        return primaryLang;
     }
 
     @Override
@@ -132,6 +141,7 @@ public class Author extends ModifiableEntity {
                 "id=" + id +
                 ", modified=" + ModifiableEntity.format(modified) +
                 ", name='" + name + '\'' +
+                ", primaryLang='" + primaryLang + '\'' +
                 ", i18Names=" + i18Names +
                 '}';
     }

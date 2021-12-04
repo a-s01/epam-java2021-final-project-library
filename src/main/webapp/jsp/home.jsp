@@ -1,7 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
+
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -12,6 +10,7 @@
 <l:setList var="list" value="title author isbn year" />
 <c:set var="searchLink" value="${bookSearchLink}" />
 <c:set var="proceedBook" scope="session" value="${null}" />
+
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />

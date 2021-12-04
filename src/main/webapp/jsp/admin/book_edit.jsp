@@ -1,7 +1,5 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
-
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
+
 
 <l:redirectIfEmpty value="${param.command}" errorMsg="No command passed" />
 
@@ -13,6 +11,7 @@
         <c:set value="/jsp/home.jsp" var="cancelLink"/>
     </c:otherwise>
 </c:choose>
+
 <c:choose>
     <c:when test="${not empty savedUserInput}">
         <c:set value="${savedUserInput}" var="book" />
@@ -21,6 +20,7 @@
         <c:set value="${proceedBook}" var="book" />
     </c:otherwise>
 </c:choose>
+
 <c:if test="${param.command eq 'book.add'}">
     <c:set value="header.create.book" var="currentHeader"/>
 </c:if>
@@ -30,6 +30,7 @@
 
 <jsp:useBean id="now" class="java.util.Date" />
 <fmt:formatDate var="thisYear" value="${now}" pattern="yyyy" />
+
 
 <div class="container-sm bg-light border col-sm-6 col-sm-offset-3 my-5 pt-2">
     <div class="container-sm col-sm-10 col-sm-offset-1">
@@ -142,7 +143,7 @@
             </div>
             <div class="row mb-2 my-2">
                 <div class="col-sm container overflow-hidden">
-                    <t:error msg="${userError}" msgParams="${userErrorParams}" />
+                    <t:error />
                     <button type="submit" class="btn btn-primary"><fmt:message key='header.apply'/></button>
                     <a class="btn btn-danger" href="${cancelLink}"><fmt:message key='header.cancel'/></a>
                 </div>

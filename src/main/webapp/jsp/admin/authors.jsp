@@ -1,13 +1,11 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
-<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
 
 
 <c:set var="action" value="author.find" />
 <c:set var="searchLink" value="${authorSearchLink}" />
+<c:set var="proceedAuthor" value="${null}" />
 <l:setList var="list" value="name" />
+
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />
