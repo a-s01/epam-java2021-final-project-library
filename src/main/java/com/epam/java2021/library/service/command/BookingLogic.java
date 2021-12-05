@@ -14,6 +14,7 @@ import com.epam.java2021.library.exception.AjaxException;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
 import com.epam.java2021.library.service.validator.SafeRequest;
+import com.epam.java2021.library.service.validator.SafeSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,6 +70,7 @@ public class BookingLogic {
     private static final Logger logger = LogManager.getLogger(BookingLogic.class);
     private static final DaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     private static final String BOOKING_TRACE = "booking={}";
+    private static final String ATTR_BOOKING_SEARCH_LINK = "booking" + ATTR_SEARCH_LINK;
 
     /**
      * Made private intentionally, no instance is needed by design
@@ -299,13 +301,6 @@ public class BookingLogic {
         HttpSession session = req.getSession();
         // Booking booking
         Booking booking = findBooking(req);
-        User user = (User) session.getAttribute(USER);
-
-        if (user == null) {
-            throw new ServiceException("error.resource.forbidden");
-        }
-
-        String page = user.getRole() == User.Role.LIBRARIAN ? Pages.BOOKING : Pages.BASKET;
         logger.trace("cancel request: booking={}", booking);
 
         if (booking == null) {
@@ -320,7 +315,7 @@ public class BookingLogic {
         if (state == Booking.State.NEW) {
             // nothing was added to DB yet, so just delete and forget
             booking.setBooks(new ArrayList<>());
-            return page;
+            return nextPageLogic(session);
         }
 
         // so state was BOOKED and written to DB
@@ -330,9 +325,24 @@ public class BookingLogic {
         }
         booking.setState(Booking.State.CANCELED);
         booking.setModified(Calendar.getInstance());
-
         daoFactory.getBookingDao().update(booking);
-        req.setAttribute(PAGE, Pages.BASKET);
+        //req.setAttribute(PAGE, Pages.BASKET);
+
+        logger.debug(END_MSG);
+        return nextPageLogic(session);
+    }
+
+    private static String nextPageLogic(HttpSession session) throws ServiceException {
+        logger.debug(START_MSG);
+        SafeSession safeSession = new SafeSession(session);
+
+        String page = new SafeSession(session).get(ATTR_BOOKING_SEARCH_LINK).convert(String.class::cast);
+        if (page == null) {
+            logger.trace("no previous search link in session");
+
+            User currentUser = safeSession.get(USER).notNull().convert(User.class::cast);
+            page = currentUser.getRole() == User.Role.LIBRARIAN ? Pages.BOOKING : Pages.BASKET;
+        }
 
         logger.debug(END_MSG);
         return page;
@@ -362,7 +372,7 @@ public class BookingLogic {
         booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().create(booking);
-
+        req.getSession().removeAttribute(BOOKING);
         logger.debug(END_MSG);
         return Pages.BASKET;
     }
@@ -381,19 +391,15 @@ public class BookingLogic {
      */
     public static String deliver(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
-
-        // Booking booking, boolean subscription
         Booking booking = findBooking(req);
 
         SafeRequest safeRequest = new SafeRequest(req);
         boolean subscription = safeRequest.get("subscription").convert(Boolean::parseBoolean);
-
         logger.trace("booking={}, subscription={}", booking, subscription);
 
         if (booking == null) {
             throw new ServiceException("error.deliver.null.booking");
         }
-
         if (booking.getState() != Booking.State.BOOKED) {
             throw new ServiceException("error.deliver.illegal.state");
         }
@@ -415,7 +421,7 @@ public class BookingLogic {
         dao.update(booking);
 
         logger.debug(END_MSG);
-        return Pages.BOOKING;
+        return nextPageLogic(req.getSession());
     }
 
     /**
@@ -428,12 +434,8 @@ public class BookingLogic {
      */
     public static String done(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
-
-        // Booking booking
         Booking booking = findBooking(req);
-
         logger.trace("done request: booking={}", booking);
-
         if (booking == null) {
             throw new ServiceException("error.done.null.booking");
         }
@@ -452,6 +454,6 @@ public class BookingLogic {
         daoFactory.getBookingDao().update(booking);
 
         logger.debug(END_MSG);
-        return Pages.BOOKING;
+        return nextPageLogic(req.getSession());
     }
 }

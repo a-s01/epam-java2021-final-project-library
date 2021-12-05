@@ -35,7 +35,7 @@
         </c:if>
     </c:when>
     <c:when test="${empty user}">
-        <c:set value="/jsp/home.jsp" var="cancelLink" />
+        <c:set value="/jsp/login.jsp" var="cancelLink" />
         <c:set value="header.register" var="currentHeader"/>
     </c:when>
     <c:otherwise>
@@ -92,6 +92,9 @@
                 <c:when test="${empty notHidden and not empty userToEdit}" >
                     <input name="state" value="${userToEdit.state}" type="hidden">
                     <input name="role" value="${userToEdit.role}" type="hidden">
+                </c:when>
+                <c:when test="${empty userToEdit}" >
+                    <%-- do nothing --%>
                 </c:when>
                 <c:otherwise>
                     <div class="row mb-2">

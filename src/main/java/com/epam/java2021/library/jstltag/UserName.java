@@ -24,7 +24,7 @@ public class UserName extends TagSupport {
         logger.trace("init: user={}", user);
         JspWriter out = pageContext.getOut();
 
-        String name = user.getName() != null ? user.getName() : user.getEmail();
+        String name = user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail();
         try {
             out.print(name);
         } catch(Exception e) {

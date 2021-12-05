@@ -47,7 +47,7 @@ public class SafeRequest extends Safe<String> {
 
     public SafeRequest escape() {
         if (value != null) {
-            value = value.replaceAll("([<>\\*\\+\\?^\\$\\{\\}\\(\\)\\|\\[\\]\\\\])", "\\\\$1");
+            value = value.replaceAll("([<>\\*\\+\\?^\\$\\{\\}\\|\\[\\]\\\\])", "\\\\$1");
         }
         return this;
     }

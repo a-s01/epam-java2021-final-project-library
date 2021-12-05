@@ -21,9 +21,9 @@ public class TestSafeRequest {
 
     @Test
     public void testEscapeNotNullString() throws ServiceException {
-        final String expected = "All of these should be escaped: \\\\ \\^ \\$ \\* \\+ \\? \\( \\) \\| \\{ \\} \\[ \\< \\>" +
+        final String expected = "All of these should be escaped: \\\\ \\^ \\$ \\* \\+ \\? \\| \\{ \\} \\[ \\< \\>" +
                 " \\]";
-        when(request.getParameter(PARAM)).thenReturn("All of these should be escaped: \\ ^ $ * + ? ( ) | { } [ < >" +
+        when(request.getParameter(PARAM)).thenReturn("All of these should be escaped: \\ ^ $ * + ? | { } [ < >" +
                 " ]");
         SafeRequest safe = new SafeRequest(request);
         String result = safe.get(PARAM).notEmpty().escape().convert();

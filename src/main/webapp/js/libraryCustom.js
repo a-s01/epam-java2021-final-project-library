@@ -10,8 +10,10 @@ function addBook(id) {
                         var bookedBooksNumID = "bookedBooksNum";
                         $('#' + id).prop("disabled", true);
                         if (!$("#" + bookedBooksNumID).length) {
+                            var msg = $("#bookedBooksNumParent").html();
+
                             $("#bookedBooksNumParent")
-                                .html(`My booking<span class="position-absolute top-0 start-99 translate-middle badge rounded-pill bg-success" id="${bookedBooksNumID}"></span>`);
+                                .html(`${msg}<span class="position-absolute top-0 start-99 translate-middle badge rounded-pill bg-success" id="${bookedBooksNumID}"></span>`);
                         }
                         $("#" + bookedBooksNumID).text(output);
                         showAndHide('#addedBookAlert');

@@ -118,13 +118,6 @@ public class BookLogic {
             throw new ServiceException("error.invalid.year");
         }
 
-
-        BookDao dao = daoFactory.getBookDao();
-        List<Book> existInDB = dao.findBy(isbn, "isbn");
-        if (!existInDB.isEmpty()) {
-            throw new ServiceException("error.duplicate.book.isbn");
-        }
-
         logger.trace("title={}, year={}, isbn={}, total={}, keepPeriod={}", title, year, isbn, total, keepPeriod);
         logger.trace("authors={}", authors);
         logger.debug(END_MSG);
@@ -155,7 +148,13 @@ public class BookLogic {
 
         try {
             Book book = validateAndGetParams(req);
+
             BookDao dao = daoFactory.getBookDao();
+            List<Book> existInDB = dao.findBy(book.getIsbn(), "isbn");
+            if (!existInDB.isEmpty()) {
+                throw new ServiceException("error.duplicate.book.isbn");
+            }
+
             dao.create(book);
         } catch (ServiceException | DaoException e) {
             req.getSession().setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
