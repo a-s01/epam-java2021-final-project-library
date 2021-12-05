@@ -57,6 +57,7 @@ public class BookingExpireTask extends AbstractPeriodicTask {
 
                 if (pastDays >= daysBeforeExpired) {
                     booking.setState(Booking.State.CANCELED);
+                    dao.update(booking);
                     logger.info("booking (id {}) is expired", booking.getId());
                 }
             }

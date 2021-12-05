@@ -43,7 +43,7 @@ public class CommandContext {
         commands.put("user.add", new AuthContext(UserLogic::add, User.Role.UNKNOWN, User.Role.ADMIN));
         commands.put("user.logout", new AuthContext(UserLogic::logout, User.Role.USER, User.Role.LIBRARIAN,
                 User.Role.ADMIN));
-        commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.ADMIN));
+        commands.put("user.edit", new AuthContext(UserLogic::edit, User.Role.USER, User.Role.LIBRARIAN, User.Role.ADMIN));
         commands.put("user.delete", new AuthContext(UserLogic::delete, User.Role.ADMIN));
         commands.put("user.setLang", new AuthContext(UserLogic::setLang, User.Role.UNKNOWN));
         commands.put("user.basket", new AuthContext(BookingLogic::basket, User.Role.USER));
@@ -53,6 +53,7 @@ public class CommandContext {
         commands.put("author.find", new AuthContext(AuthorLogic::find, User.Role.ADMIN));
         commands.put("author.findAll", new AuthContext(AuthorLogic::findAll, User.Role.ADMIN));
         commands.put("/html/favicon.ico", new AuthContext(null, User.Role.UNKNOWN));
+        commands.put("/favicon.ico", new AuthContext(null, User.Role.UNKNOWN));
 
         commands.put(Pages.ERROR, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.MY_BOOKS, new AuthContext(null, User.Role.USER));
@@ -60,7 +61,7 @@ public class CommandContext {
         commands.put(Pages.HOME, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.ROOT, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.LOGIN, new AuthContext(null, User.Role.UNKNOWN));
-        commands.put(Pages.REGISTER, new AuthContext(null, User.Role.UNKNOWN, User.Role.ADMIN));
+        commands.put(Pages.REGISTER, new AuthContext(null, User.Role.UNKNOWN));
         commands.put(Pages.BOOKING, new AuthContext(null, User.Role.LIBRARIAN));
         commands.put(Pages.USERS, new AuthContext(null, User.Role.ADMIN));
         commands.put(Pages.BOOK_EDIT, new AuthContext(null, User.Role.ADMIN));

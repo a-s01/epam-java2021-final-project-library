@@ -15,7 +15,6 @@ USE `library-app`;
 -- DROP ALL TABLES --
 -- Triggers for a table are also dropped if you drop the table.
 SET FOREIGN_KEY_CHECKS=0; -- for being able to delete cross-referenced tables
-DROP TABLE IF EXISTS editing_history;
 DROP TABLE IF EXISTS book_in_booking;
 DROP TABLE IF EXISTS booking;
 DROP TABLE IF EXISTS book_author;
@@ -70,22 +69,6 @@ CREATE TABLE user (
 	fine_last_checked	DATETIME							NOT NULL	DEFAULT CURRENT_TIMESTAMP
 )
 AUTO_INCREMENT = 100; -- reserved space for system user
-
--- TABLE editing_history --
--- all edits made by user will be added here, the last edit will be saved in edit subject as reference
-CREATE TABLE editing_history (
-	PRIMARY KEY (id),
-	id			INT UNSIGNED				NOT NULL	AUTO_INCREMENT,
-	modified	DATETIME					NOT NULL,
-    edit_by		INT UNSIGNED,
-				FOREIGN KEY (edit_by)
-					REFERENCES user (id)
-					ON DELETE RESTRICT			
-					ON UPDATE CASCADE,
-    description	VARCHAR(200)				NOT NULL,   -- description of change, app must fill it in automatically. 
-														-- Example "table X: attr Y is set to Z"             
-	remark		VARCHAR(500)							-- field for user comment
-);
 
 -- TABLE author --
 CREATE TABLE author (

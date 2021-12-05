@@ -90,6 +90,13 @@ public class User extends ModifiableEntity {
             return this;
         }
 
+        public Builder setState(String state) {
+            if (state !=null) {
+                this.state = State.valueOf(state);
+            }
+            return this;
+        }
+
         public Builder setFine(double fine) {
             this.fine = fine;
             return this;

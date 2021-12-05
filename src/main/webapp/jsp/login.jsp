@@ -1,8 +1,13 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 
-
+<c:if test="${not empty successMsg}">
+    <div class="container-sm pt-2 col-sm-4 col-sm-offset-4">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <fmt:message key="${successMsg}" />. <fmt:message key="message.try.to.login" />
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+</c:if>
 <div class="container-sm pt-2 bg-light border col-sm-4 col-sm-offset-4 my-5 ">
     <div class="row">
         <h1><fmt:message key='header.login'/></h1>
@@ -22,7 +27,8 @@
             </div>
         </div>
         <div class="row my-2">
-            <p class="text-danger fw-bold"><c:if test="${not empty userError}"><fmt:message key='${userError}'/></c:if></p>
+            <%-- <p class="text-danger fw-bold"><c:if test="${not empty userError}"><fmt:message key='${userError}'/></c:if></p> --%>
+            <t:error />
             <div class="col-sm container overflow-hidden">
                 <button type="submit" class="btn btn-primary"><fmt:message key='link.sign.in'/></button>
                 <a href="/jsp/register.jsp?command=user.add" class="btn btn-secondary"><fmt:message key='link.sign.up'/></a>
@@ -30,5 +36,7 @@
         </div>
     </form>
 </div>
+<c:remove var="successMsg" scope="session" />
+<c:remove var="savedUserInput" scope="session" />
+
 <jsp:include page="/WEB-INF/jspf/footer.jsp"/>
-<c:set var="userError" scope="session" value="" />

@@ -169,7 +169,7 @@ public class UserDaoImpl implements UserDao {
         validColumns.checkSearch(searchBy);
         validColumns.checkSort(sortBy);
 
-        final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
+        final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? AND state != 'DELETED' ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
             BaseDao<User> dao = new BaseDao<>(c);
@@ -181,7 +181,7 @@ public class UserDaoImpl implements UserDao {
     public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         logger.debug("start");
         validColumns.checkSearch(searchBy);
-        final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ?";
+        final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ? AND state != 'DELETED'";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {
@@ -195,7 +195,7 @@ public class UserDaoImpl implements UserDao {
     public List<User> findBy(String what, String searchBy) throws ServiceException, DaoException {
         validColumns.checkSearch(searchBy);
 
-        final String query = "SELECT * FROM user WHERE " + searchBy + " = ?";
+        final String query = "SELECT * FROM user WHERE " + searchBy + " = ? AND state != 'DELETED'";
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper(c -> {

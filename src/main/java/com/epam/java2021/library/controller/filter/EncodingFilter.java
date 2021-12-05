@@ -37,7 +37,7 @@ public class EncodingFilter implements Filter {
         }
 
         @Override
-        public void init(FilterConfig conf) throws ServletException {
+        public void init(FilterConfig conf) {
             logger.debug("Filter initialization starts");
             encoding = conf.getInitParameter("encoding");
             logger.trace("Encoding from web.xml: {}", encoding);

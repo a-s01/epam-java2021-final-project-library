@@ -54,7 +54,7 @@ public class LangDetection implements Filter {
         SafeContext context = new SafeContext(req.getServletContext());
         HttpSession session = req.getSession();
 
-        Lang lang = (Lang) session.getAttribute(LANG);
+        Lang lang = (Lang) session.getAttribute(PREFERRED_USER_LANG);
         if (lang != null) {
             logger.trace("found lang in session: {}", lang);
             return;
@@ -70,15 +70,16 @@ public class LangDetection implements Filter {
         }
 
         Lang defaultLang = context.get(DEFAULT_LANG).notNull().convert(Lang.class::cast);
-        session.setAttribute(LANG, defaultLang);
+        session.setAttribute(PREFERRED_USER_LANG, defaultLang);
         logger.trace("fallback to default language: {}", defaultLang);
     }
 
+    @SuppressWarnings("unchecked")
     private Lang checkAndSetLang(SafeContext context, HttpSession session, String language) throws ServiceException {
         List<Lang> supported = context.get(SUPPORTED_LANGUAGES).notNull().convert(List.class::cast);
         for (Lang lang : supported) {
             if (lang.getCode().equals(language)) {
-                session.setAttribute(LANG, lang);
+                session.setAttribute(PREFERRED_USER_LANG, lang);
                 logger.trace("language set successfully: {}", lang);
                 return lang;
             }

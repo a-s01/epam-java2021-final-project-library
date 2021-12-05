@@ -9,7 +9,8 @@
 <c:set var="action" value="book.find" />
 <l:setList var="list" value="title author isbn year" />
 <c:set var="searchLink" value="${bookSearchLink}" />
-<c:set var="proceedBook" scope="session" value="${null}" />
+<c:remove var="proceedBook" scope="session" />
+<c:remove var="proceedUser" scope="session" />
 
 
 <div class="container">

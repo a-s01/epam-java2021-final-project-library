@@ -29,7 +29,7 @@ public class UserName extends TagSupport {
             out.print(name);
         } catch(Exception e) {
             logger.error(e.getMessage());
-
+            throw new JspException(e.getMessage(), e);
         }
 
         return SKIP_BODY;

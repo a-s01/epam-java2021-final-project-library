@@ -120,6 +120,7 @@ public class ContextListener implements ServletContextListener {
         logger.debug(END_MSG);
     }
 
+    @SuppressWarnings("unchecked")
     private void scheduleTask(ServletContext servletContext, TaskScheduler scheduler, String task) {
         logger.trace("proceed task={}", task);
         String taskExecutionPeriod = servletContext.getInitParameter(task);

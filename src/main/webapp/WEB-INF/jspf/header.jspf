@@ -53,28 +53,35 @@
                                     <form action="/controller" method="post">
                                         <input type="hidden" name="command" value="user.setLang">
                                         <input type="hidden" name="lang" value="${lang.code}">
-                                        <input type="hidden" name="url" value="${pageContext.request.requestURL}?${pageContext.request.queryString}">
+                                        <input type="hidden" name="lastVisitedPage" value="${pageContext.request.requestURL}?${pageContext.request.queryString}">
                                         <input class="dropdown-item text-uppercase" type="submit" value="${lang.code}">
                                     </form>
                                 </li>
                             </c:forEach>
                         </ul>
                     </li>
-                    <c:if test="${empty user}">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/jsp/login.jsp"><fmt:message key="link.sign.in"/> | <fmt:message key="link.sign.up"/></a>
-                        </li>
-                    </c:if>
-                    <c:if test="${not empty user}">
-                       <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <fmt:message key="message.hello"/>, <l:userName user="${user}" />
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="/controller?command=user.logout"><fmt:message key="link.logout"/></a></li>
-                            </ul>
-                       </li>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${empty user}">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/jsp/login.jsp"><fmt:message key="link.sign.in"/> | <fmt:message key="link.sign.up"/></a>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                           <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <fmt:message key="message.hello"/>, <l:userName user="${user}" />
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/controller?command=user.edit&id=${user.id}">
+                                            <fmt:message key="header.edit.my.info"/>
+                                        </a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="/controller?command=user.logout"><fmt:message key="link.logout"/></a></li>
+                                </ul>
+                           </li>
+                        </c:otherwise>
+                    </c:choose>
                 </ul>
             </div>
         </nav>

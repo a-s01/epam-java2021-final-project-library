@@ -119,7 +119,7 @@ public class BookingDaoImpl implements BookingDao {
     }
 
     @Override
-    public void delete(long id) throws DaoException {
+    public void delete(long id) {
         throw new UnsupportedOperationException("not yet supported");
     }
 

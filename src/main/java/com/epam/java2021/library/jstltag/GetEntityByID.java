@@ -4,7 +4,6 @@ import com.epam.java2021.library.entity.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class GetEntityByID extends TagSupport {
     }
 
     @Override
-    public int doStartTag() throws JspException {
+    public int doStartTag() {
         logger.trace("init: var={}, lookUpID={}, value={}", var, lookUpID, value);
 
         for (Entity e: value) {

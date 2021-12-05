@@ -39,6 +39,7 @@ public class Debug extends TagSupport {
             out.write("</div>");
         } catch (IOException e) {
             logger.error(e.getMessage());
+            throw new JspException(e.getMessage(), e);
         }
         return SKIP_BODY;
     }

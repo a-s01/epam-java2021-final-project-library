@@ -6,9 +6,18 @@
 <c:set var="action" value="user.find" />
 <l:setList var="list" value="email name role state" />
 <c:set var="searchLink" value="${userSearchLink}" />
+<c:remove var="proceedUser" scope="session" />
 
 <div class="container">
     <t:searchBar searchParameters="${list}" action="${action}" />
+    <c:if test="${not empty successMsg}">
+        <div class="container-sm pt-2 col-sm-4 col-sm-offset-4">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <fmt:message key="${successMsg}" />!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </c:if>
     <div class="container pt-4">
         <c:if test="${not empty users}">
             <table class="table table-hover">
@@ -54,4 +63,5 @@
     </div>
 </div>
 
+<c:remove var="successMsg" scope="session" />
 <jsp:include page="/WEB-INF/jspf/footer.jsp"/>

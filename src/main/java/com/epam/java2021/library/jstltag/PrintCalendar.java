@@ -36,7 +36,7 @@ public class PrintCalendar extends TagSupport {
 
     @Override
     public int doStartTag() throws JspException {
-        logger.trace("init: formatStr={}, calendar={}", calendar);
+        logger.trace("init: formatStr={}, calendar={}", format, calendar);
 
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         JspWriter out = pageContext.getOut();
@@ -48,7 +48,7 @@ public class PrintCalendar extends TagSupport {
                 out.print(sdf.format(calendar.getTime()));
             } catch (Exception e) {
                 logger.error(e.getMessage());
-
+                throw new JspException(e.getMessage(), e);
             }
         }
 

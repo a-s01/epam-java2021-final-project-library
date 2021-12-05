@@ -3,7 +3,7 @@
 <div class="container pt-4">
     <div class="container">
         <h1><fmt:message key='message.sorry'/></h1></div>
-        <p>${serviceError}</p>
+        <p><fmt:message key="${serviceError}"/></p>
     </div>
 </div>
 

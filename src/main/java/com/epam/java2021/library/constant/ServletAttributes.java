@@ -35,9 +35,9 @@ public class ServletAttributes {
     public static final String ATTR_AUTHORS = "authors";
 
     public static final String SUPPORTED_LANGUAGES = "langs";
-    public static final String LANG = "lang";
+    public static final String PREFERRED_USER_LANG = "lang";
     public static final String DEFAULT_LANG = "defaultLang";
-    public static final String URL = "url";
+    public static final String LAST_VISITED_PAGE = "lastVisitedPage";
 
     public static final String ATTR_PROCEED_BOOK = "proceedBook";
     public static final String ATTR_PROCEED_USER = "proceedUser";
@@ -45,6 +45,7 @@ public class ServletAttributes {
     public static final String ATTR_PROCEED_BOOKING = "proceedBooking";
     public static final String ATTR_SAVED_USER_INPUT = "savedUserInput";
     public static final String ATTR_PRIMARY_AUTHOR_LANG = "primaryAuthorLang";
+    public static final String ATTR_SUCCESS_MSG = "successMsg";
 
     public static final String JSP_AUTHOR_FORM_NAME = "name";
     public static final String ATTR_PRIMARY_LANG = "primaryLang";

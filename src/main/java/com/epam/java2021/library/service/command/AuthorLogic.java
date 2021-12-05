@@ -18,7 +18,9 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
@@ -164,16 +166,14 @@ public class AuthorLogic {
     public static String edit(HttpServletRequest req) throws ServiceException, DaoException {
         logger.debug(START_MSG);
 
-        String page;
         try {
-            page = findByIDAndPutInSession(req);
+            return findByIDAndPutInSession(req);
         } catch (ServiceException e) {
             logger.debug("id is not in the request, proceed with author editing");
-            page = updateAuthorFoundInSession(req);
+            return updateAuthorFoundInSession(req);
+        } finally {
+            logger.debug(END_MSG);
         }
-
-        logger.debug(END_MSG);
-        return page;
     }
 
     private static String updateAuthorFoundInSession(HttpServletRequest req) throws ServiceException {

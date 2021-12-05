@@ -10,8 +10,8 @@ import java.util.List;
  * @param <T> type of class in set
  */
 public class Disjoint<T> {
-    private List<T> toDelete;
-    private List<T> toAdd;
+    private final List<T> toDelete;
+    private final List<T> toAdd;
 
     /**
      * @param old     list supposed to be deleted

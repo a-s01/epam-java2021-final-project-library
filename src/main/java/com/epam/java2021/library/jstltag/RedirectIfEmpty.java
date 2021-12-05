@@ -55,13 +55,14 @@ public class RedirectIfEmpty extends TagSupport {
         return SKIP_BODY;
     }
 
-    private int redirect(HttpServletResponse resp) {
+    private int redirect(HttpServletResponse resp) throws JspException {
         HttpSession session = pageContext.getSession();
         session.setAttribute(ServletAttributes.SERVICE_ERROR, errorMsg);
         try {
             resp.sendRedirect(Pages.ERROR);
         } catch (IOException e) {
             logger.error(e.getMessage());
+            throw new JspException(e.getMessage(), e);
         }
 
         return SKIP_BODY;

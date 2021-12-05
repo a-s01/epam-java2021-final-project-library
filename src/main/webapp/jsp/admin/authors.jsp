@@ -3,7 +3,7 @@
 
 <c:set var="action" value="author.find" />
 <c:set var="searchLink" value="${authorSearchLink}" />
-<c:set var="proceedAuthor" value="${null}" />
+<c:remove var="proceedAuthor" scope="session"/>
 <l:setList var="list" value="name" />
 
 
