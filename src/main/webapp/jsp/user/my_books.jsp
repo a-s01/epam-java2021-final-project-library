@@ -1,11 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
-
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<fmt:setLocale value="${lang.code}" />
-<fmt:setBundle basename="i18n" />
 
 <div class="container pt-4">
     <h2><fmt:message key='header.books.in.subscription'/></h2>
@@ -34,7 +27,7 @@
                                     </td>
                                     <td><c:out value="${book.isbn}"/></td>
                                     <td><c:out value="${book.year}"/></td>
-                                    <td class="text-danger fw-bold">
+                                    <td class="fw-bold">
                                         <l:printCalendar calendar="${booking.modified}"
                                             addDays="${book.keepPeriod}" format="yyyy-MM-dd HH:mm:ss"/>
                                     </td>

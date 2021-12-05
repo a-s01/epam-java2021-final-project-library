@@ -1,7 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
-<%@ taglib uri="/WEB-INF/libTags.tld" prefix="l" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
 
 <c:set var="action" value="booking.find" />
 <l:setList var="list" value="state email name" />

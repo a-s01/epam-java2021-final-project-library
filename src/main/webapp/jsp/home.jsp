@@ -1,11 +1,5 @@
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 
-
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<fmt:setLocale value="${lang.code}" />
-<fmt:setBundle basename="i18n" />
-
 <c:set var="action" value="book.find" />
 <l:setList var="list" value="title author isbn year" />
 <c:set var="searchLink" value="${bookSearchLink}" />
