@@ -19,16 +19,26 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.*;
 
+/**
+ * TimerTask which updates user fine in case of non-return books in time
+ */
 public class UpdateFineTask extends AbstractPeriodicTask {
     private static final Logger logger = LogManager.getLogger(UpdateFineTask.class);
     static final String INIT_PARAM_FINE_PER_DAY = UpdateFineTask.class.getName() + ".finePerDay";
     private final DaoFactoryImpl daoFactory;
     private volatile double finePerDay = -1;
 
+    /**
+     * Normal way to use this class
+     */
     public UpdateFineTask() {
         daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     }
 
+    /**
+     * For tests, you can instantiate class with your daoFactory
+     * @param daoFactory will be used to get DAOs
+     */
     public UpdateFineTask(DaoFactoryImpl daoFactory) {
         this.daoFactory = daoFactory;
     }

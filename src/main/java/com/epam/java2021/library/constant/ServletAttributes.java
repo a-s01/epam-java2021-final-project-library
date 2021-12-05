@@ -1,6 +1,12 @@
 package com.epam.java2021.library.constant;
 
+/**
+ * Common attributes used in business logic and JSP
+ */
 public class ServletAttributes {
+    /**
+     * Made private intentionally
+     */
     private ServletAttributes() {}
 
     // Servlet only

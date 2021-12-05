@@ -8,6 +8,9 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.util.List;
 
+/**
+ * Finds entity in provided list by entity's id
+ */
 public class GetEntityByID extends TagSupport {
     private static final Logger logger = LogManager.getLogger(GetEntityByID.class);
     private long lookUpID;
@@ -41,5 +44,4 @@ public class GetEntityByID extends TagSupport {
 
         return SKIP_BODY;
     }
-
 }

@@ -12,7 +12,10 @@ public class BookStat extends Entity {
     private long reserved;
     private long timesWasBooked;
 
-    public BookStat(long id, long total, long inStock, long reserved, long timesWasBooked) {
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
+    private BookStat(long id, long total, long inStock, long reserved, long timesWasBooked) {
         super(id);
         this.total = total;
         this.inStock = inStock;
@@ -20,6 +23,9 @@ public class BookStat extends Entity {
         this.timesWasBooked = timesWasBooked;
     }
 
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         private long total;

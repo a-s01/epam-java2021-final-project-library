@@ -16,6 +16,9 @@ public class Booking extends ModifiableEntity {
     private Place located;
     private List<Book> books;
 
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
     private Booking(long id, Calendar modified, User user, State state, Place located,
                     List<Book> books) {
         super(id, modified);
@@ -25,6 +28,9 @@ public class Booking extends ModifiableEntity {
         this.books = books;
     }
 
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         private Calendar modified;

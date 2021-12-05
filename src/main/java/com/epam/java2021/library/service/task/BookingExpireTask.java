@@ -15,6 +15,9 @@ import java.util.Calendar;
 
 import static com.epam.java2021.library.constant.Common.*;
 
+/**
+ * TimerTask which cancels BOOKED booking after period specified in web.xml time to free the reserved books
+ */
 public class BookingExpireTask extends AbstractPeriodicTask {
     public static final Logger logger = LogManager.getLogger(BookingExpireTask.class);
     static final String INIT_PARAM_PERIOD = BookingExpireTask.class.getName() + ".period";
@@ -22,10 +25,17 @@ public class BookingExpireTask extends AbstractPeriodicTask {
     public final DaoFactoryImpl daoFactory;
     private volatile int daysBeforeExpired = -1;
 
+    /**
+     * Normal way to use this class
+     */
     public BookingExpireTask() {
         this.daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
     }
 
+    /**
+     * For testing purpose
+     * @param daoFactory daoFactory to be used to get daos
+     */
     public BookingExpireTask(DaoFactoryImpl daoFactory) {
         this.daoFactory = daoFactory;
     }

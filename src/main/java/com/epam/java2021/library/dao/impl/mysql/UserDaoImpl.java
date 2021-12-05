@@ -14,14 +14,23 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 
-// TODO think about deleted users
+/**
+ * User DAO. Produce/consume complete entity of {@link com.epam.java2021.library.entity.impl.User} class
+ */
 public class UserDaoImpl implements UserDao {
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
     private static final SearchSortColumn validColumns =
             new SearchSortColumn("email", "name", "role", "state");
     private Connection conn;
 
+    /**
+     * Way to instantiate class from business logic
+     */
     public UserDaoImpl() {}
+
+    /**
+     * Way to instantiate class from other DAO or test
+     */
     public UserDaoImpl(Connection conn) {
         this.conn = conn;
     }
@@ -157,8 +166,8 @@ public class UserDaoImpl implements UserDao {
     public List<User> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
-        validColumns.check(sortBy, SearchSortColumn.SORT);
+        validColumns.checkSearch(searchBy);
+        validColumns.checkSort(sortBy);
 
         final String query = "SELECT * FROM user WHERE " + searchBy + " LIKE ? ORDER BY " + sortBy + " LIMIT ? OFFSET ?";
         Transaction tr = new Transaction(conn);
@@ -171,7 +180,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
         logger.debug("start");
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
         final String query = "SELECT COUNT(*) FROM user WHERE " + searchBy + " LIKE ?";
 
         Transaction tr = new Transaction(conn);
@@ -184,7 +193,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findBy(String what, String searchBy) throws ServiceException, DaoException {
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         final String query = "SELECT * FROM user WHERE " + searchBy + " = ?";
 

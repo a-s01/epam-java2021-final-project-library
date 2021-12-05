@@ -2,7 +2,14 @@ package com.epam.java2021.library.exception;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Indicates errors in work with application, such as:
+ * <ul>
+ *     <li> some needed parameter wasn't provided
+ *     <li> needed parameter is null
+ *     <li> etc
+ * </ul>
+ */
 public class ServiceException extends Exception {
     private static final long serialVersionUID = 1L;
     private final List<String> msgParameters;
@@ -17,6 +24,11 @@ public class ServiceException extends Exception {
         msgParameters = null;
     }
 
+    /**
+     * Used if there's a need to show parametrized and localized error message to user.
+     * @param msg contains parametrized error message
+     * @param msgParameters parameters for the error message
+     */
     public ServiceException(String msg, List<String> msgParameters) {
         super(msg);
         this.msgParameters = msgParameters;

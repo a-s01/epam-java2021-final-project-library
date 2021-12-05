@@ -18,6 +18,11 @@ import java.io.IOException;
 
 import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
 
+/**
+ * Front controller, use Command pattern. It gets user logic by command name, forward request to according Command,
+ * gets next page from it, redirect/forward request to that page for command result to be shown to user
+ * Post requests automatically supports RPG (except AJAX reading requests)
+ */
 @WebServlet("/controller")
 public class Controller extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -65,6 +70,13 @@ public class Controller extends HttpServlet {
         req.getRequestDispatcher(page).forward(req, resp);
     }
 
+    /**
+     * Gets command and executes it
+     *
+     * @param req user request
+     * @return page to be shown to user
+     * @throws AjaxException in case of AJAX request, which is treated in different way by POST requests
+     */
     private String proceed(HttpServletRequest req) throws AjaxException {
         String commandStr = req.getParameter("command");
         logger.trace("commandStr={}, encoding={}", commandStr, req.getCharacterEncoding());

@@ -7,6 +7,10 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+/**
+ * If encoding for incoming request isn't set, set it to one specified in web.xml config
+ * Should be used for all pages (also specified in web.xml)
+ */
 public class EncodingFilter implements Filter {
         private static final Logger logger = LogManager.getLogger(EncodingFilter.class);
         private String encoding;

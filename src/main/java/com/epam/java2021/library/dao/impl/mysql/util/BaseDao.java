@@ -13,9 +13,14 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.*;
 
+/**
+ * Common low level MySQL functions to be used by all DAO
+ * @param <T> Entity with which instance will be working
+ */
 public class BaseDao<T extends Entity> {
     private static final Logger logger = LogManager.getLogger(BaseDao.class);
     public static final int START = 1;
+    public static final String PATTERN_QUERY_LOG = "pattern={}, query={}";
     private final Connection conn;
 
     public BaseDao(Connection conn) {
@@ -39,6 +44,14 @@ public class BaseDao<T extends Entity> {
         return "%" + result + "%";
     }
 
+    /**
+     * Creates entity of given type in DB
+     *
+     * @param entity instance of entity to be created
+     * @param query SQL query to create that instance
+     * @param filler fills statements of such entity types
+     * @throws DaoException in case of error
+     */
     public void create(T entity, String query, StatementFiller<T> filler) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("entity={}, query={}", entity, query);
@@ -62,6 +75,15 @@ public class BaseDao<T extends Entity> {
         }
     }
 
+    /**
+     * Reads entity of given type from DB.
+     *
+     * @param id id of entity to be read
+     * @param query SQL query for reading
+     * @param parser parser for result set which will be returned
+     * @return entity of given type
+     * @throws DaoException in case of error
+     */
     public T read(long id, String query, EntityParser<T> parser) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("id={}, query={}", id, query);
@@ -81,9 +103,17 @@ public class BaseDao<T extends Entity> {
         return null;
     }
 
+    /**
+     * Counts number of rows for given SQL request with LIKE expression.
+     *
+     * @param pattern to be looked up
+     * @param query SQL query using 'LIKE ?'
+     * @return number of rows matched the query
+     * @throws DaoException in case of error
+     */
     public int count(String pattern, String query) throws DaoException {
         logger.debug(START_MSG);
-        logger.trace("pattern={}, query={}", pattern, query);
+        logger.trace(PATTERN_QUERY_LOG, pattern, query);
 
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(START, escapeForLike(pattern));
@@ -100,6 +130,14 @@ public class BaseDao<T extends Entity> {
         return -1;
     }
 
+    /**
+     * Updates entity of given type in DB.
+     *
+     * @param entity to be updated
+     * @param query SQL request
+     * @param filler fills request with entity data
+     * @throws DaoException in case of error
+     */
     public void update(T entity, String query, StatementFiller<T> filler) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("entity={}, query={}", entity, query);
@@ -117,6 +155,13 @@ public class BaseDao<T extends Entity> {
         }
     }
 
+    /**
+     * Deletes from DB entity of given type with such id
+     *
+     * @param id  id of entity, which will be deleted
+     * @param query SQL deleting query
+     * @throws DaoException in case of error
+     */
     public void delete(long id, String query) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("id={}, query={}", id, query);
@@ -152,6 +197,15 @@ public class BaseDao<T extends Entity> {
         }
     }
 
+    /**
+     * Bounds 2 entities in many-to-many relationship table
+     *
+     * @param id id of entity 1 (any subclass of Entity)
+     * @param entity entity of given type
+     * @param query SQL query
+     * @param filler fills statement with info from entity of given type
+     * @throws DaoException in case of errors
+     */
     public void createBound(long id, T entity, String query, StatementFiller<T> filler) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("id={}, entity={}, query={}", id, entity, query);
@@ -172,14 +226,16 @@ public class BaseDao<T extends Entity> {
     }
 
     /**
-     * page starts from 1
-     * @param pattern
-     * @param num
-     * @param page
-     * @param query
-     * @param parser
-     * @return
-     * @throws DaoException
+     * Finds all entities of given type by pattern (LIKE ? expression) with limit and offset.
+     * NB! Page should start from 1
+     *
+     * @param pattern pattern for looking up
+     * @param num limit amount
+     * @param page offset amount equal (page-1)*limit
+     * @param query SQL lookup query
+     * @param parser parses Result set to Entity of given type
+     * @return list of entities of given type
+     * @throws DaoException in case of errors
      */
     public List<T> findByPattern(String pattern, int num, int page, String query, EntityParser<T> parser)
             throws DaoException {
@@ -206,10 +262,19 @@ public class BaseDao<T extends Entity> {
         return list;
     }
 
+    /**
+     * Finds all entities of given type by pattern (LIKE ? expression). No limit and offset are used.
+     *
+     * @param pattern pattern for looking up
+     * @param query SQL lookup query
+     * @param parser parses Result set to Entity of given type
+     * @return list of entities of given type
+     * @throws DaoException in case of errors
+     */
     public List<T> findByPattern(String pattern, String query, EntityParser<T> parser)
             throws DaoException {
         logger.debug(START_MSG);
-        logger.trace("pattern={}, query={}",
+        logger.trace(PATTERN_QUERY_LOG,
                 pattern, query);
 
         List<T> list = new ArrayList<>();
@@ -229,10 +294,19 @@ public class BaseDao<T extends Entity> {
         return list;
     }
 
+    /**
+     * Finds all entities of given type by equals (= ?) expressions. No limit and offset are used.
+     *
+     * @param pattern pattern for looking up
+     * @param query SQL lookup query
+     * @param parser parses Result set to Entity of given type
+     * @return list of entities of given type
+     * @throws DaoException in case of errors
+     */
     public List<T> findByString(String pattern, String query, EntityParser<T> parser)
             throws DaoException {
         logger.debug(START_MSG);
-        logger.trace("pattern={}, query={}",
+        logger.trace(PATTERN_QUERY_LOG,
                 pattern, query);
 
         List<T> list = new ArrayList<>();
@@ -252,6 +326,14 @@ public class BaseDao<T extends Entity> {
         return list;
     }
 
+    /**
+     * Updates bound for 2 entities in many-to-many relationship table.
+     *
+     * @param id1 id of first entity
+     * @param id2 id of second entity
+     * @param query SQL query
+     * @throws DaoException in case of error
+     */
     public void updateBound(long id1, long id2, String query) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("id1={}, id2={}, query={}", id1, id2, query);
@@ -270,7 +352,14 @@ public class BaseDao<T extends Entity> {
         }
     }
 
-
+    /**
+     * Gets all entities of given type by non-parametrised query.
+     *
+     * @param query SQL query
+     * @param parser parses result set to entity of given type
+     * @return list of entities
+     * @throws DaoException in case of error
+     */
     public List<T> getRecords(String query, EntityParser<T> parser) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("query={}", query);
@@ -291,6 +380,15 @@ public class BaseDao<T extends Entity> {
         return list;
     }
 
+    /**
+     * Read entity by unique string identifier.
+     *
+     * @param lookUp string identifier for entity, unique in table
+     * @param query SQL query
+     * @param parser parses result set to entity of given type
+     * @return entity of given type
+     * @throws DaoException in case of error
+     */
     public T read(String lookUp, String query, EntityParser<T> parser) throws DaoException {
         logger.debug(START_MSG);
         logger.trace("key={}, {}", lookUp, query);
@@ -332,6 +430,4 @@ public class BaseDao<T extends Entity> {
 
         return list;
     }
-
-
 }

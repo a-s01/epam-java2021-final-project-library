@@ -10,6 +10,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Initiates Apache Tomcat JDBC pool and gets connection from it by request
+ * Singleton
+ */
 public class ConnectionPool {
     private static final String DB_NAME = "jdbc/library-app";
     private static final Logger logger = LogManager.getLogger(ConnectionPool.class);
@@ -26,6 +30,9 @@ public class ConnectionPool {
         }
     }
 
+    /**
+     * Intentionally private as class is singleton
+     */
     private ConnectionPool() {}
     public static ConnectionPool getInstance() {
         return instance;

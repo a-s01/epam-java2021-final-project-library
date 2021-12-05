@@ -19,6 +19,9 @@ public class Book extends ModifiableEntity {
     private int keepPeriod; // int should be enough for keeping period, it will not be too long
     private List<Author> authors;
 
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
     private Book(long id, Calendar modified, String title, String isbn, int year, String langCode,
                  BookStat bookStat, int keepPeriod, List<Author> authors) {
         super(id, modified);
@@ -30,7 +33,10 @@ public class Book extends ModifiableEntity {
         this.keepPeriod = keepPeriod;
         this.authors = authors;
     }
-    
+
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         private Calendar modified;

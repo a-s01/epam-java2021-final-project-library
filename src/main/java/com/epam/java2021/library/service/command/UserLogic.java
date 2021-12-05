@@ -28,12 +28,20 @@ import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
+/**
+ * Class-util, has only static methods by design. All methods must be related to User entity, like find user, etc.
+ * All public methods here must comply with {@link com.epam.java2021.library.service.command.Command} signature, as
+ * they will be used in CommandContext as lambda-functions and called from Front Controller
+ * {@link com.epam.java2021.library.controller.servlet.Controller}
+ */
 public class UserLogic {
     private static final Logger logger = LogManager.getLogger(UserLogic.class);
     private static final DaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
-    private static final String ERROR_DESCR = "{}: {}";
+    private static final String ERROR_DESCR = "{}={}";
 
-    
+    /**
+     * Made private intentionally, no instance is needed by design
+     */
     private UserLogic() {}
 
     private static User getUser(String email, String password) throws DaoException, ServiceException {
@@ -317,7 +325,7 @@ public class UserLogic {
 
     public static String find(HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
-        return CommonLogic.find(req, daoFactory.getUserDao(), ATTR_USERS, "user", Pages.USERS);
+        return CommonLogicFunctions.findWithPagination(req, daoFactory.getUserDao(), ATTR_USERS, "user", Pages.USERS);
     }
 
     public static String setLang(HttpServletRequest req) throws ServiceException, DaoException {

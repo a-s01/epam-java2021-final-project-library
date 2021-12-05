@@ -10,6 +10,9 @@ import java.util.TimerTask;
 import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
+/**
+ * Schedules TimerTasks and keep track of them to be able to cancel them on demand
+ */
 public class TaskScheduler {
     private static final Logger logger = LogManager.getLogger(TaskScheduler.class);
     private static final TaskScheduler INSTANCE = new TaskScheduler();

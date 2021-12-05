@@ -1,6 +1,12 @@
 package com.epam.java2021.library.constant;
 
+/**
+ * Constants for all pages URL
+ */
 public class Pages {
+    /**
+     * Made private intentionally
+     */
     private Pages() {}
 
     public static final String LOGIN = "/jsp/login.jsp";
@@ -19,5 +25,4 @@ public class Pages {
 
     public static final String JS = "/js/libraryCustom.js";
     public static final String ROOT = "/";
-
 }

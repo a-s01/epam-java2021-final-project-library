@@ -8,6 +8,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Create list out of string, split by spaces, and saves it to pageContext
+ */
 public class SetList extends TagSupport {
     private static final Logger logger = LogManager.getLogger(SetList.class);
     private String var;

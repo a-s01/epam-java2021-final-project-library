@@ -10,12 +10,18 @@ public class I18AuthorName extends Entity {
     private Lang lang;
     private String name;
 
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
     private I18AuthorName(long id, Lang lang, String name) {
         super(id);
         this.lang = lang;
         this.name = name;
     }
 
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         private Lang lang;

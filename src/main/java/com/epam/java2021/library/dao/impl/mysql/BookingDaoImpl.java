@@ -21,6 +21,9 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
+/**
+ * Booking DAO. Produce/consume complete entity of {@link com.epam.java2021.library.entity.impl.Booking} class
+ */
 public class BookingDaoImpl implements BookingDao {
     private static final Logger logger = LogManager.getLogger(BookingDaoImpl.class);
     private static final String BOOKING_COL = "state";
@@ -28,7 +31,14 @@ public class BookingDaoImpl implements BookingDao {
             new SearchSortColumn("email", "name", BOOKING_COL);
     private Connection conn;
 
+    /**
+     * Way to instantiate class from business logic
+     */
     public BookingDaoImpl() {}
+
+    /**
+     * Way to instantiate class from other DAO or test
+     */
     public BookingDaoImpl(Connection conn) {
         this.conn = conn;
     }
@@ -197,7 +207,7 @@ public class BookingDaoImpl implements BookingDao {
         logger.debug(START_MSG);
         logger.trace("what={}, searchBy={}", what, searchBy);
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
         final String query = patternQuery(searchBy, null, false, true);
 
         Transaction tr = new Transaction(conn);
@@ -220,7 +230,7 @@ public class BookingDaoImpl implements BookingDao {
         logger.trace("searchBy={}, sortBy={}, count={}, exactSearch={}",
                 searchBy, sortBy, count, exactSearch);
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         final String searchCol = searchBy.equals(BOOKING_COL) ? "b." + searchBy : "u." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
@@ -232,7 +242,7 @@ public class BookingDaoImpl implements BookingDao {
                 " WHERE " + searchCol + operator;
 
         if (sortBy != null) {
-            validColumns.check(sortBy, SearchSortColumn.SORT);
+            validColumns.checkSort(sortBy);
 
             final String orderCol = sortBy.equals(BOOKING_COL) ? "b." + sortBy : "u." + sortBy;
             query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";

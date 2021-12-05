@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Author entity. Has localisation in DB. Should be instantiated only with Builder help
+ */
 public class Author extends ModifiableEntity {
     private static final long serialVersionUID = 1L;
 
@@ -15,12 +18,18 @@ public class Author extends ModifiableEntity {
     private Map<Lang, String> i18Names;
     private Lang primaryLang;
 
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
     private Author(long id, Calendar created, String name, Map<Lang, String> i18Names) {
         super(id, created);
         this.name = name;
         this.i18Names = i18Names;
     }
 
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         private Calendar modified;

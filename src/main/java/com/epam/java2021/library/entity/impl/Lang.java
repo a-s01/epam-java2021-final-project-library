@@ -6,11 +6,17 @@ public class Lang extends Entity {
     private static final long serialVersionUID = 1L;
     private String code;
 
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
     private Lang(long id, String code) {
         super(id);
         this.code = code;
     }
 
+    /**
+     * Builder pattern
+     */
     public static class Builder {
         private long id = -1;
         String code;

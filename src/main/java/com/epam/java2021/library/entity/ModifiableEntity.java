@@ -3,6 +3,9 @@ package com.epam.java2021.library.entity;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Parent for all modifiable entities
+ */
 public class ModifiableEntity extends Entity {
     protected Calendar modified;
 

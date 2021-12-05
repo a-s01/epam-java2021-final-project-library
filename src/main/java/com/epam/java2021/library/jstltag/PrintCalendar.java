@@ -9,6 +9,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Adds to date specified number of days and outputs the result
+ */
 public class PrintCalendar extends TagSupport {
     private static final Logger logger = LogManager.getLogger(PrintCalendar.class);
 

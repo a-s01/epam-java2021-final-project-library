@@ -12,6 +12,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Redirect to error page if something is empty
+ */
 public class RedirectIfEmpty extends TagSupport {
     private static final Logger logger = LogManager.getLogger(RedirectIfEmpty.class);
     private static final String error = ServletAttributes.SERVICE_ERROR;

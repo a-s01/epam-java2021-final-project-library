@@ -17,15 +17,23 @@ public class User extends ModifiableEntity {
     private Lang preferredLang;
     private Calendar fineLastChecked;
 
+    /**
+     * User roles, used in authorization
+     */
     public enum Role {
         UNKNOWN, USER, LIBRARIAN, ADMIN
     }
+
+    /**
+     * User states
+     */
     public enum State {
         UNKNOWN, VALID, BLOCKED, DELETED
     }
 
     /**
-     * This class also sets defaults for id, role and state. If they are not defined, default values will be applied.
+     * Builder pattern. This class also sets defaults for id, role and state. If they are not defined, default values
+     * will be applied.
      */
     public static class Builder {
         private long id = -1;
@@ -111,13 +119,17 @@ public class User extends ModifiableEntity {
             if (state == null) {
                 state = State.VALID;
             }
-            return new User(id, modified, email, password, salt, role, state, fine, name, preferredLang, fineLastChecked);
+            return new User(id, modified, email, password, salt, role, state, fine, name, preferredLang,
+                    fineLastChecked);
         }
     }
 
-    public User(long id, Calendar modified, String email,
-                String password, String salt, Role role, State state, double fine,
-                String name, Lang preferredLang, Calendar fineLastChecked) {
+    /**
+     * Made private intentionally, use Builder class to instantiate
+     */
+    private User(long id, Calendar modified, String email,
+                 String password, String salt, Role role, State state, double fine,
+                 String name, Lang preferredLang, Calendar fineLastChecked) {
         super(id, modified);
         this.email = email;
         this.password = password;

@@ -17,6 +17,9 @@ import java.util.Locale;
 
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
+/**
+ * Detects language on which application should show requested page
+ */
 public class LangDetection implements Filter {
     private static final Logger logger = LogManager.getLogger(LangDetection.class);
 
@@ -35,6 +38,18 @@ public class LangDetection implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
+    /**
+     * Detection logic:
+     * <ul>
+     *     <li> if session has current language attribute, use it
+     *     <li> if browser has one of supported languages in Accept-Language header, use it (with respect of its
+     *     ordering)
+     *     <li> use default app language from application context
+     * </ul>
+     *
+     * @param req user request
+     * @throws ServiceException if supported languages and default app language are not found in app context
+     */
     private void detectLanguage(HttpServletRequest req) throws ServiceException {
         SafeContext context = new SafeContext(req.getServletContext());
         HttpSession session = req.getSession();
@@ -61,7 +76,7 @@ public class LangDetection implements Filter {
 
     private Lang checkAndSetLang(SafeContext context, HttpSession session, String language) throws ServiceException {
         List<Lang> supported = context.get(SUPPORTED_LANGUAGES).notNull().convert(List.class::cast);
-        for (Lang lang: supported) {
+        for (Lang lang : supported) {
             if (lang.getCode().equals(language)) {
                 session.setAttribute(LANG, lang);
                 logger.trace("language set successfully: {}", lang);

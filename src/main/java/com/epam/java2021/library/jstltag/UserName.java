@@ -8,6 +8,9 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
+/**
+ * Outputs username or their email, if name is empty
+ */
 public class UserName extends TagSupport {
     private static final Logger logger = LogManager.getLogger(UserName.class);
     private User user;

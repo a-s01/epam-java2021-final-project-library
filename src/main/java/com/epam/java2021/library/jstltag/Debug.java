@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.function.Function;
 
+/**
+ * Shows debug info in JSP page: all parameters in request and attributes in request and session.
+ */
 public class Debug extends TagSupport {
     private static final Logger logger = LogManager.getLogger(Debug.class);
 

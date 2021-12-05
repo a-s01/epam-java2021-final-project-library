@@ -4,6 +4,9 @@ import com.epam.java2021.library.dao.*;
 import com.epam.java2021.library.dao.factory.DaoFactoryImpl;
 import com.epam.java2021.library.dao.impl.mysql.*;
 
+/**
+ * DBFactory implementation for MySQL
+ */
 public class MySQLDaoFactory implements DaoFactoryImpl {
 
     @Override

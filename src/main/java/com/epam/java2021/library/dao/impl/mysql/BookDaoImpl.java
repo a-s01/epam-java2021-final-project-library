@@ -23,6 +23,9 @@ import java.util.List;
 import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
+/**
+ * Book DAO. Produce/consume complete entity of {@link com.epam.java2021.library.entity.impl.Book} class
+ */
 public class BookDaoImpl implements BookDao {
     private static final Logger logger = LogManager.getLogger(BookDaoImpl.class);
     private static final SearchSortColumn validColumns =
@@ -260,7 +263,14 @@ public class BookDaoImpl implements BookDao {
 
     private Connection conn;
 
+    /**
+     * Way to instantiate class from business logic
+     */
     public BookDaoImpl() {}
+
+    /**
+     * Way to instantiate class from other DAO or test
+     */
     public BookDaoImpl(Connection conn) {
         this.conn = conn;
     }
@@ -353,7 +363,7 @@ public class BookDaoImpl implements BookDao {
         logger.trace("request: what={}, searchBy={}",
                 what, searchBy);
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
@@ -369,7 +379,7 @@ public class BookDaoImpl implements BookDao {
         logger.trace("request: what={}, searchBy={}",
                 what, searchBy);
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {
@@ -385,8 +395,8 @@ public class BookDaoImpl implements BookDao {
         logger.trace("request: what={}, searchBy={}, sortBy={}, num={}, page={}",
                 what, searchBy, sortBy, num, page);
 
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
-        validColumns.check(sortBy, SearchSortColumn.SORT);
+        validColumns.checkSearch(searchBy);
+        validColumns.checkSort(sortBy);
 
         Transaction tr = new Transaction(conn);
         return tr.noTransactionWrapper( c -> {

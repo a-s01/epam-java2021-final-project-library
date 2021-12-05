@@ -23,6 +23,15 @@ import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
+/**
+ * Used for initialize crucial components for application:
+ * <ul>
+ *     <li> put all supported user roles to application context
+ *     <li> get supported languages from DB and put them to app context
+ *     <li> get default language from web.xml and put it to app context
+ *     <li> get periodic tasks from web.xml, schedule it, and destroy them in case of shut down
+ * </ul>
+ */
 public class ContextListener implements ServletContextListener {
     private static final Logger logger = LogManager.getLogger(ContextListener.class);
     private static final String INIT_PARAMETER_TASK = "TASK";

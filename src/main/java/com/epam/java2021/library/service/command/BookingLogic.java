@@ -30,31 +30,58 @@ import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 /**
- * USER can:
- *  * addBook to NEW booking, deleteBook from NEW booking, book (NEW), cancel (NEW and BOOKED), (//2.0 renew)
- *  * (all NEW bookings are in session (set cookie for later)) ( session ? id in cookie ? check in db for new ? new booking
- *  * see all bookings: request to db, get all booking, c:out (later)
- *  * see books in subscription: request to db, get all books in booking with state DELIVERED and LOCATION = user
- * -> c:out
- *  * see books in specific booking: get bookingID, get books in booking
+ * Class-util, has only static methods by design. All methods must be related to Booking entity, like find booking, etc.
+ * All public methods here must comply with {@link com.epam.java2021.library.service.command.Command} signature, as
+ * they will be used in CommandContext as lambda-functions and called from Front Controller
+ * {@link com.epam.java2021.library.controller.servlet.Controller}
  *
- * LIBRARIAN can:
- *  * deliver (BOOKED), done (DELIVERED), cancel(BOOKED) booking for a user (by bookingID in req)
- *  * search for booking: user(email), booking(state) book(title, author, isbn)
+ * Behaviour depends upon authorized user.
+ * USER role can:
+ * <ul>
+ * <li> add book to a NEW booking
+ * <li> delete book from NEW booking
+ * <li> book NEW booking
+ * <li> cancel NEW/BOOKED booking
+ * <li> see all their booking in any state
+ * <li> see books in specific booking
+ * <li> see books in subscription (means see all books in bookings with state equal to DELIVERED and LOCATION
+ * equal to USER
+ * </ul>
+ * All new booking are saved to session. User can have only one new booking. (//TODO save new booking to DB also)
+ * Look up for new booking should be in such order:
+ * <ul>
+ *      <li> in session? if no:
+ *      <li> in db? if no:
+ *      <li> if needed, create new booking
+ * </ul>
+ *
+ *
+ * LIBRARIAN role can:
+ * <ul>
+ *      <li> deliver BOOKED booking
+ *      <li> done DELIVERED booking
+ *      <li> cancel BOOKED booking
+ *      <li> search for booking by user email or name, by booking state
+ *  </ul>
+ *  For all operation, except search, LIBRARIAN needs bookingID for proceed
  */
-
 public class BookingLogic {
     private static final Logger logger = LogManager.getLogger(BookingLogic.class);
     private static final DaoFactoryImpl daoFactory = DaoFactoryCreator.getDefaultFactory().newInstance();
-    public static final String BOOKING_TRACE = "booking={}";
+    private static final String BOOKING_TRACE = "booking={}";
 
-    private BookingLogic() {}
+    /**
+     * Made private intentionally, no instance is needed by design
+     */
+    private BookingLogic() {
+    }
 
     private static Booking findBooking(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         return findBooking(req, false);
     }
 
-    private static Booking findBooking(HttpServletRequest req, boolean create) throws ServiceException, DaoException, AjaxException {
+    private static Booking findBooking(HttpServletRequest req, boolean create) throws ServiceException, DaoException,
+            AjaxException {
         logger.debug(START_MSG);
         HttpSession session = req.getSession();
 
@@ -113,7 +140,10 @@ public class BookingLogic {
     }
 
     /**
-     * 2 cases: listBooks in particular booking (should have bookingID then) or listBooks on subscription
+     * Finds all booking in state DELIVERED and saves this list to session for further showing to a user
+     *
+     * @param req user request
+     * @return page to be shown to user
      */
     public static String listBookInSubscription(HttpServletRequest req) throws DaoException {
         logger.debug(START_MSG);
@@ -132,14 +162,28 @@ public class BookingLogic {
         return Pages.MY_BOOKS;
     }
 
+    /**
+     * Finds all booking according to pattern with pagination and saves this list to session for further showing to a
+     * user
+     *
+     * @param req user request
+     * @return page to be shown to user
+     */
     public static String find(HttpServletRequest req) throws ServiceException {
         // /booking?command=find - (mb later user) or all (for librarian) bookings
         // only for librarian now
         logger.debug(START_MSG);
         BookingDao dao = daoFactory.getBookingDao();
-        return CommonLogic.find(req, dao, ATTR_BOOKINGS, BOOKING, Pages.BOOKING);
+        return CommonLogicFunctions.findWithPagination(req, dao, ATTR_BOOKINGS, BOOKING, Pages.BOOKING);
     }
 
+    /**
+     * Finds current booking for a user and also all previous bookings. Saves all this to session
+     *
+     * @param req user request
+     * @return page to be shown to user
+     * @throws AjaxException is not thrown from this function
+     */
     public static String basket(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
         HttpSession session = req.getSession();
@@ -167,9 +211,17 @@ public class BookingLogic {
         return Pages.BASKET;
     }
 
+    /**
+     * Add book to new booking, if last doesn't exists, it'll create a new one. Booking will be saved to session
+     * It supposes to work only with AJAX, so as result Ajax exception will be thrown to force Front Controller
+     * treat this request as POST
+     *
+     * @param req user request
+     * @return this never will be returned
+     * @throws AjaxException on state of which will be decided that to show to user
+     */
     public static String addBook(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
-
 
         //Booking booking, long id
         Booking booking = findBooking(req, true); // booking != null guarantied
@@ -202,6 +254,11 @@ public class BookingLogic {
         throw new AjaxException(Pages.XML_SIMPLE_OUTPUT);
     }
 
+    /**
+     * Removes book from a new booking. Supposes to work only as AJAX request, so it'll throw exception anyway
+     *
+     * @throws AjaxException on state of which will be decided that to show to user
+     */
     public static String removeBook(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
@@ -231,13 +288,19 @@ public class BookingLogic {
         return Pages.BASKET;
     }
 
+    /**
+     * Cancel booking. Only NEW and BOOKED bookings can be canceled. Supposes to work only with AJAX requests, so
+     * exception will be thrown anyway.
+     *
+     * @throws AjaxException on state of this will be decided that to show to user
+     */
     public static String cancel(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
         HttpSession session = req.getSession();
         // Booking booking
         Booking booking = findBooking(req);
         User user = (User) session.getAttribute(USER);
-        
+
         if (user == null) {
             throw new ServiceException("error.resource.forbidden");
         }
@@ -261,7 +324,7 @@ public class BookingLogic {
         }
 
         // so state was BOOKED and written to DB
-        for (Book book: booking.getBooks()) {
+        for (Book book : booking.getBooks()) {
             BookStat bookStat = book.getBookStat();
             bookStat.setReserved(bookStat.getReserved() - 1);
         }
@@ -270,11 +333,15 @@ public class BookingLogic {
 
         daoFactory.getBookingDao().update(booking);
         req.setAttribute(PAGE, Pages.BASKET);
-        
+
         logger.debug(END_MSG);
         return page;
     }
 
+    /**
+     * Books booking. Only NEW bookings can be booked. Normal request, so AjaxException will not be thrown here.
+     *
+     */
     public static String book(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
         // Booking booking
@@ -295,11 +362,23 @@ public class BookingLogic {
         booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().create(booking);
-        
+
         logger.debug(END_MSG);
         return Pages.BASKET;
     }
 
+    /**
+     * Delivers booking. Can deliver to USER or to LIBRARY, the last means reading room.
+     * Changes book stats for all books in booking:
+     *  <ul>
+     *      <li> in-house decreased by 1
+     *      <li> reserved increased by 1
+     *  </ul>
+     *
+     * @param req HttpServletRequest
+     * @return page to be shown to user
+     * @throws AjaxException won't be thrown here
+     */
     public static String deliver(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
@@ -325,7 +404,7 @@ public class BookingLogic {
             logger.trace("deliver to user");
         }
 
-        for (Book book: booking.getBooks()) {
+        for (Book book : booking.getBooks()) {
             BookStat stat = book.getBookStat();
             stat.setReserved(stat.getReserved() - 1);
             stat.setInStock(stat.getInStock() - 1);
@@ -334,11 +413,19 @@ public class BookingLogic {
 
         BookingDao dao = daoFactory.getBookingDao();
         dao.update(booking);
-        
+
         logger.debug(END_MSG);
         return Pages.BOOKING;
     }
 
+    /**
+     * Finishes booking. All books from it are returned to library.
+     * It's final state of booking.
+     *
+     * @param req user request
+     * @return page to be shown to user
+     * @throws AjaxException won't be thrown here
+     */
     public static String done(HttpServletRequest req) throws ServiceException, DaoException, AjaxException {
         logger.debug(START_MSG);
 
@@ -356,14 +443,14 @@ public class BookingLogic {
         }
 
         booking.setState(Booking.State.DONE);
-        for (Book book: booking.getBooks()) {
+        for (Book book : booking.getBooks()) {
             BookStat stat = book.getBookStat();
             stat.setInStock(stat.getInStock() + 1);
         }
         booking.setModified(Calendar.getInstance());
 
         daoFactory.getBookingDao().update(booking);
-        
+
         logger.debug(END_MSG);
         return Pages.BOOKING;
     }

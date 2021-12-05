@@ -20,6 +20,9 @@ import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
+/**
+ * Author DAO. Produce/consume complete entity of {@link com.epam.java2021.library.entity.impl.Author} class
+ */
 public class AuthorDaoImpl implements AuthorDao {
     private static final Logger logger = LogManager.getLogger(AuthorDaoImpl.class);
     private static final SearchSortColumn validColumns = new SearchSortColumn("name");
@@ -95,7 +98,13 @@ public class AuthorDaoImpl implements AuthorDao {
 
     private Connection conn;
 
+    /**
+     * Way to instantiate class from business logic
+     */
     public AuthorDaoImpl() {}
+    /**
+     * Way to instantiate class from other DAO or test
+     */
     public AuthorDaoImpl(Connection conn) {
         this.conn = conn;
     }
@@ -252,8 +261,8 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public List<Author> findByPattern(String what, String searchBy, String sortBy, int num, int page)
             throws ServiceException, DaoException {
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
-        validColumns.check(sortBy, SearchSortColumn.SORT);
+        validColumns.checkSearch(searchBy);
+        validColumns.checkSort(sortBy);
 
         String query = patternQuery(false, false, true);
         Transaction tr = new Transaction(conn);
@@ -275,7 +284,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public int findByPatternCount(String what, String searchBy) throws ServiceException, DaoException {
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         final String query = patternQuery(true, false, false);
         Transaction tr = new Transaction(conn);
@@ -287,7 +296,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public List<Author> findBy(String what, String searchBy) throws ServiceException, DaoException {
-        validColumns.check(searchBy, SearchSortColumn.SEARCH);
+        validColumns.checkSearch(searchBy);
 
         final String query = patternQuery(false, true, false);
         Transaction tr = new Transaction(conn);

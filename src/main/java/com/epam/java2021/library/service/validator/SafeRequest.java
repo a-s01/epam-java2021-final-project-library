@@ -4,6 +4,10 @@ import com.epam.java2021.library.exception.ServiceException;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Wrapper for Request {@link com.epam.java2021.library.service.validator.Safe}
+ * Has special functions to work with String, because it's the most needed functionality for request parameters
+ */
 public class SafeRequest extends Safe<String> {
     private final HttpServletRequest req;
 

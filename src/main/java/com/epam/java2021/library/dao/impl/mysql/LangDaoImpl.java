@@ -13,13 +13,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Lang DAO. Produce/consume complete entity of {@link com.epam.java2021.library.entity.impl.Lang} class
+ */
 public class LangDaoImpl implements LangDao {
     private static final Logger logger = LogManager.getLogger(LangDaoImpl.class);
     private Connection conn;
 
+    /**
+     * Way to instantiate class from other DAO or test
+     */
     public LangDaoImpl(Connection conn) {
         this.conn = conn;
     }
+
+    /**
+     * Way to instantiate class from business logic
+     */
     public LangDaoImpl() {}
 
     @Override

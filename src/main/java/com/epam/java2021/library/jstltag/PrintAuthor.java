@@ -12,6 +12,9 @@ import java.io.IOException;
 
 import static com.epam.java2021.library.constant.Common.START_MSG;
 
+/**
+ * Prints Author name in current language or fallback name, if needed
+ */
 public class PrintAuthor extends TagSupport {
     private static final Logger logger = LogManager.getLogger(PrintAuthor.class);
     private Author author;

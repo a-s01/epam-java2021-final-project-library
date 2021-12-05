@@ -28,8 +28,8 @@ import static com.epam.java2021.library.constant.Common.START_MSG;
 import static com.epam.java2021.library.constant.ServletAttributes.*;
 
 /**
- * Class-util, has only static methods. All methods related to Book, such as find book, edit book, etc.
- * All public methods here should comply with {@link com.epam.java2021.library.service.command.Command} signature, as
+ * Class-util, has only static methods. All methods are related to Book, such as find book, edit book, etc.
+ * All public methods here must comply with {@link com.epam.java2021.library.service.command.Command} signature, as
  * they will be used in CommandContext as lambda-functions and called from Front Controller
  * {@link com.epam.java2021.library.controller.servlet.Controller}
  */
@@ -54,7 +54,7 @@ public class BookLogic {
     public static String find(HttpServletRequest req) throws ServiceException {
         logger.debug(START_MSG);
         BookDao dao = daoFactory.getBookDao();
-        return CommonLogic.find(req, dao, ATTR_BOOKS, "book", Pages.HOME);
+        return CommonLogicFunctions.findWithPagination(req, dao, ATTR_BOOKS, "book", Pages.HOME);
     }
 
     private static Book validateAndGetParams(HttpServletRequest req) throws ServiceException, DaoException {
@@ -65,7 +65,7 @@ public class BookLogic {
         String title = safeReq.get("title").notEmpty().escape().convert();
         String isbn = safeReq.get("isbn").notEmpty().escape().convert();
         int year = safeReq.get("year").notEmpty().convert(Integer::parseInt);
-        int keepPeriod = safeReq.get("keepPeriod").notEmpty().convert(Integer::parseInt); // TODO add default value
+        int keepPeriod = safeReq.get("keepPeriod").notEmpty().convert(Integer::parseInt);
         // to JSP
         long total = safeReq.get("total").notEmpty().convert(Long::parseLong);
         String langCode = safeReq.get("langCode").notEmpty().convert();
@@ -211,23 +211,23 @@ public class BookLogic {
         HttpSession session = req.getSession();
         SafeSession safeSession = new SafeSession(req.getSession());
 
-        Book oldVersionOfBook = safeSession.get(ATTR_PROCEED_BOOK).notNull().convert(Book.class::cast);
+        Book oldBookVersion = safeSession.get(ATTR_PROCEED_BOOK).notNull().convert(Book.class::cast);
 
-        Book updatedVersionOfBook;
+        Book updatedBookVersion;
         try {
-            updatedVersionOfBook = validateAndGetParams(req);
+            updatedBookVersion = validateAndGetParams(req);
         } catch (ServiceException | DaoException e) {
             session.setAttribute(ServletAttributes.USER_ERROR, e.getMessage());
             return errorPage;
         }
 
-        updatedVersionOfBook.setId(oldVersionOfBook.getId());
-        session.setAttribute(ATTR_PROCEED_BOOK, updatedVersionOfBook); // for not loosing user edition
-        logger.trace("oldVersionOfBook={}", oldVersionOfBook);
+        updatedBookVersion.setId(oldBookVersion.getId());
+        session.setAttribute(ATTR_PROCEED_BOOK, updatedBookVersion); // for not loosing user edition
+        logger.trace("oldBookVersion={}", oldBookVersion);
 
-        BookStat oldStat = oldVersionOfBook.getBookStat();
+        BookStat oldStat = oldBookVersion.getBookStat();
 
-        long newTotal = updatedVersionOfBook.getBookStat().getTotal();
+        long newTotal = updatedBookVersion.getBookStat().getTotal();
         long booksUsersAreHolding = oldStat.getTotal() - oldStat.getInStock();
         long newInStock = newTotal - booksUsersAreHolding;
 
@@ -245,12 +245,12 @@ public class BookLogic {
 
         oldStat.setTotal(newTotal);
         oldStat.setInStock(newInStock);
-        updatedVersionOfBook.setBookStat(oldStat);
-        logger.trace("updatedVersionOfBook={}", updatedVersionOfBook);
+        updatedBookVersion.setBookStat(oldStat);
+        logger.trace("updatedBookVersion={}", updatedBookVersion);
 
         BookDao dao = daoFactory.getBookDao();
         try {
-            dao.update(updatedVersionOfBook);
+            dao.update(updatedBookVersion);
         } catch (DaoException e) {
             session.setAttribute(ServletAttributes.USER_ERROR,
                     e.getMessage());
@@ -258,7 +258,7 @@ public class BookLogic {
         }
 
         session.removeAttribute(ATTR_PROCEED_BOOK);
-        session.removeAttribute(ATTR_SAVED_USER_INPUT);
+        //session.removeAttribute(ATTR_SAVED_USER_INPUT);
         logger.debug(END_MSG);
 
         return nextPageLogic(req);

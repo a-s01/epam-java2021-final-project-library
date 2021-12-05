@@ -1,5 +1,8 @@
 package com.epam.java2021.library.exception;
 
+/**
+ * Indicates errors in work with DB
+ */
 public class DaoException extends Exception {
     private static final long serialVersionUID = 1L;
 

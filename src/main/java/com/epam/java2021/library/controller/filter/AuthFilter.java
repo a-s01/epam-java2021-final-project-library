@@ -15,6 +15,9 @@ import java.io.IOException;
 
 import static com.epam.java2021.library.constant.ServletAttributes.SERVICE_ERROR;
 
+/**
+ * Checks if current user is authorized to visit page or do command
+ */
 public class AuthFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(AuthFilter.class);
 

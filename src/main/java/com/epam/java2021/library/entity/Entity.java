@@ -2,6 +2,9 @@ package com.epam.java2021.library.entity;
 
 import java.io.Serializable;
 
+/**
+ * Common parent class to all entities
+ */
 public abstract class Entity implements Serializable {
     protected long id;
 
