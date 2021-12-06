@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.epam.java2021.library.constant.Common.END_MSG;
 import static com.epam.java2021.library.constant.Common.START_MSG;
@@ -117,37 +118,38 @@ public class BookDaoImpl implements BookDao {
         public List<Book> findByPattern(String pattern, String searchBy, String sortBy, int num, int page)
                 throws DaoException {
             logger.debug(START_MSG);
-            final String query = patternQuery(searchBy, sortBy, false, false);
-            return dao.findByPattern(pattern, num, page, query, this::parse);
+            final String query = patternQuery(searchBy, sortBy, false);
+            return dao.findByPattern(pattern, num, page, query, this::parse)
+                    .stream()
+                    .distinct()
+                    .collect(Collectors.toList());
         }
 
         public List<Book> findBy(String pattern, String searchBy) throws DaoException {
             logger.debug(START_MSG);
-            final String query = patternQuery(searchBy, null, false, true);
-            return dao.findByString(pattern, query, this::parse);
+            final String query = patternQuery(searchBy, null, true);
+            return dao.findByString(pattern, query, this::parse)
+                    .stream()
+                    .distinct()
+                    .collect(Collectors.toList());
         }
 
-        private String patternQuery(String searchBy, String sortBy, boolean count, boolean exactSearch) {
+        private String patternQuery(String searchBy, String sortBy, boolean exactSearch)  {
             logger.debug(START_MSG);
 
             final String searchCol = searchBy.equals(AUTHOR_COL) ? "a.name" : "b." + searchBy;
-            final String what = count ? "COUNT(*)" : "*";
             final String operator = exactSearch ? " = ?" : " LIKE ?";
 
-            String query =  "SELECT " + what + " FROM book " +
-                    "WHERE id IN ( " +
-                    "SELECT b.id FROM book AS b " +
-                    "  JOIN book_author as ba " +
-                    "ON ba.book_id = b.id " +
-                    "  JOIN author AS a " +
-                    "ON a.id = ba.author_id " +
-                    " WHERE " + searchCol + operator;
+            String query =  "SELECT b.* FROM book AS b " +
+                            "  JOIN book_author as ba " +
+                                "ON ba.book_id = b.id " +
+                            "  JOIN author_name_i18n AS a " +
+                                "ON a.author_id = ba.author_id " +
+                            " WHERE " + searchCol + operator;
 
             if (sortBy != null) {
                 final String orderCol = sortBy.equals(AUTHOR_COL) ? "a.name" : "b." + sortBy;
-                query = query + " ORDER BY " + orderCol + ") LIMIT ? OFFSET ?";
-            } else {
-                query = query + ")";
+                query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
             }
 
             logger.debug(END_MSG);
@@ -157,9 +159,11 @@ public class BookDaoImpl implements BookDao {
         public int findByPatternCount(String pattern, String searchBy)
                 throws DaoException {
             logger.debug(START_MSG);
-
-            final String query = patternQuery(searchBy, null, true, false);
-            return dao.count(pattern, query);
+            final String query = patternQuery(searchBy, null, false);
+            return (int) dao.findByPattern(pattern, query, this::parse)
+                    .stream()
+                    .distinct()
+                    .count();
         }
 
         public List<Book> getBooksInBooking(long id) throws DaoException {
