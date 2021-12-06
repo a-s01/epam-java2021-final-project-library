@@ -187,7 +187,7 @@ public class UserLogic {
 
         if (state.equalsIgnoreCase("valid")) {
             savedUserInputBuilder.setState(User.State.VALID);
-        } else if (!state.isEmpty()) {
+        } else {
             savedUserInputBuilder.setState(User.State.BLOCKED);
         }
 

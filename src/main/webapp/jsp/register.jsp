@@ -93,8 +93,9 @@
                     <input name="state" value="${userToEdit.state}" type="hidden">
                     <input name="role" value="${userToEdit.role}" type="hidden">
                 </c:when>
-                <c:when test="${empty userToEdit}" >
-                    <%-- do nothing --%>
+                <c:when test="${empty userToEdit and empty user}" >
+                    <input name="state" value="VALID" type="hidden">
+                    <input name="role" value="USER" type="hidden">
                 </c:when>
                 <c:otherwise>
                     <div class="row mb-2">
