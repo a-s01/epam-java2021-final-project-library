@@ -1,11 +1,12 @@
 <%@ include file="/WEB-INF/jspf/normal_page_directive.jspf" %>
 
 <c:set var="action" value="booking.find" />
-<l:setList var="list" value="state email name" />
+<l:setList var="list" value="email name" />
 <c:set var="searchLink" value="${bookingSearchLink}" />
 
 <div class="container">
-    <t:searchBar searchParameters="${list}" action="${action}" />
+    <t:searchBar searchParameters="${list}" action="${action}" addFilter="true"/>
+
     <t:listBookings bookings="${bookings}" user="${user}" />
     <c:if test="${not empty bookings}">
         <%@ include file="/WEB-INF/jspf/pagination.jspf" %>

@@ -12,7 +12,7 @@
 
 <c:if test="${not empty bookings}">
     <div class="accordion pt-4" id="bookingAccordion">
-        <div class="accordion-item">
+        <div class="accordion-item HEADER">
             <h5 class="accordion-header" id="head">
             <button class="accordion-button bg-secondary bg-gradient text-white">
                 <div class="container">
@@ -30,7 +30,18 @@
             </h5>
         </div>
         <c:forEach var="booking" items="${bookings}">
-            <div class="accordion-item">
+            <c:choose>
+                <c:when test='${booking.state eq "DELIVERED" and booking.located eq "USER"}'>
+                    <c:set var="toggleClass" value="SUBSCRIPTION" />
+                </c:when>
+                <c:when test="${booking.state eq 'DELIVERED' and booking.located eq 'LIBRARY'}">
+                    <c:set var="toggleClass" value="READING_ROOM" />
+                </c:when>
+                <c:otherwise>
+                    <c:set var="toggleClass" value="${booking.state}" />
+                </c:otherwise>
+            </c:choose>
+            <div class="accordion-item ${toggleClass}">
                 <h2 class="accordion-header" id="heading${booking.id}">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapse${booking.id}" aria-expanded="true"

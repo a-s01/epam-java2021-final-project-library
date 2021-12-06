@@ -104,3 +104,20 @@ function checkPass() {
 function makeValid(el) {
     el.classList.add("is-valid");
 }
+
+function toggleBooking(className) {
+    var bookings = document.getElementsByClassName("accordion-item");
+    for (i=0; i < bookings.length; i++) {
+        var booking = bookings[i];
+        if (className == 'ALL') {
+            booking.hidden = false;
+        } else if (booking.classList.contains('HEADER')) {
+            continue;
+        }
+        else if (booking.classList.contains(className)) {
+            booking.hidden = false;
+        } else {
+            booking.hidden = true;
+        }
+    }
+}

@@ -26,9 +26,10 @@ import static com.epam.java2021.library.constant.Common.START_MSG;
  */
 public class BookingDaoImpl implements BookingDao {
     private static final Logger logger = LogManager.getLogger(BookingDaoImpl.class);
-    private static final String BOOKING_COL = "state";
+    private static final String BOOKING_STATE_COL = "state";
+    private static final String BOOKING_LOCATED_COL = "located";
     private static final SearchSortColumn validColumns =
-            new SearchSortColumn("email", "name", BOOKING_COL);
+            new SearchSortColumn("email", "name", BOOKING_STATE_COL, BOOKING_LOCATED_COL);
     private Connection conn;
 
     /**
@@ -149,8 +150,8 @@ public class BookingDaoImpl implements BookingDao {
         Booking.Builder builder = new Booking.Builder();
 
         builder.setId(rs.getInt("id"));
-        builder.setState(Booking.State.valueOf(rs.getString(BOOKING_COL)));
-        builder.setLocated(Booking.Place.valueOf(rs.getString("located")));
+        builder.setState(Booking.State.valueOf(rs.getString(BOOKING_STATE_COL)));
+        builder.setLocated(Booking.Place.valueOf(rs.getString(BOOKING_LOCATED_COL)));
 
         Timestamp sqlTimestamp = rs.getTimestamp("modified");
         Calendar cal = Calendar.getInstance();
@@ -232,7 +233,8 @@ public class BookingDaoImpl implements BookingDao {
 
         validColumns.checkSearch(searchBy);
 
-        final String searchCol = searchBy.equals(BOOKING_COL) ? "b." + searchBy : "u." + searchBy;
+        final String searchCol = searchBy.equals(BOOKING_STATE_COL) || searchBy.equals(BOOKING_LOCATED_COL)
+                ? "b." + searchBy : "u." + searchBy;
         final String what = count ? "COUNT(*)" : "*";
         final String operator = exactSearch ? " = ?" : " LIKE ?";
 
@@ -244,7 +246,7 @@ public class BookingDaoImpl implements BookingDao {
         if (sortBy != null) {
             validColumns.checkSort(sortBy);
 
-            final String orderCol = sortBy.equals(BOOKING_COL) ? "b." + sortBy : "u." + sortBy;
+            final String orderCol = sortBy.equals(BOOKING_STATE_COL) ? "b." + sortBy : "u." + sortBy;
             query = query + " ORDER BY " + orderCol + " LIMIT ? OFFSET ?";
         }
         return query;
