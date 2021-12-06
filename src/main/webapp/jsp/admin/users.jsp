@@ -7,7 +7,8 @@
 <c:remove var="proceedUser" scope="session" />
 
 <div class="container">
-    <t:searchBar searchParameters="${list}" action="${action}" />
+    <t:searchBar searchParameters="${list}" action="${action}"
+        addButtonHeader="header.create.user" addButtonLink="/jsp/register.jsp?command=user.add" />
     <c:if test="${not empty successMsg}">
         <div class="container-sm pt-2 col-sm-4 col-sm-offset-4">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -52,7 +53,6 @@
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
-        <a class="btn btn-info" href="/jsp/register.jsp?command=user.add"><fmt:message key="header.create.user"/></a>
         <c:if test="${not empty notFound}">
             <div class="container pt-4">
                 <h5><fmt:message key='${notFound}'/></h5>

@@ -8,14 +8,15 @@
 
 <%@ attribute name="action" required="true" %>
 <%@ attribute name="searchParameters" required="true" rtexprvalue="true" type="java.util.List"%>
-
+<%@ attribute name="addButtonHeader"%>
+<%@ attribute name="addButtonLink"%>
 
 <div class="container pt-4">
     <form action="/controller" >
         <input type="hidden" name="command" value="${action}">
         <input type="hidden" name="page" value=1>
         <div class="row align-items-center">
-            <input class="form-control-lg col-6" type="search" name="query"
+            <input class="form-control-lg col-5" type="search" name="query"
                 placeholder="<fmt:message key='search.placeholder.msg'/>"
                 value="<c:out value='${param.query}' />"
             >
@@ -24,7 +25,13 @@
                     data-header="<fmt:message key='header.search.by'/>"
                 >
                     <c:forEach var="attr" items="${searchParameters}">
-                        <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>
+                        <option class="dropdown-item" value="${attr}"
+                            <c:if test="${param.searchBy eq attr}">
+                                selected
+                            </c:if>
+                        >
+                            <fmt:message key="header.${attr}"/>
+                        </option>
                     </c:forEach>
                 </select>
                 <label for="searchBy"><fmt:message key="header.search.by"/></label>
@@ -32,22 +39,35 @@
             <div class="form-floating col-auto" <c:if test="${searchParameters.size() eq 1}">hidden</c:if>>
                 <select class="form-select" name="sortBy" id="sortBy" aria-label="Sort by">
                     <c:forEach var="attr" items="${searchParameters}">
-                        <option class="dropdown-item" value="${attr}"><fmt:message key="header.${attr}"/></option>
+                        <option class="dropdown-item" value="${attr}"
+                            <c:if test="${param.sortBy eq attr}">
+                                selected
+                            </c:if>
+                        >
+                            <fmt:message key="header.${attr}"/>
+                        </option>
                     </c:forEach>
                 </select>
                 <label for="sortBy"><fmt:message key='header.sort.by'/></label>
             </div>
             <div class="form-floating col">
                 <select class="form-select" id="showBy" aria-label="show by" name="num">
-                    <option>5</option>
-                    <option>10</option>
-                    <option>20</option>
+                    <option <c:if test="${param.num eq 5}">selected</c:if> >
+                        5
+                    </option>
+                    <option <c:if test="${param.num eq 10}">selected</c:if> >10</option>
+                    <option <c:if test="${param.num eq 20}">selected</c:if> >20</option>
                 </select>
                 <label for="showBy"><fmt:message key='header.show.by'/></label>
             </div>
             <div class="col">
                 <button type="submit" class="btn btn-primary"><fmt:message key='header.search'/></button>
             </div>
+            <c:if test="${not empty addButtonHeader}" >
+                <div class="col-auto">
+                    <a class="btn btn-info" href="${addButtonLink}"><fmt:message key="${addButtonHeader}"/></a>
+                </div>
+            </c:if>
         </div>
     </form>
 </div>

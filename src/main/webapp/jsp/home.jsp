@@ -8,7 +8,14 @@
 
 
 <div class="container">
-    <t:searchBar searchParameters="${list}" action="${action}" />
+    <c:choose>
+        <c:when test="${not empty user and user.role eq 'ADMIN'}">
+            <t:searchBar searchParameters="${list}" action="${action}" addButtonHeader="header.create.book" addButtonLink="/jsp/admin/book_edit.jsp?command=book.add" />
+        </c:when>
+        <c:otherwise>
+            <t:searchBar searchParameters="${list}" action="${action}" />
+        </c:otherwise>
+    </c:choose>
     <div class="alert alert-success col-sm-6" style="display: none;" role="alert" id="addedBookAlert">
       <fmt:message key='message.book.added'/>
     </div>
@@ -98,9 +105,6 @@
                 </tbody>
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
-        </c:if>
-        <c:if test="${not empty user and user.role eq 'ADMIN'}">
-            <a class="btn btn-info" href="/jsp/admin/book_edit.jsp?command=book.add"><fmt:message key='header.create.book'/></a>
         </c:if>
         <c:if test="${not empty notFound}">
             <div class="container pt-4">

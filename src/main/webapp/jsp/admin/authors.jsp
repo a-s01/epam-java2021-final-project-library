@@ -8,7 +8,8 @@
 
 
 <div class="container">
-    <t:searchBar searchParameters="${list}" action="${action}" />
+    <t:searchBar searchParameters="${list}" action="${action}"
+        addButtonHeader="header.create.author" addButtonLink="/jsp/admin/author_edit.jsp?command=author.add" />
     <div class="container pt-4">
         <c:if test="${not empty authors}">
             <table class="table table-hover">
@@ -48,7 +49,6 @@
             </table>
             <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
         </c:if>
-        <a class="btn btn-info" href="/jsp/admin/author_edit.jsp?command=author.add"><fmt:message key="header.create.author"/></a>
         <c:if test="${not empty notFound}">
             <div class="container pt-4">
                 <h5><fmt:message key='${notFound}'/></h5>

@@ -22,17 +22,19 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     </head>
     <body class="d-flex flex-column min-vh-100">
-        <nav class="navbar navbar-light bg-light">
+        <nav class="navbar navbar-light bg-light ">
             <div class="container-fluid">
                 <a class="navbar-brand h1 pl-4"><fmt:message key='header.brand' /></a>
-                <ul class="nav">
+                <ul class="nav nav-pills">
                     <c:if test="${not empty user and user.role eq 'USER' and user.fine > 0}">
                         <li class="nav-item">
-                            <a class="nav-link text-danger fw-bold"><fmt:message key='header.user.fine' />: <c:out value="${user.fine}"/></a>
+                            <a class="nav-link text-danger fw-bold">
+                                <fmt:message key='header.user.fine' />: <c:out value="${user.fine}"/>
+                            </a>
                         </li>
                     </c:if>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/jsp/home.jsp"><fmt:message key="link.home"/></a>
+                        <a class="nav-link" href="/jsp/home.jsp"><fmt:message key="link.home"/></a>
                     </li>
                     <c:if test="${not empty user and user.role eq 'USER'}">
                         <%@ include file="/WEB-INF/jspf/user/header.jspf" %>
@@ -63,7 +65,7 @@
                     <c:choose>
                         <c:when test="${empty user}">
                             <li class="nav-item">
-                                <a class="nav-link active" href="/jsp/login.jsp"><fmt:message key="link.sign.in"/> | <fmt:message key="link.sign.up"/></a>
+                                <a class="nav-link" href="/jsp/login.jsp"><fmt:message key="link.sign.in"/> | <fmt:message key="link.sign.up"/></a>
                             </li>
                         </c:when>
                         <c:otherwise>
