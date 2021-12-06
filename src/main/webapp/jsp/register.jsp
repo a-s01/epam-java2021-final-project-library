@@ -50,7 +50,7 @@
 
 <div class="container-sm bg-light border col-sm-6 col-sm-offset-3 my-5 pt-2">
     <div class="container-sm col-sm-10 col-sm-offset-1">
-        <div class="row">
+        <div class="row pb-2">
             <h1>
                 <fmt:message key='${currentHeader}'/>
             </h1>
@@ -88,15 +88,21 @@
                     >
                 </div>
             </div>
+            <c:if test="${empty user}" >
+                <t:captcha />
+            </c:if>
             <c:choose>
+                <%-- if existing user edits herself --%>
                 <c:when test="${empty notHidden and not empty userToEdit}" >
                     <input name="state" value="${userToEdit.state}" type="hidden">
                     <input name="role" value="${userToEdit.role}" type="hidden">
                 </c:when>
+                <%-- if user is not authenticated yet and tried to register --%>
                 <c:when test="${empty userToEdit and empty user}" >
                     <input name="state" value="VALID" type="hidden">
                     <input name="role" value="USER" type="hidden">
                 </c:when>
+                <%-- if user is ADMIN and edit not himself --%>
                 <c:otherwise>
                     <div class="row mb-2">
                         <label for="roles" class="col-md-3 col-form-label"><fmt:message key='header.role'/>: </label>

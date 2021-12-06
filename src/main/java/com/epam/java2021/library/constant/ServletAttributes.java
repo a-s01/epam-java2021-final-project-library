@@ -17,6 +17,7 @@ public class ServletAttributes {
 
     // jsp also
     public static final String SERVICE_ERROR = "serviceError";
+    public static final String SERVICE_ERROR_PARAMETERS = "serviceErrorParameters";
     public static final String USER_ERROR = "userError";
     public static final String USER_ERROR_PARAMS = "userErrorParams";
     public static final String PASS = "password";
@@ -29,6 +30,8 @@ public class ServletAttributes {
     public static final String PLAIN_TEXT = "plainText";
     public static final String PAGES_NUM = "pagesNum";
     public static final String ATTR_SEARCH_LINK = "SearchLink";
+    public static final String LOGIN_TRIES_NUMBER = "loginTriesNumber";
+    public static final String CAPTCHA = "captcha";
 
     public static final String ATTR_BOOKS = "books";
     public static final String ATTR_USERS = "users";

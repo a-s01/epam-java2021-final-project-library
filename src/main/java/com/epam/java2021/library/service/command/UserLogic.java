@@ -9,6 +9,7 @@ import com.epam.java2021.library.entity.impl.Lang;
 import com.epam.java2021.library.entity.impl.User;
 import com.epam.java2021.library.exception.DaoException;
 import com.epam.java2021.library.exception.ServiceException;
+import com.epam.java2021.library.service.util.Captcha;
 import com.epam.java2021.library.service.util.PasswordUtil;
 import com.epam.java2021.library.service.validator.SafeContext;
 import com.epam.java2021.library.service.validator.SafeRequest;
@@ -21,7 +22,6 @@ import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.END_MSG;
@@ -128,7 +128,26 @@ public class UserLogic {
         }
 
         newUser.setFineLastChecked(Calendar.getInstance());
+
+        SafeSession safeSession = new SafeSession(req.getSession());
+        User currentUser = safeSession.get(USER).convert(User.class::cast);
+        if (currentUser == null) {
+            checkCaptcha(req);
+        }
+
         return newUser;
+    }
+
+    private static void checkCaptcha(HttpServletRequest req) throws ServiceException {
+        SafeSession safeSession = new SafeSession(req.getSession());
+        Captcha captcha = safeSession.get(CAPTCHA).notNull().convert(Captcha.class::cast);
+
+        SafeRequest safeRequest = new SafeRequest(req);
+        String userInput = safeRequest.get(CAPTCHA).notEmpty().convert();
+
+        if (!userInput.equals(captcha.getToken())) {
+            throw new ServiceException("error.in.captcha");
+        }
     }
 
     /**
@@ -142,15 +161,22 @@ public class UserLogic {
         final String errorPage = Pages.LOGIN;
 
         SafeRequest safeReq = new SafeRequest(req);
+        int loginTriesNumber = getLoginTriesNumber(req);
         try {
+            if (loginTriesNumber > 1) {
+                checkCaptcha(req);
+            }
             String email = safeReq.get("email").notEmpty().asEmail().convert();
             String pass = safeReq.get("password").notEmpty().convert();
             logger.trace("Auth request for email '{}'", email);
 
             HttpSession session = req.getSession();
             User user = authenticateUser(email, pass);
+
             session.setAttribute(USER, user);
             session.setAttribute(PREFERRED_USER_LANG, user.getPreferredLang());
+            session.removeAttribute(LOGIN_TRIES_NUMBER);
+            session.removeAttribute(CAPTCHA);
             logger.trace("Added attributes to session: {}={}, {}={}", USER, user, PREFERRED_USER_LANG,
                     user.getPreferredLang());
 
@@ -161,6 +187,21 @@ public class UserLogic {
         } finally {
             logger.debug(END_MSG);
         }
+    }
+
+    private static int getLoginTriesNumber(HttpServletRequest req) {
+        SafeSession safeSession = new SafeSession(req.getSession());
+
+        int loginTriesNumber = Integer.MAX_VALUE;
+        try {
+            loginTriesNumber = safeSession.get(LOGIN_TRIES_NUMBER).notNull().convert(Integer.class::cast);
+            loginTriesNumber++;
+        } catch (ServiceException e) {
+            loginTriesNumber = 1;
+        } finally {
+            req.getSession().setAttribute(LOGIN_TRIES_NUMBER, loginTriesNumber);
+        }
+        return loginTriesNumber;
     }
 
     private static User getValidParams(HttpServletRequest req) throws ServiceException {
@@ -181,7 +222,7 @@ public class UserLogic {
             try {
                 savedUserInputBuilder.setRole(role.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new ServiceException("error.wrong.user.role", Collections.singletonList(role));
+                throw new ServiceException("error.wrong.user.role", role);
             }
         }
 
@@ -323,7 +364,7 @@ public class UserLogic {
             UserDao dao = daoFactory.getUserDao();
             User user = dao.read(userID);
             if (user == null) {
-                throw new ServiceException("error.user.not.found", Collections.singletonList(String.valueOf(userID)));
+                throw new ServiceException("error.user.not.found", String.valueOf(userID));
             }
             session.setAttribute(ATTR_PROCEED_USER, user);
         } catch (DaoException | ServiceException e) {

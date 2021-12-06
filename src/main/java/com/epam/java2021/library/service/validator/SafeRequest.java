@@ -32,7 +32,7 @@ public class SafeRequest extends Safe<String> {
 
     public SafeRequest notEmpty() throws ServiceException {
         if (value == null || value.equals("")) {
-            throw new ServiceException(param + " cannot be empty.");
+            throw new ServiceException("error.parameter.is.empty", param);
         }
 
         return this;
@@ -40,7 +40,7 @@ public class SafeRequest extends Safe<String> {
 
     public SafeRequest asEmail() throws ServiceException {
         if (value == null || !value.matches("^[\\p{LD}\\\\._-]+@[\\p{LD}\\\\._-]+\\.[\\p{L}]{2,6}$")) {
-            throw new ServiceException(param + " should be valid email");
+            throw new ServiceException("error.invalid.email", value);
         }
         return this;
     }

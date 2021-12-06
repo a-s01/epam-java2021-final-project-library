@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import static com.epam.java2021.library.constant.Common.END_MSG;
@@ -133,7 +132,7 @@ public class AuthorLogic {
         Author existed = dao.read(author.getName());
         if (existed != null) {
             throw new ServiceException("error.such.author.name.exists",
-                    Collections.singletonList(author.getName()));
+                    author.getName());
         }
 
         for (I18AuthorName i18name: author.getI18NamesAsList()) {
@@ -141,7 +140,7 @@ public class AuthorLogic {
             existed = dao.read(nameTranslation);
             if (existed != null && existed.getName(i18name.getLang()).equals(nameTranslation)) {
                 throw new ServiceException("error.such.author.name.exists",
-                        Collections.singletonList(i18name.getName()));
+                        i18name.getName());
             }
         }
     }

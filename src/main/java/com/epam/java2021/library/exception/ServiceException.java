@@ -1,6 +1,7 @@
 package com.epam.java2021.library.exception;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 /**
  * Indicates errors in work with application, such as:
@@ -29,9 +30,9 @@ public class ServiceException extends Exception {
      * @param msg contains parametrized error message
      * @param msgParameters parameters for the error message
      */
-    public ServiceException(String msg, List<String> msgParameters) {
+    public ServiceException(String msg, String... msgParameters) {
         super(msg);
-        this.msgParameters = msgParameters;
+        this.msgParameters = Arrays.asList(msgParameters);
     }
 
     public List<String> getMsgParameters() {

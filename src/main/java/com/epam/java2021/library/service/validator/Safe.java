@@ -22,13 +22,13 @@ public abstract class Safe<K> {
         try {
             return converter.process(value);
         } catch (IllegalArgumentException e) {
-            throw new ServiceException(param + " has wrong type: " + e.getMessage());
+            throw new ServiceException("error.parameter.wrong.type", param);
         }
     }
 
     public Safe<K> notNull() throws ServiceException {
         if (value == null) {
-            throw new ServiceException(param + " cannot be empty.");
+            throw new ServiceException("error.parameter.is.empty", param);
         }
         return this;
     }
